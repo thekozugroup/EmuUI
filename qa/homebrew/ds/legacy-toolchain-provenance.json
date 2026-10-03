@@ -1,0 +1,24 @@
+{
+  "retrieved_utc_date": "2026-10-03",
+  "reason": "Pinned melonDS f6692df predates 2024-11-17 Calico compatibility changes; isolate using libnds 1.8.3 and pre-Calico ARM7 input service.",
+  "libnds": {
+    "version": "1.8.3-1",
+    "url": "https://pkg.devkitpro.org/packages/libnds-1.8.3-1-any.pkg.tar.zst",
+    "sha256": "43d0f23710b7b44e8d674fb0e976a31a0553c0e4663faf134fbd99c03e6e4af9",
+    "license": "zlib",
+    "verification": "Downloaded directly via HTTPS from the official devkitPro package repository. Observed SHA-256 pins these bytes; unlike first-build current packages this archived package was not present in the current repository database."
+  },
+  "arm7_source": {
+    "url": "https://raw.githubusercontent.com/devkitPro/nds-examples/d4f7f4fcdce77ca9adfb42ff9ff90c67e22ac01b/templates/combined/arm7/source/template.c",
+    "sha256": "ed11edc815092acbec41a8cd1837fea39d4e624d1ee7b697930981cfc2dcb5de",
+    "license": "zlib",
+    "changes": "Removed Wi-Fi and maxmod/audio FIFO integrations, preserving input, touch, RTC, system FIFO and power handling. Original copyright/license retained in arm7-legacy.c."
+  },
+  "other_build_inputs": "Same devkitARM GCC/binutils/newlib and ndstool package versions as toolchain-provenance.json; legacy devkitARM CRT instead of Calico (MPL-2.0).",
+  "excluded": "Neither Calico nor downloaded default-arm7 packages are linked into the legacy fixture.",
+  "upstream_compatibility_evidence": [
+    "https://github.com/devkitPro/nds-examples/issues/18",
+    "https://github.com/melonDS-emu/melonDS/commit/584508230f",
+    "https://github.com/JesseTG/melonDS/commit/f6692df"
+  ]
+}

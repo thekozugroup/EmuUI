@@ -1,0 +1,8 @@
+# QA game binaries and compiler outputs are local-only.
+*.nds
+*.elf
+*.o
+*.map
+*.bin
+*.manifest.json
+build/

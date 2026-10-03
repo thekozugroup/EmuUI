@@ -1,0 +1,27 @@
+EmuUI is an independently modified Lemuroid distribution.
+
+Frontend source: https://github.com/thekozugroup/EmuUI
+Lemuroid source: https://github.com/Swordfish90/Lemuroid/tree/53752bf29bc3f95c50f6c38f70cd4a53450a7098
+License: GNU General Public License version 3; original file notices are retained.
+Full license included in GPL-3.0.txt.
+
+LibretroDroid 0.13.2, by Filippo Scognamiglio / Swordfish90
+License: GNU General Public License version 3
+Corresponding source: https://github.com/Swordfish90/LibretroDroid/tree/0ebd299624bfd51a0a1336dd0a2c56fe7ddbc0e3
+
+PadKit 1.0.0-beta1, by Filippo Scognamiglio / Swordfish90
+License: Apache License 2.0 (included in Apache-2.0.txt)
+Project: https://github.com/Swordfish90/PadKit
+
+AndroidX libraries, including Jetpack Compose and Material 3, are provided by
+The Android Open Source Project under the Apache License 2.0. Existing embedded
+component license and notice resources are retained.
+
+This dynamic-core APK does not bundle console emulator cores. When obtained
+separately, every core retains its own license and source obligations.
+Dynamic download tag 1.17.0: https://github.com/Swordfish90/LemuroidCores/tree/1194b7dcc6208f8dd62b55b66753fde7838dbc91
+Optional bundled-core source pin: https://github.com/Swordfish90/LemuroidCores/tree/fee2e824525daa22bcf318f96127fe43fa8a15ad
+No game ROMs or BIOS files are provided by EmuUI.
+
+Third-party software is not relicensed by the EmuUI name. See the corresponding
+source dependency metadata and original notices for additional components.

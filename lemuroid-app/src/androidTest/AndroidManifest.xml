@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- AGP supplies the runner name. -PemuuiGameTests=true selects the isolated game test APK. -->
+    <instrumentation
+        android:name="androidx.test.runner.AndroidJUnitRunner"
+        android:targetPackage="com.thekozugroup.emuui.debug"
+        android:targetProcesses="${emuuiTestTargetProcesses}" />
+</manifest>

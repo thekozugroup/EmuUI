@@ -1,0 +1,49 @@
+name: Android checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - run: python3 qa/check_publication.py
+      - run: python3 -m unittest discover -s qa/homebrew/ds -p test_header.py
+      - run: python3 -m unittest discover -s qa -p test_metadata_archive.py
+      - run: ./gradlew :lemuroid-app:ktlintCheck :lemuroid-metadata-libretro-db:ktlintCheck :lemuroid-app:testFreeDynamicDebugUnitTest :lemuroid-app:lintFreeDynamicDebug :lemuroid-app:assembleFreeDynamicDebug --max-workers=2 -Dorg.gradle.parallel=false -Pkotlin.compiler.execution.strategy=in-process --no-configuration-cache
+      - name: Prepare preview download
+        run: |
+          mkdir -p preview
+          cp lemuroid-app/build/outputs/apk/freeDynamic/debug/lemuroid-app-free-dynamic-debug.apk preview/EmuUI-preview-debug.apk
+          cp COPYING preview/COPYING
+          printf '%s\n' \
+            'EmuUI development preview, rebuilt by GitHub Actions.' \
+            "Source: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/tree/${GITHUB_SHA}" \
+            'See source docs/QA.md for artifact-specific tests and known limits.' \
+            'This CI debug APK is not byte-identical to the locally tested APK.' \
+            'Debug keys may differ between builds; in-place upgrades are not guaranteed.' \
+            'Do not delete an installation containing saves without a verified backup.' \
+            > preview/README.txt
+          (cd preview && sha256sum EmuUI-preview-debug.apk > SHA256SUMS.txt)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: emuui-preview-${{ github.sha }}
+          path: preview/
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: emuui-qa-${{ github.sha }}
+          path: lemuroid-app/build/reports

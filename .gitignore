@@ -1,0 +1,35 @@
+build/
+out/
+dist/
+bin/
+gen/
+captures/
+classes/
+projectFilesBackup/
+project.properties
+.DS_Store
+.idea
+*.iml
+*.iws
+*.swp
+.cxx
+.gradle
+.kotlin/
+__pycache__/
+*.pyc
+*.hprof
+.externalNativeBuild
+local.properties
+release.jks
+
+# Never publish signing material or local SDK/QA artifacts
+*.keystore
+*.jks
+*.p12
+*.pem
+*.apk
+*.aab
+local.properties
+
+# Local verification products
+.qa-output/

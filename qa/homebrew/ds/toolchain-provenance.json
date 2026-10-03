@@ -1,0 +1,83 @@
+{
+  "repository": "https://pkg.devkitpro.org/packages/",
+  "retrieved_utc_date": "2026-10-03",
+  "verification": "Each archive SHA-256 matched the official repository database. No system installation or explicit legal-agreement acceptance was performed.",
+  "packages": [
+    {
+      "NAME": "devkitARM",
+      "VERSION": "r68-1",
+      "SHA256SUM": "7c5dd0864f7dab505fbe9cf7699100a90f15bb8563b858740064f9842db48370",
+      "LICENSE": "GPL",
+      "url": "https://pkg.devkitpro.org/packages/devkitARM-r68-1-any.pkg.tar.zst"
+    },
+    {
+      "NAME": "general-tools",
+      "VERSION": "1.4.4-1",
+      "SHA256SUM": "b6b59bd3d22d4f83a7f0668f749df7cf97b1f05083031e629d43ca4f4377c7b5",
+      "LICENSE": "ISC",
+      "url": "https://pkg.devkitpro.org/packages/linux/x86_64/general-tools-1.4.4-1-x86_64.pkg.tar.zst"
+    },
+    {
+      "NAME": "ndstool",
+      "VERSION": "2.3.1-1",
+      "SHA256SUM": "f8849b055f119cd5fe9fc1f2ebdd466dd3de12892eee50c40b72c3ff20688371",
+      "LICENSE": "GPL",
+      "url": "https://pkg.devkitpro.org/packages/linux/x86_64/ndstool-2.3.1-1-x86_64.pkg.tar.zst"
+    },
+    {
+      "NAME": "devkitarm-rules",
+      "VERSION": "1.6.0-4",
+      "SHA256SUM": "35023b2b5f07a2dcfb600063854c712206341fb5df3ffbaf8ff825d3cbc15fcc",
+      "LICENSE": "custom",
+      "url": "https://pkg.devkitpro.org/packages/devkitarm-rules-1.6.0-4-any.pkg.tar.zst"
+    },
+    {
+      "NAME": "devkitarm-crtls",
+      "VERSION": "1.2.6-1",
+      "SHA256SUM": "65faf10f62c219a1a8a3a182b0c4c56da7992599035ea32b3d79e39e79f964bb",
+      "LICENSE": "custom",
+      "url": "https://pkg.devkitpro.org/packages/devkitarm-crtls-1.2.6-1-any.pkg.tar.zst"
+    },
+    {
+      "NAME": "libnds",
+      "VERSION": "2.0.2-1",
+      "SHA256SUM": "ed7ab1b1879e97bbc11accf1a1a56ebdf6cb303e07ae1fba495a317d3a9057be",
+      "LICENSE": "zlib",
+      "url": "https://pkg.devkitpro.org/packages/libnds-2.0.2-1-any.pkg.tar.zst"
+    },
+    {
+      "NAME": "default-arm7",
+      "VERSION": "0.8.4-4",
+      "SHA256SUM": "0847cf734611bc97e1729c2482b0527cbf83bbefd34e9cf0e3e5ea998e47ab4e",
+      "LICENSE": "zlib",
+      "url": "https://pkg.devkitpro.org/packages/default-arm7-0.8.4-4-any.pkg.tar.zst"
+    },
+    {
+      "NAME": "calico",
+      "VERSION": "1.2.0-1",
+      "SHA256SUM": "54117cf7697192c59944cf47c98617ae3f684b7bb24ac4bb3d17248f3abbe90d",
+      "LICENSE": "Zope",
+      "url": "https://pkg.devkitpro.org/packages/calico-1.2.0-1-any.pkg.tar.zst"
+    },
+    {
+      "NAME": "devkitarm-binutils",
+      "VERSION": "2.46.0-1",
+      "SHA256SUM": "fbca692c5b30008bef6b54c6b6cb48b6a03a656d7cc07beafa4dc7fdaa5838cf",
+      "LICENSE": "spdx:GPL-3.0-or-later AND GPL-2.0-or-later AND LGPL-3.0-or-later AND LGPL-2.0-or-later",
+      "url": "https://pkg.devkitpro.org/packages/linux/x86_64/devkitarm-binutils-2.46.0-1-x86_64.pkg.tar.zst"
+    },
+    {
+      "NAME": "devkitarm-gcc",
+      "VERSION": "16.1.0-1",
+      "SHA256SUM": "289be1a7a42321e02d8dad037acfdfbbe73cfe283b685b4d3860a2e946ea92d0",
+      "LICENSE": "spdx:GPL-3.0-or-later",
+      "url": "https://pkg.devkitpro.org/packages/linux/x86_64/devkitarm-gcc-16.1.0-1-x86_64.pkg.tar.zst"
+    },
+    {
+      "NAME": "devkitarm-newlib",
+      "VERSION": "4.6.0.20260123-5",
+      "SHA256SUM": "d314c644c143bd5b104bd82cdc27602f6449cf907cb9c37ccfb8c0707182f89d",
+      "url": "https://pkg.devkitpro.org/packages/devkitarm-newlib-4.6.0.20260123-5-any.pkg.tar.zst"
+    }
+  ]
+}

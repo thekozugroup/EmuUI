@@ -1,0 +1,3 @@
+*.nes
+manifest.json
+__pycache__/
