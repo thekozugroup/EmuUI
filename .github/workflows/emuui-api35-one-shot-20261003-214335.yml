@@ -1,0 +1,475 @@
+name: EmuUI API35 one-shot cloud QA
+'on':
+  push:
+    branches: ['qa/api35-native-20261003-214335']
+    paths: ['.github/workflows/emuui-api35-one-shot-20261003-214335.yml']
+permissions:
+  contents: read
+jobs:
+  api35:
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/qa/api35-native-20261003-214335' && github.event.before == 'bcda1e61370f7690045cd1121581838c2a56122d' && github.run_attempt == 1 }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Checkout frozen source
+        uses: actions/checkout@v4
+        with:
+          repository: thekozugroup/EmuUI
+          ref: bcda1e61370f7690045cd1121581838c2a56122d
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Materialize reviewed QA harness outside source
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/emuui-api35-plan"
+          cat > "$RUNNER_TEMP/emuui-api35-plan/device_driver.py" <<'EMUUI_DRAFT_EOF'
+          #!/usr/bin/env python3
+          """Draft: observable ADB/UIAutomator driver; no app-db/URI/core seeding."""
+          import argparse
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          import re
+          import subprocess
+          import time
+          import xml.etree.ElementTree as ET
+          
+          PKG = 'com.thekozugroup.emuui.debug'
+          MAIN = PKG + '/com.swordfish.lemuroid.app.mobile.feature.main.MainActivity'
+          CORE = 'files/cores/1.17.0/libfceumm_libretro_android.so'
+          CORE_SHA = 'c10d9d4bc1c70c1eb62357429c0fc3df005a58099ef1ff6a5e1984c60e5980b1'
+          
+          class Device:
+              def __init__(self, out):
+                  self.out = Path(out)
+                  self.out.mkdir(parents=True, exist_ok=True)
+                  self.adb = [os.environ.get('ADB', 'adb'), '-s', os.environ.get('ANDROID_SERIAL', 'emulator-5554')]
+                  self.i = 0
+          
+              def run(self, *args, check=True, timeout=45, raw=False):
+                  return subprocess.run(self.adb + list(args), stdin=subprocess.DEVNULL,
+                                        capture_output=True, text=not raw, timeout=timeout, check=check)
+          
+              def shell(self, *args, **kwargs):
+                  return self.run('shell', '-n', *args, **kwargs)
+          
+              def snap(self, label):
+                  self.out.joinpath(label + '.png').write_bytes(self.run('exec-out', 'screencap', '-p', raw=True).stdout)
+                  self.out.joinpath(label + '-activity.txt').write_text(self.shell('dumpsys', 'activity', 'activities').stdout)
+          
+              def tree(self):
+                  self.i += 1
+                  self.shell('uiautomator', 'dump', '/sdcard/emuui-qa-window.xml', timeout=30)
+                  data = self.run('exec-out', 'cat', '/sdcard/emuui-qa-window.xml').stdout
+                  self.out.joinpath(f'ui-{self.i:03}.xml').write_text(data)
+                  return ET.fromstring(data)
+          
+              def wait(self, predicate, seconds=90):
+                  end = time.monotonic() + seconds
+                  last = None
+                  while time.monotonic() < end:
+                      try:
+                          root = self.tree()
+                          if predicate(root):
+                              return root
+                      except (ET.ParseError, subprocess.SubprocessError) as error:
+                          last = str(error)
+                      time.sleep(2)
+                  self.snap('blocked')
+                  raise RuntimeError(f'Expected visible UI not reached within {seconds}s; last error={last}')
+          
+              @staticmethod
+              def nodes(root, *, text=None, desc=None, rid=None, package=None):
+                  def match(n):
+                      a = n.attrib
+                      return ((text is None or a.get('text', '').casefold() == text.casefold()) and
+                              (desc is None or a.get('content-desc', '').casefold() == desc.casefold()) and
+                              (rid is None or a.get('resource-id') == rid) and
+                              (package is None or a.get('package') == package) and
+                              a.get('enabled', 'true') == 'true')
+                  return [n for n in root.iter('node') if match(n)]
+          
+              def tap(self, root, **selector):
+                  matches = self.nodes(root, **selector)
+                  if len(matches) != 1:
+                      raise RuntimeError(f'Expected unique observed selector {selector}, found {len(matches)}')
+                  xy = [int(x) for x in re.findall(r'\d+', matches[0].attrib['bounds'])]
+                  if len(xy) != 4 or xy[2] <= xy[0] or xy[3] <= xy[1]:
+                      raise RuntimeError('Invalid visible tap bounds')
+                  self.snap(f'before-tap-{self.i:03}')
+                  self.shell('input', 'tap', str((xy[0] + xy[2]) // 2), str((xy[1] + xy[3]) // 2))
+          
+              def home_ready(self):
+                  return self.wait(lambda r: self.nodes(r, desc='EmuUI home', package=PKG) and
+                                   self.nodes(r, desc='Import games folder', package=PKG))
+          
+              def launch(self, label):
+                  self.shell('am', 'force-stop', PKG)
+                  start = time.monotonic()
+                  launch = self.shell('am', 'start', '-W', '-a', 'android.intent.action.MAIN', '-c', 'android.intent.category.LAUNCHER', '-n', MAIN, timeout=120)
+                  self.out.joinpath(label + '-launch.txt').write_text(launch.stdout + launch.stderr)
+                  self.home_ready()
+                  self.snap(label + '-cold')
+                  cold_pid = self.shell('pidof', PKG).stdout.strip()
+                  assert cold_pid, 'No main process'
+                  self.shell('input', 'keyevent', 'KEYCODE_HOME')
+                  time.sleep(2)
+                  self.shell('am', 'start', '-W', '-a', 'android.intent.action.MAIN', '-c', 'android.intent.category.LAUNCHER', '-n', MAIN)
+                  self.home_ready()
+                  self.snap(label + '-warm')
+                  warm_pid = self.shell('pidof', PKG).stdout.strip()
+                  self.out.joinpath(label + '-startup.json').write_text(json.dumps({
+                      'status': 'HOME_READY_SEMANTICS', 'coldPid': cold_pid, 'warmPid': warm_pid,
+                      'sameProcessOnWarmReturn': cold_pid == warm_pid,
+                      'elapsedSeconds': round(time.monotonic() - start, 2),
+                      'visualReview': 'REQUIRED: inspect cold and warm PNGs before claiming rendered UI pass',
+                  }, indent=2) + '\n')
+                  assert cold_pid == warm_pid, 'Main process restarted during warm return'
+          
+              def import_nes(self):
+                  log_path = self.out.parent / 'full-logcat.txt'
+                  assert log_path.is_file(), 'Live logcat evidence is required'
+                  log_offset = log_path.stat().st_size
+                  # This must still be a clean same-job QA install. Never restore/seed a core.
+                  assert self.shell('run-as', PKG, 'test', '-e', CORE, check=False).returncode != 0, 'Expected absent core before import'
+                  self.out.joinpath('core-before.json').write_text(json.dumps({'path': CORE, 'exists': False}) + '\n')
+                  self.shell('am', 'start', '-W', '-a', 'android.intent.action.MAIN', '-c', 'android.intent.category.LAUNCHER', '-n', MAIN)
+                  root = self.home_ready()
+                  self.tap(root, desc='Import games folder', package=PKG)
+                  root = self.wait(lambda r: self.nodes(r, text='EmuUI-QA', package='com.android.documentsui') or
+                                   self.nodes(r, desc='Show roots', package='com.android.documentsui'))
+                  # With Download/EmuUI-QA staged, navigate only the real picker. No fabricated URI grant.
+                  if not self.nodes(root, text='EmuUI-QA', package='com.android.documentsui'):
+                      self.tap(root, desc='Show roots', package='com.android.documentsui')
+                      root = self.wait(lambda r: self.nodes(r, text='Downloads', rid='android:id/title', package='com.android.documentsui'))
+                      self.tap(root, text='Downloads', rid='android:id/title', package='com.android.documentsui')
+                      root = self.wait(lambda r: self.nodes(r, text='EmuUI-QA', package='com.android.documentsui'))
+                  self.tap(root, text='EmuUI-QA', package='com.android.documentsui')
+                  root = self.wait(lambda r: self.nodes(r, text='Use this folder', package='com.android.documentsui'))
+                  # Exact fresh screenshot/XML retained before the permission action.
+                  self.tap(root, text='Use this folder', package='com.android.documentsui')
+                  root = self.wait(lambda r: self.nodes(r, text='Allow', rid='android:id/button1'))
+                  visible = ' '.join(n.attrib.get('text', '') for n in root.iter('node'))
+                  assert 'EmuUI-QA' in visible, f'Unexpected folder grant dialog: {visible}'
+                  self.tap(root, text='Allow', rid='android:id/button1')
+                  self.wait(lambda r: self.nodes(r, text='EmuUI_QA', package=PKG) and
+                            self.nodes(r, text='EmuUI_QA_Second', package=PKG), seconds=180)
+                  self.snap('imported-library')
+                  self.out.joinpath('uri-grants.txt').write_text(self.shell('dumpsys', 'activity', 'providers').stdout)
+                  # Guest networking is untouched. App scan should enqueue its normal core update.
+                  start = time.monotonic()
+                  while time.monotonic() - start < 600:
+                      found = self.shell('run-as', PKG, 'sha256sum', CORE, check=False)
+                      with log_path.open('rb') as stream:
+                          stream.seek(log_offset)
+                          log = stream.read().decode(errors='replace')
+                      success = re.findall(r'Worker result SUCCESS for Work \[ id=([^,]+), tags=\{[^\n]*CoreUpdateWork[^\n]*', log)
+                      attempted = 'Downloading core FCEUMM from github' in log
+                      if found.returncode == 0 and found.stdout.split()[0] == CORE_SHA and success and attempted:
+                          self.out.joinpath('guest-core-sha256.txt').write_text(found.stdout)
+                          self.out.joinpath('core-acquisition.json').write_text(json.dumps({
+                              'status': 'VERIFIED_ABSENT_TO_KNOWN_HASH', 'core': CORE,
+                              'sha256': CORE_SHA, 'coreWorkerSuccessIds': success, 'downloadAttemptObserved': attempted, 'elapsedSeconds': round(time.monotonic() - start, 2),
+                              'method': 'Real app scan/core worker with unchanged network and no seed',
+                              'reference': 'https://github.com/Swordfish90/LemuroidCores/raw/1.17.0/lemuroid_core_fceumm/src/main/jniLibs/x86_64/libfceumm_libretro_android.so',
+                              'limit': 'Core worker success plus absence-to-hash evidence; native execution is asserted by the separate recreation test',
+                          }, indent=2) + '\n')
+                          return
+                      time.sleep(4)
+                  self.snap('core-acquisition-blocked')
+                  raise RuntimeError('No matching real guest-downloaded FCEUMM core within 600s; preserve logs and diagnose; do not seed a substitute')
+          
+          
+          def assert_tests(path, expected):
+              content = Path(path).read_text(errors='replace')
+              codes = [int(s) for s in re.findall(r'^INSTRUMENTATION_STATUS_CODE: (-?\d+)\s*$', content, re.M)]
+              assert f'OK ({expected} test' in content, 'Missing expected runner OK count'
+              assert codes.count(0) == expected, f'Only {codes.count(0)} explicit passing statuses; expected {expected}'
+              assert not [c for c in codes if c < 0], f'Failure/error/ignored/assumption statuses: {codes}'
+              assert 'INSTRUMENTATION_CODE: -1' in content, 'Missing successful instrumentation completion'
+              assert 'INSTRUMENTATION_FAILED' not in content and 'FAILURES!!!' not in content
+              print(json.dumps({'status': 'PASS', 'tests': expected, 'ignored': 0, 'source': path}))
+          
+          if __name__ == '__main__':
+              ap = argparse.ArgumentParser()
+              ap.add_argument('command', choices=['launch', 'import', 'assert-tests'])
+              ap.add_argument('--out', default='device-evidence')
+              ap.add_argument('--label', default='same-job')
+              ap.add_argument('--log')
+              ap.add_argument('--count', type=int)
+              args = ap.parse_args()
+              if args.command == 'assert-tests':
+                  assert_tests(args.log, args.count)
+              else:
+                  device = Device(args.out)
+                  if args.command == 'launch': device.launch(args.label)
+                  else: device.import_nes()
+          EMUUI_DRAFT_EOF
+          cat > "$RUNNER_TEMP/emuui-api35-plan/run-api35.sh" <<'EMUUI_DRAFT_EOF'
+          #!/usr/bin/env bash
+          # Draft only. Do not execute before the coordinator's runner/KVM authorization.
+          # All scripts/results are outside the source checkout. Only this disposable QA AVD is modified.
+          set -Eeuo pipefail
+          : "${GITHUB_ACTIONS:?Run only in the authorized disposable GitHub hosted job}"
+          : "${RUNNER_TEMP:?}"
+          # One explicitly dispatched attempt only; a rerun is a new permission decision.
+          [[ "${GITHUB_EVENT_NAME:-}" == push ]]
+          [[ "${GITHUB_REF:-}" == refs/heads/qa/api35-native-20261003-214335 ]]
+          python3 - "${GITHUB_EVENT_PATH:?}" <<'EMUUI_PUSH_GUARD'
+          import json,sys
+          with open(sys.argv[1]) as stream: event=json.load(stream)
+          assert event['before'] == 'bcda1e61370f7690045cd1121581838c2a56122d', 'Only the first workflow commit atop the frozen base is authorized'
+          assert event['ref'] == 'refs/heads/qa/api35-native-20261003-214335'
+          assert not event.get('deleted', False) and not event.get('forced', False)
+          EMUUI_PUSH_GUARD
+          [[ "${GITHUB_RUN_ATTEMPT:-}" == 1 ]] || { echo "Reruns are not covered by the one-job approval"; exit 3; }
+          : "${ANDROID_HOME:?GitHub runner Android SDK required}"
+          SOURCE_COMMIT=bcda1e61370f7690045cd1121581838c2a56122d
+          SOURCE_TREE=4ccd5611177e814de41b0a4dce02f71d3b63fbed
+          EXACT_CI_SHA=21064c15bd69be4c0e34382eac147a7f5e1741899964d78703d8337925b1fe6f
+          PKG=com.thekozugroup.emuui.debug
+          REPO="$(realpath "${REPO:-$PWD}")"
+          PLAN="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+          OUT="${OUT:-$RUNNER_TEMP/emuui-api35-evidence}"
+          WORK="${WORK:-$RUNNER_TEMP/emuui-api35-work}"
+          mkdir -p "$OUT" "$WORK"
+          OUT="$(realpath "$OUT")"; WORK="$(realpath "$WORK")"
+          case "$OUT/" in "$REPO/"*) echo 'Evidence must be outside source'; exit 2;; esac
+          case "$WORK/" in "$REPO/"*) echo 'Work must be outside source'; exit 2;; esac
+          export ANDROID_SDK_ROOT="$ANDROID_HOME"
+          export ANDROID_USER_HOME="$WORK/android-home"
+          export ANDROID_AVD_HOME="$WORK/avd"
+          export ANDROID_SERIAL=emulator-5554
+          export ADB="$ANDROID_HOME/platform-tools/adb"
+          export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+          mkdir -p "$ANDROID_USER_HOME" "$ANDROID_AVD_HOME" "$WORK/apks"
+          adb_device=("$ADB" -s "$ANDROID_SERIAL")
+          STAGE=preflight
+          EMULATOR_PID=''; LOGCAT_PID=''
+          finish() {
+            rc=$?
+            trap - EXIT
+            set +e
+            printf '%s\n' "$STAGE" > "$OUT/last-stage.txt"
+            printf '%s\n' "$rc" > "$OUT/process-exit-code.txt"
+            if [[ -n "$EMULATOR_PID" ]]; then
+              timeout 30 "${adb_device[@]}" logcat -b crash -d -v threadtime > "$OUT/crash-buffer.txt" 2>&1
+              timeout 30 "${adb_device[@]}" shell -n dumpsys activity lastanr > "$OUT/last-anr.txt" 2>&1
+              timeout 30 "${adb_device[@]}" shell -n dumpsys package "$PKG" > "$OUT/package-final.txt" 2>&1
+              timeout 30 "${adb_device[@]}" shell -n dumpsys activity processes > "$OUT/processes-final.txt" 2>&1
+              timeout 20 "${adb_device[@]}" exec-out screencap -p > "$OUT/final-screen.png" 2> "$OUT/final-screen-error.txt"
+              timeout 20 "${adb_device[@]}" emu kill > "$OUT/emulator-stop.txt" 2>&1
+              for _ in $(seq 1 10); do kill -0 "$EMULATOR_PID" 2>/dev/null || break; sleep 1; done
+              kill "$EMULATOR_PID" 2>/dev/null || true
+              wait "$EMULATOR_PID" 2>/dev/null
+            fi
+            [[ -z "$LOGCAT_PID" ]] || kill "$LOGCAT_PID" 2>/dev/null
+            git -C "$REPO" status --porcelain > "$OUT/source-status-final.txt"
+            (cd "$OUT" && find . -type f ! -name SHA256SUMS.txt -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS.txt)
+            exit "$rc"
+          }
+          trap finish EXIT
+          [[ "$(git -C "$REPO" rev-parse HEAD)" == "$SOURCE_COMMIT" ]]
+          [[ "$(git -C "$REPO" rev-parse HEAD^{tree})" == "$SOURCE_TREE" ]]
+          [[ -z "$(git -C "$REPO" status --porcelain)" ]]
+          printf 'source_commit=%s\nsource_tree=%s\n' "$SOURCE_COMMIT" "$SOURCE_TREE" > "$OUT/source.txt"
+          printf 'runner_os=%s\nrunner_arch=%s\nrunner_name=%s\n' "$RUNNER_OS" "$RUNNER_ARCH" "$RUNNER_NAME" > "$OUT/runner.txt"
+          uname -a >> "$OUT/runner.txt"
+          id >> "$OUT/runner.txt"
+          stat -c '%F %U:%G %a %n' /dev/kvm | tee "$OUT/kvm-before.txt"
+          [[ -c /dev/kvm ]]
+          if [[ ! -r /dev/kvm || ! -w /dev/kvm ]]; then
+            # This variable is a safety latch, never a substitute for actual user approval.
+            [[ "${EMUUI_KVM_CHANGE_APPROVED:-false}" == true ]] || {
+              echo 'BLOCKED: sudo chgrp runner /dev/kvm requires the pending user approval'; exit 3;
+            }
+            [[ "$(stat -c '%a' /dev/kvm)" == 660 ]]
+            [[ "$(id -gn)" == runner ]]
+            sudo chgrp runner /dev/kvm
+          fi
+          [[ -r /dev/kvm && -w /dev/kvm ]]
+          [[ "$(stat -c '%a' /dev/kvm)" == 660 ]]
+          stat -c '%F %U:%G %a %n' /dev/kvm | tee "$OUT/kvm-after.txt"
+          
+          STAGE=sdk-install
+          # Only official SDK packages. Standard requested SDK terms are already approved.
+          # If sdkmanager needs additional/unexpected terms, stop; do not blanket-accept them.
+          sdkmanager --channel=0 'platform-tools' 'platforms;android-35' 'build-tools;34.0.0' \
+            'emulator' 'system-images;android-35;default;x86_64' < /dev/null 2>&1 | tee "$OUT/sdk-install.txt"
+          emulator -version > "$OUT/emulator-version.txt" 2>&1
+          emulator -accel-check 2>&1 | tee "$OUT/acceleration-check.txt"
+          cp "$ANDROID_HOME/emulator/source.properties" "$OUT/emulator-source.properties"
+          cp "$ANDROID_HOME/system-images/android-35/default/x86_64/source.properties" "$OUT/system-image-source.properties"
+          java -version > "$OUT/java-version.txt" 2>&1
+          
+          STAGE=build-paired-apks
+          cd "$REPO"
+          gradle_flags=(--max-workers=2 -Dorg.gradle.parallel=false -Pkotlin.compiler.execution.strategy=in-process --no-configuration-cache --no-daemon)
+          ./gradlew :lemuroid-app:assembleFreeDynamicDebug :lemuroid-app:assembleFreeDynamicDebugAndroidTest \
+            "${gradle_flags[@]}" 2>&1 | tee "$OUT/build-default.txt"
+          cp lemuroid-app/build/outputs/apk/freeDynamic/debug/lemuroid-app-free-dynamic-debug.apk "$WORK/apks/EmuUI-same-job.apk"
+          test_apk="$(find lemuroid-app/build/outputs/apk/androidTest -name '*.apk' -type f)"
+          [[ "$(printf '%s\n' "$test_apk" | wc -l)" -eq 1 && -f "$test_apk" ]]
+          cp "$test_apk" "$WORK/apks/EmuUI-default-tests.apk"
+          ./gradlew :lemuroid-app:assembleFreeDynamicDebugAndroidTest -PemuuiGameTests=true \
+            "${gradle_flags[@]}" 2>&1 | tee "$OUT/build-game.txt"
+          cp "$test_apk" "$WORK/apks/EmuUI-game-tests.apk"
+          (cd "$WORK/apks" && sha256sum *.apk) > "$OUT/apk-sha256.txt"
+          for apk in "$WORK"/apks/*.apk; do
+            "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --verbose --print-certs "$apk" > "$OUT/$(basename "$apk").signature.txt"
+          done
+          python3 - "$OUT" <<'PY'
+          from pathlib import Path
+          import re,sys
+          files=list(Path(sys.argv[1]).glob('*.signature.txt'))
+          assert len(files)==3
+          certs=[re.findall(r'Signer #1 certificate SHA-256 digest: (\w+)',p.read_text())[0] for p in files]
+          assert len(set(certs))==1, 'App and both test APKs must have the same certificate; stop rather than bypass'
+          PY
+          # Copy APK outputs to evidence so the runtime-tested build can be retained. No keys are copied.
+          mkdir -p "$OUT/apks"; cp "$WORK"/apks/*.apk "$OUT/apks/"
+          
+          STAGE=boot-api35
+          printf 'no\n' | avdmanager create avd -n EmuUI_API35_CI --package 'system-images;android-35;default;x86_64' > "$OUT/avd-create.txt" 2>&1
+          cat >> "$ANDROID_AVD_HOME/EmuUI_API35_CI.avd/config.ini" <<'AVD'
+          hw.lcd.width=1280
+          hw.lcd.height=720
+          hw.lcd.density=240
+          hw.initialOrientation=landscape
+          hw.keyboard=yes
+          hw.ramSize=2048
+          showDeviceFrame=no
+          AVD
+          # KVM is mandatory. Do not fall back to software CPU emulation and mislabel it.
+          emulator -avd EmuUI_API35_CI -port 5554 -accel on -gpu swiftshader \
+            -no-window -no-audio -no-boot-anim -no-snapshot -cores 2 -memory 2048 \
+            -skin 1280x720 -prop persist.sys.locale=en-US > "$OUT/emulator.log" 2>&1 &
+          EMULATOR_PID=$!
+          ready=false
+          for _ in $(seq 1 120); do
+            kill -0 "$EMULATOR_PID" || { echo 'Emulator exited'; exit 4; }
+            if [[ "$(timeout 8 "${adb_device[@]}" shell -n getprop sys.boot_completed 2>/dev/null | tr -d '\r' || true)" == 1 ]]; then ready=true; break; fi
+            sleep 3
+          done
+          [[ "$ready" == true ]] || { echo 'Boot deadline reached'; exit 4; }
+          "${adb_device[@]}" shell -n getprop > "$OUT/guest-properties.txt"
+          [[ "$("${adb_device[@]}" shell -n getprop ro.build.version.sdk | tr -d '\r')" == 35 ]]
+          [[ "$("${adb_device[@]}" shell -n id -u | tr -d '\r')" == 2000 ]] # Normal shell; never adb root.
+          "${adb_device[@]}" shell -n input keyevent KEYCODE_WAKEUP
+          "${adb_device[@]}" shell -n wm dismiss-keyguard
+          "${adb_device[@]}" logcat -v threadtime > "$OUT/full-logcat.txt" 2>&1 &
+          LOGCAT_PID=$!
+          sleep 15
+          "${adb_device[@]}" exec-out screencap -p > "$OUT/boot.png"
+          
+          STAGE=optional-exact-ci-startup
+          if [[ -n "${EXACT_CI_APK:-}" ]]; then
+            # Optional pre-staged, already-authorized input. No artifact-token scope expansion.
+            printf '%s  %s\n' "$EXACT_CI_SHA" "$EXACT_CI_APK" | sha256sum --check
+            "${adb_device[@]}" install -t "$EXACT_CI_APK"
+            python3 "$PLAN/device_driver.py" launch --out "$OUT/exact-ci" --label exact-ci
+            # Only this just-created disposable installation exists here; never a user device.
+            "${adb_device[@]}" uninstall "$PKG"
+          else
+            printf '%s\n' 'NOT RUN: exact CI APK was not available through existing read permissions; native tests below apply only to same-source same-job APK.' > "$OUT/exact-ci-status.txt"
+          fi
+          
+          STAGE=same-job-startup
+          "${adb_device[@]}" install -t "$WORK/apks/EmuUI-same-job.apk"
+          "${adb_device[@]}" install -t "$WORK/apks/EmuUI-default-tests.apk"
+          "${adb_device[@]}" shell -n pm list instrumentation > "$OUT/default-instrumentation-manifest.txt"
+          python3 "$PLAN/device_driver.py" launch --out "$OUT/same-job" --label same-job
+          
+          STAGE=six-fixture-free-tests
+          timeout 900 "${adb_device[@]}" shell -n am instrument -w -r \
+            -e class com.swordfish.lemuroid.app.mobile.feature.main.MainActivitySmokeTest,com.swordfish.lemuroid.app.mobile.feature.main.InjectedFoldLayoutTest \
+            "$PKG.test/androidx.test.runner.AndroidJUnitRunner" 2>&1 | tee "$OUT/six-tests.txt"
+          python3 "$PLAN/device_driver.py" assert-tests --log "$OUT/six-tests.txt" --count 6
+          printf '%s\n' 'PASS: 6 real instrumented smoke/layout tests, with no ignored or assumed tests. Screenshot visual review remains separate.' > "$OUT/milestone-1.txt"
+          
+          if [[ "${RUN_NATIVE_STAGE:-true}" == true ]]; then
+            source "$PLAN/run-native-stage.sh"
+          fi
+          STAGE=completed-pending-evidence-review
+          EMUUI_DRAFT_EOF
+          cat > "$RUNNER_TEMP/emuui-api35-plan/run-native-stage.sh" <<'EMUUI_DRAFT_EOF'
+          #!/usr/bin/env bash
+          # Draft milestone 2. Source from run-api35.sh, or run with the same disposable
+          # emulator alive and REPO, WORK, OUT, ANDROID_HOME, ANDROID_SERIAL set.
+          set -Eeuo pipefail
+          : "${GITHUB_ACTIONS:?Authorized disposable runner required}"
+          : "${REPO:?}"
+          : "${WORK:?}"
+          : "${OUT:?}"
+          : "${ANDROID_HOME:?}"
+          : "${ANDROID_SERIAL:?}"
+          PLAN="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+          PKG=com.thekozugroup.emuui.debug
+          export ADB="${ADB:-$ANDROID_HOME/platform-tools/adb}"
+          adb_device=("$ADB" -s "$ANDROID_SERIAL")
+          [[ -f "$OUT/milestone-1.txt" ]]
+          [[ -f "$WORK/apks/EmuUI-game-tests.apk" ]]
+          [[ "$("${adb_device[@]}" shell -n getprop ro.build.version.sdk | tr -d '\r')" == 35 ]]
+          [[ "$("${adb_device[@]}" shell -n id -u | tr -d '\r')" == 2000 ]]
+          STAGE=stage-original-homebrew
+          mkdir -p "$WORK/homebrew"
+          # Generator writes beside itself, so copy original source outside the checkout first.
+          cp "$REPO/qa/homebrew/build_qa_rom.py" "$WORK/homebrew/"
+          python3 "$WORK/homebrew/build_qa_rom.py" | tee "$OUT/homebrew-build.txt"
+          python3 - "$WORK/homebrew" <<'PY'
+          from pathlib import Path
+          import hashlib,json,sys
+          p=Path(sys.argv[1]); data=bytearray((p/'EmuUI_QA.nes').read_bytes())
+          # Same established original second-fixture method: one unused PRG padding byte.
+          assert data[16+0x3FF0]==0
+          # 16-byte iNES header + offset 0x3FF0 is unused padding before the vectors.
+          data[16+0x3FF0]=1
+          (p/'EmuUI_QA_Second.nes').write_bytes(data)
+          (p/'second-manifest.json').write_text(json.dumps({'license':'CC0-1.0','provenance':'Original QA cartridge; one unused PRG padding byte changed for a distinct hash','sha256':hashlib.sha256(data).hexdigest()},indent=2)+'\n')
+          PY
+          cp "$WORK/homebrew/manifest.json" "$OUT/homebrew-manifest.json"
+          cp "$WORK/homebrew/second-manifest.json" "$OUT/homebrew-second-manifest.json"
+          "${adb_device[@]}" shell -n mkdir -p /sdcard/Download/EmuUI-QA
+          "${adb_device[@]}" push "$WORK/homebrew/EmuUI_QA.nes" "$WORK/homebrew/EmuUI_QA_Second.nes" /sdcard/Download/EmuUI-QA/
+          "${adb_device[@]}" shell -n sha256sum /sdcard/Download/EmuUI-QA/EmuUI_QA.nes /sdcard/Download/EmuUI-QA/EmuUI_QA_Second.nes > "$OUT/guest-fixture-sha256.txt"
+          STAGE=real-saf-import-and-core-acquisition
+          python3 "$PLAN/device_driver.py" import --out "$OUT/import"
+          STAGE=seeded-selection-test
+          timeout 300 "${adb_device[@]}" shell -n am instrument -w -r \
+            -e class com.swordfish.lemuroid.app.mobile.feature.main.SeededLibraryStateTest \
+            -e qaGameTitle EmuUI_QA_Second "$PKG.test/androidx.test.runner.AndroidJUnitRunner" \
+            2>&1 | tee "$OUT/seeded-selection.txt"
+          python3 "$PLAN/device_driver.py" assert-tests --log "$OUT/seeded-selection.txt" --count 1
+          STAGE=native-game-double-recreation
+          "${adb_device[@]}" install -r -t "$WORK/apks/EmuUI-game-tests.apk"
+          "${adb_device[@]}" shell -n pm list instrumentation > "$OUT/game-instrumentation-manifest.txt"
+          timeout 600 "${adb_device[@]}" shell -n am instrument -w -r \
+            -e class com.swordfish.lemuroid.app.mobile.feature.game.GameActivityRecreationTest \
+            -e gameTitle EmuUI_QA -e coreName FCEUMM \
+            "$PKG.test/com.swordfish.lemuroid.app.mobile.feature.game.GameProcessTestRunner" \
+            2>&1 | tee "$OUT/native-recreation.txt"
+          python3 "$PLAN/device_driver.py" assert-tests --log "$OUT/native-recreation.txt" --count 1
+          "${adb_device[@]}" pull "/sdcard/Android/data/$PKG/files/qa-recreation" "$OUT/native-recreation-screens"
+          printf '%s\n' 'PASS: real SAF import, absent-to-known-hash guest core acquisition, 1 non-default selection recreation test, and 1 native NES double-Activity-recreation test. Review screenshots and worker logs before final acceptance. No DS, physical hinge, real-device performance, exact-state pixel equality or full save/load certification.' > "$OUT/milestone-2.txt"
+          EMUUI_DRAFT_EOF
+      - name: Run API35 milestones
+        shell: bash
+        env:
+          EMUUI_KVM_CHANGE_APPROVED: "true" # Approved for this single disposable job only
+          RUN_NATIVE_STAGE: "true"
+        run: bash "$RUNNER_TEMP/emuui-api35-plan/run-api35.sh"
+      - name: Retain exact QA APKs, checksums, logs, and screenshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: emuui-api35-bcda1e6-${{ github.run_id }}
+          path: ${{ runner.temp }}/emuui-api35-evidence/
+          if-no-files-found: warn
+          retention-days: 30
+
