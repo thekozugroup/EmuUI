@@ -1,0 +1,55 @@
+name: Android runner capabilities
+on:
+  push:
+    paths:
+      - '.github/workflows/android-capabilities.yml'
+permissions: {}
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Inspect existing Android acceleration and transport
+        shell: bash
+        run: |
+          set -eu
+          uname -m
+          id
+          if [ -e /dev/kvm ]; then
+            stat -c 'KVM permissions: %A %U %G' /dev/kvm
+            if [ -r /dev/kvm ] && [ -w /dev/kvm ]; then
+              echo 'KVM_ACCESS=read-write'
+            else
+              echo 'KVM_ACCESS=insufficient'
+            fi
+          else
+            echo 'KVM_ACCESS=absent'
+          fi
+          SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          if [ -x "$SDK/emulator/emulator" ]; then
+            "$SDK/emulator/emulator" -version
+            "$SDK/emulator/emulator" -accel-check || true
+          else
+            echo 'EMULATOR_BINARY=not-installed'
+          fi
+          if [ -d "$SDK/system-images/android-35" ]; then
+            find "$SDK/system-images/android-35" -maxdepth 3 -name package.xml
+          fi
+          python3 - <<'PY'
+          import os, socket, ssl
+          try:
+              addresses = socket.getaddrinfo("github.com", 443)
+              print("GITHUB_DNS=resolved", len(addresses))
+          except OSError as error:
+              print("GITHUB_DNS=failed", type(error).__name__)
+          if any(os.environ.get(key) for key in ("HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy")):
+              print("TLS_PROBE=skipped-existing-proxy")
+          else:
+              try:
+                  with socket.create_connection(("github.com", 443), timeout=15) as connection:
+                      with ssl.create_default_context().wrap_socket(connection, server_hostname="github.com") as secure:
+                          print("GITHUB_TLS=verified", secure.version())
+                          print("CERTIFICATE_ISSUER", secure.getpeercert().get("issuer"))
+              except (OSError, ssl.SSLError) as error:
+                  print("GITHUB_TLS=failed", type(error).__name__)
+          PY
