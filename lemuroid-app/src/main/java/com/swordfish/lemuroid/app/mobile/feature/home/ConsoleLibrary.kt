@@ -25,3 +25,11 @@ internal fun <T> resolveLibrarySelection(
     selectedId: Int?,
     id: (T) -> Int,
 ): T? = games.firstOrNull { id(it) == selectedId } ?: games.firstOrNull()
+
+/** A result event reveals its game even if the ID is unchanged; ordinary Back emits no event. */
+internal fun revealLibrarySelectionRequest(
+    request: Int,
+    handledRequest: Int,
+    selectedGameId: Int?,
+    visibleGameIds: List<Int>,
+): Boolean = request != handledRequest && selectedGameId != null && selectedGameId !in visibleGameIds

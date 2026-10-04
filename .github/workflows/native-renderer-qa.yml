@@ -45,7 +45,7 @@ jobs:
           cp lemuroid-app/build/outputs/apk/androidTest/freeDynamic/debug/lemuroid-app-free-dynamic-debug-androidTest.apk native-support/emuui-game-tests.apk
           cp COPYING native-preview/COPYING
           printf '%s\n' \
-            'EmuUI independent-renderer QA build. Runtime acceptance is pending.' \
+            'EmuUI development preview rebuilt by CI. See docs/QA.md for the exact local runtime evidence.' \
             "Source: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/tree/${GITHUB_SHA}" \
             'Built from the pinned renderer source in this repository.' \
             'No ROMs, BIOS files, signing keys or user data are included.' \

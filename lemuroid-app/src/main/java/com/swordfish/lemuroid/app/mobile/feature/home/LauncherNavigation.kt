@@ -116,3 +116,89 @@ internal fun cycleLibraryFilter(
     val direction = if (forward) 1 else -1
     return filters[(filter.ordinal + direction + filters.size) % filters.size]
 }
+
+internal enum class LauncherSection { GAMES, FILTERS, SHORTCUTS }
+
+internal data class LauncherNavigationTarget(
+    val section: LauncherSection = LauncherSection.GAMES,
+    val index: Int = 0,
+)
+
+/** Deterministic side-control focus; library navigation never sends events to the emulation core. */
+internal fun launcherNavigationTarget(
+    current: LauncherNavigationTarget,
+    selectedIndex: Int,
+    gameCount: Int,
+    columns: Int,
+    filterIndex: Int,
+    shortcutCount: Int,
+    direction: LauncherDirection,
+): LauncherNavigationTarget {
+    val span = columns.coerceAtLeast(1)
+    val gameIndex = selectedIndex.coerceIn(0, (gameCount - 1).coerceAtLeast(0))
+    return when (current.section) {
+        LauncherSection.GAMES ->
+            when {
+                direction == LauncherDirection.UP && gameIndex < span ->
+                    LauncherNavigationTarget(LauncherSection.FILTERS, filterIndex)
+                direction == LauncherDirection.DOWN && (gameCount == 0 || gameIndex / span == (gameCount - 1) / span) ->
+                    LauncherNavigationTarget(LauncherSection.SHORTCUTS, 0)
+                else ->
+                    LauncherNavigationTarget(
+                        LauncherSection.GAMES,
+                        launcherSelectionIndex(gameCount, selectedIndex, span, direction) ?: 0,
+                    )
+            }
+        LauncherSection.FILTERS ->
+            when (direction) {
+                LauncherDirection.DOWN -> LauncherNavigationTarget(LauncherSection.GAMES, gameIndex)
+                LauncherDirection.LEFT -> current.copy(index = (current.index - 1).coerceAtLeast(0))
+                LauncherDirection.RIGHT ->
+                    current.copy(
+                        index = (current.index + 1).coerceAtMost(LibraryFilter.values().lastIndex),
+                    )
+                LauncherDirection.UP -> current
+            }
+        LauncherSection.SHORTCUTS ->
+            when (direction) {
+                LauncherDirection.UP -> LauncherNavigationTarget(LauncherSection.GAMES, gameIndex)
+                LauncherDirection.LEFT -> current.copy(index = (current.index - 1).coerceAtLeast(0))
+                LauncherDirection.RIGHT ->
+                    current.copy(
+                        index = (current.index + 1).coerceAtMost((shortcutCount - 1).coerceAtLeast(0)),
+                    )
+                LauncherDirection.DOWN -> current
+            }
+    }
+}
+
+internal fun launcherNextSection(
+    section: LauncherSection,
+    selectedIndex: Int,
+    filterIndex: Int,
+): LauncherNavigationTarget =
+    when (section) {
+        LauncherSection.GAMES -> LauncherNavigationTarget(LauncherSection.FILTERS, filterIndex)
+        LauncherSection.FILTERS -> LauncherNavigationTarget(LauncherSection.SHORTCUTS, 0)
+        LauncherSection.SHORTCUTS -> LauncherNavigationTarget(LauncherSection.GAMES, selectedIndex.coerceAtLeast(0))
+    }
+
+internal enum class LauncherPrimaryAction { PLAY, IMPORT, RETRY, SHOW_ALL, WAIT, UNSUPPORTED }
+
+/** Empty filters and failed scans must never launch an invisible, stale selection. */
+internal fun launcherPrimaryAction(
+    hasError: Boolean,
+    isLoading: Boolean,
+    isScanning: Boolean,
+    totalGames: Int,
+    visibleGames: Int,
+    supported: Boolean,
+): LauncherPrimaryAction =
+    when {
+        hasError -> LauncherPrimaryAction.RETRY
+        isLoading -> LauncherPrimaryAction.WAIT
+        visibleGames > 0 -> if (supported) LauncherPrimaryAction.PLAY else LauncherPrimaryAction.UNSUPPORTED
+        totalGames > 0 -> LauncherPrimaryAction.SHOW_ALL
+        isScanning -> LauncherPrimaryAction.WAIT
+        else -> LauncherPrimaryAction.IMPORT
+    }

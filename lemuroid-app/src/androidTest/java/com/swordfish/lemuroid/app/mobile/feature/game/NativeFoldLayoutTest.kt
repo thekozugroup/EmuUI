@@ -5,9 +5,15 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Insets
+import android.os.Build
 import android.os.Process
 import android.os.SystemClock
+import android.util.Log
+import android.view.DisplayCutout
 import android.view.MotionEvent
+import android.view.View
+import android.view.WindowInsets
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasTestTag
@@ -23,9 +29,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.Until
 import androidx.window.layout.FoldingFeature
 import androidx.window.testing.layout.TestWindowLayoutInfo
 import androidx.window.testing.layout.WindowLayoutInfoPublisherRule
+import com.swordfish.lemuroid.app.mobile.feature.emuui.WindowCutoutSnapshot
 import com.swordfish.lemuroid.app.shared.game.BaseGameScreenViewModel
 import com.swordfish.lemuroid.lib.library.GameSystem
 import com.swordfish.lemuroid.lib.library.db.RetrogradeDatabase
@@ -87,6 +97,7 @@ class NativeFoldLayoutTest {
     private val pauseObservations = JSONObject()
     private var observedCoreAspectRatio = 0f
     private val eglResumeObservation = JSONObject()
+    private val cutoutObservation = JSONObject()
 
     @Test
     fun nativeScreensInputsAndFoldTransitions() {
@@ -125,6 +136,8 @@ class NativeFoldLayoutTest {
             capture("00-unknown-gate", emptyMap())
             publish(activity.get(), FoldingFeature.State.HALF_OPENED)
             val native = awaitUsableCore(model.get())
+            dismissFirstUseImmersiveEducation()
+            awaitFrames(native)
             waitForTag(LEFT)
             assertGeometry(dual)
             capture("01-half-open-native", geometry(dual))
@@ -209,6 +222,28 @@ class NativeFoldLayoutTest {
                 frozenDsTuple = retouched
             }
 
+            if (Build.VERSION.SDK_INT >= 30) {
+                verifyDeliveredCutouts(activity.get(), model.get(), native, dual, frozenDsTuple)
+            } else {
+                cutoutObservation.put("syntheticDeliveryStatus", "NOT_RUN")
+                    .put(
+                        "reason",
+                        "Pre-30 ViewCompat re-requests actual root insets; one-shot synthetic dispatch is not stable",
+                    )
+            }
+
+            args.getString("qaManualPreviewRun")?.let { run ->
+                check(dual) { "The opt-in manual-preview bridge uses the original DS fixture only" }
+                runBlocking {
+                    withTimeout(60_000) {
+                        ManualPreviewHandoff.create(context, game, core.coreID.coreName, run, model.get())
+                    }
+                }
+                awaitFrames(native)
+                val saved = capture("03e-production-manual-slot-preview-created", geometry(true))
+                assertTupleEquals(checkNotNull(frozenDsTuple), saved.getJSONObject("decodedFromPixels"))
+            }
+
             for ((name, state) in listOf(
                 "flat" to FoldingFeature.State.FLAT,
                 "half" to FoldingFeature.State.HALF_OPENED,
@@ -284,10 +319,37 @@ class NativeFoldLayoutTest {
             )
             capture("13-native-after-menu-roundtrip", geometry(dual))
             if (dual) verifyEglResume(scenario, activity, model.get(), native)
+        } catch (failure: Throwable) {
+            args.getString("qaManualPreviewRun")?.let { run ->
+                val manifest = File(ManualPreviewHandoff.directory(context, run), "handoff.json")
+                if (manifest.exists()) {
+                    try {
+                        ManualPreviewHandoff.restore(context, run)
+                    } catch (restoreFailure: Throwable) {
+                        failure.addSuppressed(restoreFailure)
+                    }
+                }
+            }
+            throw failure
         } finally {
             instrumentation.runOnMainSync { context.stopService(Intent(context, GameService::class.java)) }
             instrumentation.waitForIdleSync()
             scenario.close()
+        }
+    }
+
+    private fun dismissFirstUseImmersiveEducation() {
+        val device = UiDevice.getInstance(instrumentation)
+        // A fresh Android image displays this ordinary OS help bubble above the native
+        // pixels. Acknowledge only that exact notice; never relax screenshot assertions.
+        val shown = device.wait(Until.hasObject(By.text("Viewing full screen")), 5_000)
+        Log.i("NativeFoldRuntimeQA", "OS fullscreen education observed=$shown")
+        if (shown) {
+            checkNotNull(device.findObject(By.text("GOT IT"))) { "Expected OS fullscreen acknowledgement" }.click()
+            check(device.wait(Until.gone(By.text("Viewing full screen")), 5_000))
+            Log.i("NativeFoldRuntimeQA", "Known OS fullscreen education acknowledged with GOT IT")
+            SystemClock.sleep(300) // Settle the platform dismissal animation before strict screenshot decoding.
+            compose.waitForIdle()
         }
     }
 
@@ -370,6 +432,174 @@ class NativeFoldLayoutTest {
             runBlocking { collector.cancelAndJoin() }
             collectorScope.cancel()
         }
+    }
+
+    /** Test-only dispatched framework insets, not an OEM notch or production override. */
+    @SdkSuppress(minSdkVersion = 30)
+    @Suppress("DEPRECATION")
+    private fun verifyDeliveredCutouts(
+        activity: GameActivity,
+        model: BaseGameScreenViewModel,
+        native: GLRetroView,
+        dual: Boolean,
+        frozenTuple: JSONObject?,
+    ) {
+        val content = activity.findViewById<View>(android.R.id.content)
+        val original = checkNotNull(content.rootWindowInsets)
+        val baseline = bounds(UPPER)
+        val surface = bounds(SURFACE)
+        val safeTop = 96
+        val safeBottom = 48
+        val width = surface.width.roundToInt()
+        val top = surface.top.roundToInt()
+        val left = surface.left.roundToInt()
+        val corner = android.graphics.Rect(left, top, left + 96, top + safeTop)
+        val centered = android.graphics.Rect(left + width / 2 - 64, top, left + width / 2 + 64, top + safeTop)
+        cutoutObservation.put("source", "Test-only WindowInsets delivered to real content listener")
+            .put("physicalCutout", false).put("safeTop", safeTop).put("safeBottom", safeBottom)
+        try {
+            for ((label, obstruction) in listOf("corner" to corner, "center" to centered)) {
+                val delivered =
+                    WindowInsets.Builder(original)
+                        .setInsets(WindowInsets.Type.systemBars(), Insets.of(0, safeTop, 0, safeBottom))
+                        .setInsetsIgnoringVisibility(
+                            WindowInsets.Type.systemBars(),
+                            Insets.of(0, safeTop, 0, safeBottom),
+                        )
+                        .setVisible(WindowInsets.Type.systemBars(), true)
+                        .setDisplayCutout(DisplayCutout(android.graphics.Rect(0, safeTop, 0, 0), listOf(obstruction)))
+                        .build()
+                val returned = AtomicReference<WindowInsets>()
+                val rootBefore = AtomicReference<WindowInsets>()
+                val rootAfter = AtomicReference<WindowInsets>()
+                instrumentation.runOnMainSync {
+                    rootBefore.set(content.rootWindowInsets)
+                    returned.set(content.dispatchApplyWindowInsets(delivered))
+                    cutoutObservation.put("snapshotImmediatelyAfterDispatch", cutoutSnapshotEvidence(activity))
+                    rootAfter.set(content.rootWindowInsets)
+                }
+                cutoutObservation.put("current", label)
+                    .put("requestedInsets", insetsEvidence(delivered))
+                    .put("returnedInsets", insetsEvidence(returned.get()))
+                    .put("rootBeforeInsets", insetsEvidence(rootBefore.get()))
+                    .put("rootAfterInsets", insetsEvidence(rootAfter.get()))
+                compose.waitForIdle()
+                instrumentation.runOnMainSync {
+                    cutoutObservation.put("snapshotAfterIdle", cutoutSnapshotEvidence(activity))
+                        .put("rootAfterIdleInsets", insetsEvidence(content.rootWindowInsets))
+                }
+                capture(
+                    "03c-$label-immediately-after-inset-dispatch",
+                    geometry(dual) + (UPPER_CONTROLS to bounds(UPPER_CONTROLS)),
+                )
+                try {
+                    compose.waitUntil(30_000) {
+                        try {
+                            val controlsTop = bounds(UPPER_CONTROLS).top
+                            val lowerBottom = bounds(LEFT).bottom
+                            cutoutObservation.put("lastObservedUpperControlsTop", controlsTop)
+                                .put("lastObservedLowerControlsBottom", lowerBottom)
+                            controlsTop >= surface.top + safeTop && lowerBottom <= surface.bottom - safeBottom + 1f
+                        } catch (_: AssertionError) {
+                            false
+                        }
+                    }
+                } catch (failure: Throwable) {
+                    try {
+                        capture(
+                            "03c-$label-inset-wait-failure",
+                            geometry(dual) + (UPPER_CONTROLS to bounds(UPPER_CONTROLS)),
+                        )
+                    } catch (captureFailure: Throwable) {
+                        failure.addSuppressed(captureFailure)
+                    }
+                    throw failure
+                }
+                awaitFrames(native)
+                val image = bounds(UPPER)
+                val panel = bounds(UPPER_PANEL)
+                assertSame(
+                    "Inset updates must retain the native core/view",
+                    native,
+                    model.retroGameView.existingRetroView(),
+                )
+                assertEquals("Upper backing must use the complete upper half", surface.top, panel.top, 1f)
+                assertTrue(
+                    "The complete native image must avoid the exact cutout rectangle",
+                    image.right <= obstruction.left || image.left >= obstruction.right ||
+                        image.bottom <= obstruction.top || image.top >= obstruction.bottom,
+                )
+                val aspect = if (dual) 4f / 3f else observedCoreAspectRatio
+                assertEquals("Cutout fit must preserve native aspect", aspect, image.width / image.height, .015f)
+                assertTrue("Cutout fit must remain inside the rounded backing", fitsRoundedPanel(image, panel))
+                if (label == "corner") {
+                    assertEquals("A notch in letterboxing must not shrink the image", baseline.height, image.height, 1f)
+                    assertEquals(
+                        "An irrelevant corner notch must not shift the image",
+                        baseline.center.x,
+                        image.center.x,
+                        1f,
+                    )
+                }
+                val lowerPanel = bounds(LOWER_PANEL)
+                assertEquals(
+                    "Lower panel stays centered in its safe controls half",
+                    bounds(LEFT).center.y,
+                    lowerPanel.center.y,
+                    1f,
+                )
+                assertEquals("Both wings respect system insets", bounds(LEFT).center.y, bounds(RIGHT).center.y, 1f)
+                if (dual) {
+                    val lower = bounds(LOWER)
+                    assertCenteredMaximum("Cutout lower", lower, lowerPanel)
+                    assertEquals("Lower native image remains centered", bounds(LEFT).center.y, lower.center.y, 1f)
+                }
+                cutoutObservation.put("current", label)
+                    .put("cutoutLeft", obstruction.left).put("cutoutTop", obstruction.top)
+                    .put("cutoutRight", obstruction.right).put("cutoutBottom", obstruction.bottom)
+                val result =
+                    capture(
+                        "03c-$label-cutout-and-system-insets",
+                        geometry(dual) + (UPPER_CONTROLS to bounds(UPPER_CONTROLS)),
+                    )
+                if (dual) assertTupleEquals(checkNotNull(frozenTuple), result.getJSONObject("decodedFromPixels"))
+            }
+        } finally {
+            instrumentation.runOnMainSync { content.dispatchApplyWindowInsets(original) }
+        }
+        compose.waitUntil(30_000) {
+            runCatching { kotlin.math.abs(bounds(UPPER).height - baseline.height) <= 1f }.getOrDefault(false)
+        }
+        awaitFrames(native)
+        assertGeometry(dual)
+        cutoutObservation.put("current", "restored").put("restoredOriginalInsets", true)
+            .put("syntheticDeliveryStatus", "PASS")
+        val restored = capture("03d-original-insets-restored", geometry(dual))
+        if (dual) assertTupleEquals(checkNotNull(frozenTuple), restored.getJSONObject("decodedFromPixels"))
+    }
+
+    /** Passive observation of our debug app's private snapshot; no production test hook or mutation. */
+    private fun cutoutSnapshotEvidence(activity: GameActivity): JSONObject {
+        val getter = GameActivity::class.java.getDeclaredMethod("getDisplayCutout").apply { isAccessible = true }
+        val snapshot = getter.invoke(activity) as WindowCutoutSnapshot
+        return JSONObject().put("bounds", snapshot.bounds.joinToString())
+            .put("safeLeft", snapshot.safeInsets.left).put("safeTop", snapshot.safeInsets.top)
+            .put("safeRight", snapshot.safeInsets.right).put("safeBottom", snapshot.safeInsets.bottom)
+            .put("windowWidth", snapshot.windowWidth).put("windowHeight", snapshot.windowHeight)
+    }
+
+    @SdkSuppress(minSdkVersion = 29)
+    @Suppress("DEPRECATION")
+    private fun insetsEvidence(insets: WindowInsets?): JSONObject {
+        if (insets == null) return JSONObject().put("available", false)
+        val cutout = insets.displayCutout
+        return JSONObject().put("available", true)
+            .put("systemLeft", insets.systemWindowInsetLeft).put("systemTop", insets.systemWindowInsetTop)
+            .put("systemRight", insets.systemWindowInsetRight).put("systemBottom", insets.systemWindowInsetBottom)
+            .put("stableLeft", insets.stableInsetLeft).put("stableTop", insets.stableInsetTop)
+            .put("stableRight", insets.stableInsetRight).put("stableBottom", insets.stableInsetBottom)
+            .put("cutoutSafeTop", cutout?.safeInsetTop ?: 0).put("cutoutSafeBottom", cutout?.safeInsetBottom ?: 0)
+            .put("cutoutBounds", cutout?.boundingRects?.joinToString() ?: "none")
     }
 
     private fun assertGeometry(dual: Boolean) {
@@ -608,13 +838,15 @@ class NativeFoldLayoutTest {
             val json =
                 JSONObject().put(
                     "evidenceType",
-                    "Actual API29 native runtime with injected WindowLayoutInfoPublisherRule fold metadata",
+                    "API${Build.VERSION.SDK_INT} native runtime; " +
+                        "synthetic fold metadata from WindowLayoutInfoPublisherRule",
                 )
                     .put("process", Process.myPid()).put("capturedAtEpochMs", System.currentTimeMillis())
                     .put("screenWidth", bitmap.width).put("screenHeight", bitmap.height)
                     .put("nativePauseObservations", pauseObservations)
                     .put("actualCoreAspectRatio", observedCoreAspectRatio)
                     .put("eglResumeObservation", eglResumeObservation)
+                    .put("cutoutObservation", cutoutObservation)
             regions.forEach { (tag, rect) ->
                 json.put(
                     tag,
@@ -801,6 +1033,7 @@ class NativeFoldLayoutTest {
         const val HINGE = "emuui_game_hinge"
         const val SURFACE = "emuui_game_surface"
         const val UPPER_PANEL = "emuui_game_upper_panel"
+        const val UPPER_CONTROLS = "emuui_game_upper_controls"
         const val LOWER_PANEL = "emuui_game_lower_panel"
     }
 }

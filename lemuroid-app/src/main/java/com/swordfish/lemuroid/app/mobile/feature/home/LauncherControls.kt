@@ -55,6 +55,11 @@ internal fun LauncherControlWing(
     startDescription: String? = null,
     searchDescription: String = "X, search library",
     menuDescription: String? = null,
+    onSelectSection: (() -> Unit)? = null,
+    selectDescription: String? = null,
+    playDescription: String? = null,
+    backDescription: String = "B, back",
+    navigationIsSelection: Boolean = libraryActive,
 ) {
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val compact = maxHeight < 268.dp
@@ -79,7 +84,9 @@ internal fun LauncherControlWing(
             WingKey(
                 label = if (left) "SELECT" else "START",
                 description =
-                    if (!left && startDescription != null) {
+                    if (left && selectDescription != null) {
+                        selectDescription
+                    } else if (!left && startDescription != null) {
                         startDescription
                     } else if (!libraryActive) {
                         if (left) "Select, move focus forward" else "Start, activate focused item"
@@ -94,7 +101,7 @@ internal fun LauncherControlWing(
                 color = MaterialTheme.colorScheme.surfaceContainerHigh,
                 contentColor = MaterialTheme.colorScheme.onSurface,
                 enabled = left || canPlay,
-                onClick = { if (left) onCycleFilter(true) else onStart() },
+                onClick = { if (left) onSelectSection?.invoke() ?: onCycleFilter(true) else onStart() },
             )
         }
         Column(
@@ -116,7 +123,7 @@ internal fun LauncherControlWing(
                 if (left) {
                     WingKey(
                         "",
-                        if (libraryActive) "Select game above" else "Move focus up",
+                        if (navigationIsSelection) "Select game above" else "Move focus up",
                         Modifier.align(Alignment.TopCenter),
                         Icons.Filled.KeyboardArrowUp,
                         enabled = canNavigate,
@@ -124,7 +131,7 @@ internal fun LauncherControlWing(
                     )
                     WingKey(
                         "",
-                        if (libraryActive) "Select game to the left" else "Move focus left",
+                        if (navigationIsSelection) "Select game to the left" else "Move focus left",
                         Modifier.align(Alignment.CenterStart),
                         Icons.Filled.KeyboardArrowLeft,
                         enabled = canNavigate,
@@ -132,7 +139,7 @@ internal fun LauncherControlWing(
                     )
                     WingKey(
                         "",
-                        if (libraryActive) "Select game to the right" else "Move focus right",
+                        if (navigationIsSelection) "Select game to the right" else "Move focus right",
                         Modifier.align(Alignment.CenterEnd),
                         Icons.Filled.KeyboardArrowRight,
                         enabled = canNavigate,
@@ -140,7 +147,7 @@ internal fun LauncherControlWing(
                     )
                     WingKey(
                         "",
-                        if (libraryActive) "Select game below" else "Move focus down",
+                        if (navigationIsSelection) "Select game below" else "Move focus down",
                         Modifier.align(Alignment.BottomCenter),
                         Icons.Filled.KeyboardArrowDown,
                         enabled = canNavigate,
@@ -165,7 +172,7 @@ internal fun LauncherControlWing(
                     )
                     WingKey(
                         "A",
-                        if (!libraryActive) {
+                        playDescription ?: if (!libraryActive) {
                             "A, activate focused item"
                         } else if (hasGame) {
                             "A, play selected game"
@@ -180,7 +187,7 @@ internal fun LauncherControlWing(
                     )
                     WingKey(
                         "B",
-                        "B, back",
+                        backDescription,
                         Modifier.align(Alignment.BottomCenter),
                         color = MaterialTheme.colorScheme.surfaceContainerHigh,
                         contentColor = MaterialTheme.colorScheme.onSurface,

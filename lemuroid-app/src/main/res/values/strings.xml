@@ -201,6 +201,10 @@
     <string name="mobile_settings_help">Help</string>
     <string name="mobile_settings_support">Support</string>
     <string name="lemuroid_help_content"><![CDATA[
+        <b>&#8226;Use the console controls</b><br/>
+        D-pad selects games and scrolls through your collection. A or START launches the selected game or confirms the highlighted action. B cancels a choice, returns to your games, or goes back.<br/><br/>
+        L and R change the library filter. SELECT cycles Games, Filters and Shortcuts. In Filters or Shortcuts, move left or right, then press A. Up from the first game row reaches Filters; down from the last row reaches Shortcuts. X opens Search; Y opens the selected game’s options.<br/><br/>
+        In settings and dialogs, D-pad moves focus, L and R move to the previous or next action, A confirms, and B closes or goes back. Saved gameplay previews are static images from your saved slots, not a running game.<br/><br/>
         <b>&#8226;How do I use EmuUI?</b><br/>
         Copy all your ROMs files into a directory on your device and select it within EmuUI. This directory is allowed to have subdirectories. After the scan completes you should see your games.<br/><br/>
         <b>&#8226;Why aren\'t my games detected?</b><br/>

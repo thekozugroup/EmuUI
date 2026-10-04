@@ -68,8 +68,10 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.swordfish.lemuroid.app.mobile.feature.emuui.DisplayPanelLayout
 import com.swordfish.lemuroid.app.mobile.feature.emuui.FoldGeometry
 import com.swordfish.lemuroid.app.mobile.feature.emuui.FoldGuidance
+import com.swordfish.lemuroid.app.mobile.feature.emuui.FoldInsets
 import com.swordfish.lemuroid.app.mobile.feature.emuui.FoldRect
 import com.swordfish.lemuroid.app.mobile.feature.emuui.ScreenRect
+import com.swordfish.lemuroid.app.mobile.feature.emuui.WindowCutoutSnapshot
 import com.swordfish.lemuroid.app.mobile.feature.emuui.rememberFoldPosture
 import com.swordfish.lemuroid.app.shared.game.BaseGameScreenViewModel
 import com.swordfish.lemuroid.app.shared.game.viewmodel.GameViewModelTouchControls.Companion.MENU_LOADING_ANIMATION_MILLIS
@@ -96,7 +98,10 @@ import kotlin.math.floor
 import kotlin.math.roundToInt
 
 @Composable
-fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
+fun MobileGameScreen(
+    viewModel: BaseGameScreenViewModel,
+    displayCutout: WindowCutoutSnapshot = WindowCutoutSnapshot(),
+) {
     val posture = rememberFoldPosture()
     val hostLifecycle = LocalLifecycleOwner.current
     val nativeLifecycle = remember(hostLifecycle) { FoldGameLifecycleOwner(hostLifecycle) }
@@ -132,27 +137,32 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                 posture.fold?.relativeTo(rootPosition.value.x, rootPosition.value.y),
                 with(density) { 8.dp.roundToPx() },
             )
-        val insetLeft = safeInsets.getLeft(density, LayoutDirection.Ltr)
-        val insetRight = safeInsets.getRight(density, LayoutDirection.Ltr)
+        val safeBounds =
+            FoldGeometry.safeBounds(
+                width,
+                height,
+                FoldInsets(
+                    safeInsets.getLeft(density, LayoutDirection.Ltr),
+                    safeInsets.getTop(density),
+                    safeInsets.getRight(density, LayoutDirection.Ltr),
+                    safeInsets.getBottom(density),
+                ),
+            )
+        val upperControls = rawLayout.upper.intersection(safeBounds)
+        val cutoutOcclusions =
+            remember(displayCutout, width, height, rootPosition.value) {
+                displayCutout.localOcclusions(width, height, rootPosition.value.x, rootPosition.value.y)
+            }
         val foldLayout =
             rawLayout.copy(
-                upper =
-                    rawLayout.upper.copy(
-                        left = insetLeft,
-                        right = (width - insetRight).coerceAtLeast(insetLeft),
-                        top = safeInsets.getTop(density).coerceAtMost(rawLayout.upper.bottom),
-                    ),
-                lower =
-                    rawLayout.lower.copy(
-                        left = insetLeft,
-                        right = (width - insetRight).coerceAtLeast(insetLeft),
-                        bottom = (height - safeInsets.getBottom(density)).coerceAtLeast(rawLayout.lower.top),
-                    ),
+                // Render through usable space alongside a cutout. Only essential overlays
+                // and lower controls/touchscreen inherit the full safeDrawing edge bands.
+                lower = rawLayout.lower.intersection(safeBounds),
             ).let { layout ->
                 val minimumDisplayHeight = with(density) { 96.dp.roundToPx() }
                 val minimumControlsHeight = with(density) { 144.dp.roundToPx() }
                 if (layout.guidance == null &&
-                    (layout.upper.height < minimumDisplayHeight || layout.lower.height < minimumControlsHeight)
+                    (upperControls.height < minimumDisplayHeight || layout.lower.height < minimumControlsHeight)
                 ) {
                     layout.copy(guidance = FoldGuidance.WINDOW_TOO_SMALL)
                 } else {
@@ -187,6 +197,7 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
         // Fit against the rounded backing itself. A full rectangular inset would
         // throw away usable letterbox space, particularly on the upper display.
         val upperPanel = FoldGeometry.displayPanel(foldLayout.upper, 0, cornerRadius)
+        val upperControlsPanel = FoldGeometry.displayPanel(upperControls, 0, cornerRadius)
         val lowerHorizontalInset = minOf(with(density) { 6.dp.roundToPx() }, console.center.width / 2)
         val lowerPanel =
             FoldGeometry.displayPanel(
@@ -198,14 +209,24 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                 cornerRadius,
             )
         val dualScreen =
-            if (isDualScreen) FoldGeometry.independentDualScreen(upperPanel, lowerPanel) else null
+            if (isDualScreen) {
+                FoldGeometry.independentDualScreen(upperPanel, lowerPanel, cutoutOcclusions)
+            } else {
+                null
+            }
         val singleScreen =
-            if (!isDualScreen) FoldGeometry.fitInsidePanel(upperPanel, coreAspectRatio) else null
+            if (!isDualScreen) {
+                FoldGeometry.fitInsidePanel(upperPanel, coreAspectRatio, occlusions = cutoutOcclusions)
+            } else {
+                null
+            }
         val nativeWindows =
             dualScreen?.let { listOf(it.upperScreen, it.lowerScreen) } ?: listOfNotNull(singleScreen)
+        val unavailableScreen =
+            if (isDualScreen) dualScreen == null else coreAspectRatio > 0f && singleScreen == null
         val consoleAvailable =
-            currentControllerConfig != null && foldLayout.guidance == null && !unsupportedDualScreen &&
-                (!isDualScreen || dualScreen != null)
+            currentControllerConfig != null && foldLayout.guidance == null &&
+                !unsupportedDualScreen && !unavailableScreen
         SideEffect {
             // Let the native view load and report its actual aspect even before a
             // single-screen rectangle is known. Hidden games never accept input.
@@ -265,7 +286,20 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                 bottom = lowerPanel.bounds.bottom + rootPosition.value.y,
             )
         CompositionLocalProvider(
-            LocalConsoleDialogRegion provides ConsoleDialogRegion(if (consoleAvailable) dialogBounds else null),
+            LocalConsoleDialogRegion provides
+                ConsoleDialogRegion(
+                    if (consoleAvailable) dialogBounds else null,
+                    if (consoleAvailable) {
+                        console.leftControls.translated(rootPosition.value.x, rootPosition.value.y)
+                    } else {
+                        null
+                    },
+                    if (consoleAvailable) {
+                        console.rightControls.translated(rootPosition.value.x, rootPosition.value.y)
+                    } else {
+                        null
+                    },
+                ),
         ) {
             PadKit(
                 modifier = Modifier.fillMaxSize(),
@@ -343,7 +377,7 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                         }
                         // Explicit 48dp action supplements the existing radial hold-menu
                         // gesture and remains available when a hardware controller is paired.
-                        ConsoleRegion(upperPanel.content) {
+                        ConsoleRegion(upperControlsPanel.content, "emuui_game_upper_controls") {
                             TextButton(
                                 onClick = { viewModel.openGameMenu() },
                                 modifier =
@@ -402,14 +436,14 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                         )
                         TextButton(onClick = viewModel::requestFinish) { Text("Return to library") }
                     }
-                } else if (isDualScreen && dualScreen == null) {
+                } else if (unavailableScreen) {
                     ConsoleRegion(foldLayout.lower) {
                         Column(
                             Modifier.align(
                                 Alignment.Center,
                             ).background(MaterialTheme.colorScheme.surface).padding(12.dp),
                         ) {
-                            Text("Open the window wider for two screens", color = MaterialTheme.colorScheme.onSurface)
+                            Text("Open a larger unobstructed window", color = MaterialTheme.colorScheme.onSurface)
                             TextButton(onClick = viewModel::openGameMenu) { Text("Game menu") }
                         }
                     }

@@ -1,5 +1,7 @@
 package com.swordfish.lemuroid.app.utils.android.settings
 
+import android.os.Build
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,12 +24,26 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalInputModeManager
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
@@ -36,11 +52,21 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.DialogWindowProvider
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.emuui.FoldRect
+import com.swordfish.lemuroid.app.mobile.feature.emuui.allowDisplayCutouts
+import com.swordfish.lemuroid.app.mobile.feature.home.LauncherControlWing
+import com.swordfish.lemuroid.app.mobile.feature.home.LauncherDirection
+import com.swordfish.lemuroid.app.mobile.feature.home.activateLauncherMenuFocus
+import com.swordfish.lemuroid.app.mobile.feature.home.moveLauncherMenuFocus
 
 /** A null rectangle explicitly blocks dialogs while a retained console route is unplaced. */
-data class ConsoleDialogRegion(val windowBounds: FoldRect?)
+data class ConsoleDialogRegion(
+    val windowBounds: FoldRect?,
+    val leftControls: FoldRect? = null,
+    val rightControls: FoldRect? = null,
+)
 
 /** No provider means an ordinary settings surface, such as the TV interface. */
 val LocalConsoleDialogRegion = staticCompositionLocalOf<ConsoleDialogRegion?> { null }
@@ -50,6 +76,7 @@ val LocalConsoleDialogRegion = staticCompositionLocalOf<ConsoleDialogRegion?> { 
  * window retains standard Back/focus behavior; only its bounded surface is drawn. Bounds are
  * physical pixels in the host window, already excluding the hinge, controls and safe insets.
  */
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ConsoleSettingsDialog(
     onDismissRequest: () -> Unit,
@@ -85,17 +112,53 @@ fun ConsoleSettingsDialog(
                 dismissOnClickOutside = false,
             ),
     ) {
+        // These controls belong to the modal window, so no press can reach the launcher behind it.
+        val focusManager = LocalFocusManager.current
+        val inputModeManager = LocalInputModeManager.current
+        val view = LocalView.current
+        val dialogWindow = (view.parent as? DialogWindowProvider)?.window
+        DisposableEffect(dialogWindow) {
+            // Compose 1.8 does not propagate the host window's cutout policy to full-screen dialogs.
+            val previousMode =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    dialogWindow?.attributes?.layoutInDisplayCutoutMode
+                } else {
+                    null
+                }
+            dialogWindow?.allowDisplayCutouts()
+            onDispose {
+                if (dialogWindow != null && previousMode != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    dialogWindow.attributes = dialogWindow.attributes.apply { layoutInDisplayCutoutMode = previousMode }
+                }
+            }
+        }
+        val centerFocus = remember { FocusRequester() }
+        var centerHasFocus by remember { mutableStateOf(false) }
+        val moveFocus: (FocusDirection) -> Unit = { direction ->
+            moveLauncherMenuFocus(inputModeManager, focusManager, centerFocus, { centerHasFocus }, direction)
+        }
+        val activate = {
+            activateLauncherMenuFocus(inputModeManager, centerFocus, { centerHasFocus }, view)
+        }
+        val wings = listOfNotNull(region.leftControls?.let { true to it }, region.rightControls?.let { false to it })
         Layout(
             modifier =
                 Modifier.fillMaxSize().clipToBounds().pointerInput(bounds, onDismissRequest) {
                     // The transparent full-window host is inside the native Dialog window.
                     detectTapGestures { position ->
-                        if (!bounds.contains(position.x, position.y)) onDismissRequest()
+                        if (!bounds.contains(position.x, position.y) &&
+                            wings.none { it.second.contains(position.x, position.y) }
+                        ) {
+                            onDismissRequest()
+                        }
                     }
                 },
             content = {
                 Surface(
-                    modifier = Modifier.fillMaxSize().clipToBounds().testTag("console_settings_dialog"),
+                    modifier =
+                        Modifier.fillMaxSize().clipToBounds().testTag("console_settings_dialog")
+                            .focusRequester(centerFocus).onFocusChanged { centerHasFocus = it.hasFocus }
+                            .focusProperties { exit = { FocusRequester.Cancel } }.focusGroup(),
                     shape = MaterialTheme.shapes.large,
                     color = MaterialTheme.colorScheme.surface,
                 ) {
@@ -126,16 +189,65 @@ fun ConsoleSettingsDialog(
                         }
                     }
                 }
+                wings.forEach { (left, _) ->
+                    Surface(
+                        modifier =
+                            Modifier.fillMaxSize().testTag(
+                                if (left) "console_dialog_left_controls" else "console_dialog_right_controls",
+                            ),
+                        color = MaterialTheme.colorScheme.surface,
+                    ) {
+                        LauncherControlWing(
+                            left = left,
+                            libraryActive = false,
+                            canNavigate = true,
+                            canPlay = true,
+                            hasGame = false,
+                            onNavigate = {
+                                moveFocus(
+                                    when (it) {
+                                        LauncherDirection.UP -> FocusDirection.Up
+                                        LauncherDirection.DOWN -> FocusDirection.Down
+                                        LauncherDirection.LEFT -> FocusDirection.Left
+                                        LauncherDirection.RIGHT -> FocusDirection.Right
+                                    },
+                                )
+                            },
+                            onPlay = activate,
+                            onBack = onDismissRequest,
+                            onMenu = { moveFocus(FocusDirection.Previous) },
+                            onSearch = { moveFocus(FocusDirection.Next) },
+                            onCycleFilter = { moveFocus(if (it) FocusDirection.Next else FocusDirection.Previous) },
+                            searchDescription = "X, move focus forward",
+                            menuDescription = "Y, move focus backward",
+                            backDescription = "B, close dialog",
+                        )
+                    }
+                }
             },
         ) { measurables, constraints ->
-            // Intersect defensively during a resize; never shift a panel across a control wing.
-            val left = bounds.left.coerceIn(0, constraints.maxWidth)
-            val top = bounds.top.coerceIn(0, constraints.maxHeight)
-            val right = bounds.right.coerceIn(left, constraints.maxWidth)
-            val bottom = bounds.bottom.coerceIn(top, constraints.maxHeight)
-            val child = measurables.single().measure(Constraints.fixed(right - left, bottom - top))
+            // Every region is in window pixels and independently clipped during a resize.
+            val regions = listOf(bounds) + wings.map { it.second }
+            val clipped =
+                regions.map {
+                    val left = it.left.coerceIn(0, constraints.maxWidth)
+                    val top = it.top.coerceIn(0, constraints.maxHeight)
+                    FoldRect(
+                        left,
+                        top,
+                        it.right.coerceIn(left, constraints.maxWidth),
+                        it.bottom.coerceIn(top, constraints.maxHeight),
+                    )
+                }
+            val children =
+                measurables.mapIndexed { index, measurable ->
+                    measurable.measure(Constraints.fixed(clipped[index].width, clipped[index].height))
+                }
             layout(constraints.maxWidth, constraints.maxHeight) {
-                if (right > left && bottom > top) child.place(left, top)
+                children.forEachIndexed { index, child ->
+                    val rect = clipped[index]
+                    if (rect.width > 0 && rect.height > 0) child.place(rect.left, rect.top)
+                }
             }
         }
     }

@@ -53,6 +53,34 @@ class ConsoleLibraryTest {
         assertEquals(listOf(favorite), filtered(listOf(game(1), favorite), LibraryFilter.FAVORITES))
     }
 
+    @Test fun explicitlySelectedResultOutsideTheFilterIsRevealed() {
+        assertEquals(true, revealLibrarySelectionRequest(1, 0, 2, listOf(1, 3)))
+    }
+
+    @Test fun ordinaryRouteReturnKeepsAnEmptyFilter() {
+        assertEquals(false, revealLibrarySelectionRequest(1, 1, 1, emptyList()))
+    }
+
+    @Test fun sameHiddenGameIsRevealedByANewExplicitSelectionEvent() {
+        assertEquals(true, revealLibrarySelectionRequest(2, 1, 1, emptyList()))
+    }
+
+    @Test fun consumedSelectionEventDoesNotResetLaterFilterChanges() {
+        assertEquals(false, revealLibrarySelectionRequest(2, 2, 1, emptyList()))
+    }
+
+    @Test fun explicitSelectionAlreadyInTheFilterKeepsThatFilter() {
+        assertEquals(false, revealLibrarySelectionRequest(1, 0, 2, listOf(1, 2)))
+    }
+
+    @Test fun missingSelectionDoesNotResetTheFilter() {
+        assertEquals(false, revealLibrarySelectionRequest(1, 0, null, emptyList()))
+    }
+
+    @Test fun firstExternalSelectionCanRevealAHiddenGame() {
+        assertEquals(true, revealLibrarySelectionRequest(1, 0, 2, emptyList()))
+    }
+
     @Test fun allGamesIsNotLimitedToUpstreamCarouselSize() {
         val games = (1..40).map { game(it) }
         assertEquals(games, filtered(games, LibraryFilter.ALL))

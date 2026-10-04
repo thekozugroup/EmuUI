@@ -42,6 +42,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.fredporciuncula.flow.preferences.FlowSharedPreferences
 import com.swordfish.lemuroid.R
+import com.swordfish.lemuroid.app.mobile.feature.emuui.allowDisplayCutouts
 import com.swordfish.lemuroid.app.mobile.feature.favorites.FavoritesScreen
 import com.swordfish.lemuroid.app.mobile.feature.favorites.FavoritesViewModel
 import com.swordfish.lemuroid.app.mobile.feature.games.GamesScreen
@@ -130,6 +131,7 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
             SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT),
             SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT),
         )
+        window.allowDisplayCutouts()
         super.onCreate(savedInstanceState)
 
         GlobalScope.safeLaunch {
@@ -180,10 +182,12 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
             }
 
             val previewGameId = rememberSaveable { mutableStateOf<Int?>(null) }
+            val previewSelectionRequest = rememberSaveable { mutableStateOf(0) }
             val onGameClick = { game: Game ->
                 infoDialogDisplayed.value = false
                 selectedGameState.value = null
                 previewGameId.value = game.id
+                previewSelectionRequest.value += 1
                 navController.navigate(MainRoute.HOME.route) {
                     popUpTo(MainRoute.HOME.route) { inclusive = false }
                     launchSingleTop = true
@@ -225,6 +229,7 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
                         factory = HomeViewModel.Factory(applicationContext, retrogradeDb, coresSelection),
                     ),
                 selectedGameId = previewGameId.value,
+                selectionRequest = previewSelectionRequest.value,
                 onGameSelected = { previewGameId.value = it.id },
                 onGameClick = { gameInteractor.onGamePlay(it) },
                 onGameLongClick = onGameLongClick,

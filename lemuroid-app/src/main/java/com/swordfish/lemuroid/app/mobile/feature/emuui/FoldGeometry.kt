@@ -18,11 +18,25 @@ data class FoldRect(val left: Int, val top: Int, val right: Int, val bottom: Int
         y: Float,
     ): Boolean = x >= left && x < right && y >= top && y < bottom
 
+    fun translated(
+        dx: Int,
+        dy: Int,
+    ) = FoldRect(left + dx, top + dy, right + dx, bottom + dy)
+
+    fun intersection(other: FoldRect): FoldRect {
+        val x = max(left, other.left)
+        val y = max(top, other.top)
+        return FoldRect(x, y, min(right, other.right).coerceAtLeast(x), min(bottom, other.bottom).coerceAtLeast(y))
+    }
+
     fun inset(pixels: Int): FoldRect {
         val inset = pixels.coerceIn(0, min(width, height) / 2)
         return FoldRect(left + inset, top + inset, right - inset, bottom - inset)
     }
 }
+
+/** Physical window-edge insets; independent of layout direction. */
+data class FoldInsets(val left: Int = 0, val top: Int = 0, val right: Int = 0, val bottom: Int = 0)
 
 enum class FoldAxis { HORIZONTAL, VERTICAL }
 
@@ -90,6 +104,46 @@ object FoldGeometry {
         )
     }
 
+    /** Insets apply to essential controls and the lower touchscreen, not the upper image. */
+    fun safeBounds(
+        width: Int,
+        height: Int,
+        insets: FoldInsets,
+    ): FoldRect {
+        val w = width.coerceAtLeast(0)
+        val h = height.coerceAtLeast(0)
+        val left = insets.left.coerceIn(0, w)
+        val top = insets.top.coerceIn(0, h)
+        return FoldRect(
+            left,
+            top,
+            (w - insets.right.coerceAtLeast(0)).coerceIn(left, w),
+            (h - insets.bottom.coerceAtLeast(0)).coerceIn(top, h),
+        )
+    }
+
+    /**
+     * Use precise camera/notch rectangles whenever Android reports them. If an OEM only
+     * supplies safe insets, keep those edge strips clear rather than guessing the hole.
+     */
+    fun cutoutOcclusions(
+        width: Int,
+        height: Int,
+        bounds: List<FoldRect>,
+        safeInsets: FoldInsets,
+    ): List<FoldRect> {
+        val window = FoldRect(0, 0, width.coerceAtLeast(0), height.coerceAtLeast(0))
+        val reported = bounds.map { it.intersection(window) }.filter { it.width > 0 && it.height > 0 }
+        if (reported.isNotEmpty()) return reported
+        val safe = safeBounds(window.width, window.height, safeInsets)
+        return listOf(
+            window.copy(right = safe.left),
+            window.copy(bottom = safe.top),
+            window.copy(left = safe.right),
+            window.copy(top = safe.bottom),
+        ).filter { it.width > 0 && it.height > 0 }
+    }
+
     /** Fixed lower wings keep both touch controls visible, even with a hardware gamepad. */
     fun lowerConsole(
         lower: FoldRect,
@@ -130,6 +184,7 @@ object FoldGeometry {
         panel: DisplayPanelLayout,
         aspectRatio: Float,
         rasterGuard: Int = 1,
+        occlusions: List<FoldRect> = emptyList(),
     ): ScreenRect? {
         if (!aspectRatio.isFinite() || aspectRatio <= 0f) return null
         val bounds = panel.bounds
@@ -154,21 +209,117 @@ object FoldGeometry {
         if (low <= 0.0) return null
         val centerX = (bounds.left.toDouble() + bounds.right) / 2
         val centerY = (bounds.top.toDouble() + bounds.bottom) / 2
-        return ScreenRect(
-            (centerX - low * ratio / 2).toFloat(),
-            (centerY - low / 2).toFloat(),
-            (centerX + low * ratio / 2).toFloat(),
-            (centerY + low / 2).toFloat(),
-        ).takeIf { it.width > 0f && it.height > 0f }
+        val centered =
+            ScreenRect(
+                (centerX - low * ratio / 2).toFloat(),
+                (centerY - low / 2).toFloat(),
+                (centerX + low * ratio / 2).toFloat(),
+                (centerY + low / 2).toFloat(),
+            ).takeIf { it.width > 0f && it.height > 0f } ?: return null
+        val obstacles = occlusions.map { it.intersection(bounds) }.filter { it.width > 0 && it.height > 0 }
+        if (obstacles.none { centered.overlaps(it, guard.toFloat()) }) return centered
+        return fitAvoidingOcclusions(panel, ratio, guard, obstacles)
+    }
+
+    /**
+     * A camera cannot display pixels. Fit the complete image around its reported bounds
+     * rather than extending game pixels behind it or reserving its whole screen-edge band.
+     * Maximal empty rectangles cover every legal rectangular viewport. For each one,
+     * choose the closest feasible center to the panel center and retain the true backing's
+     * rounded corners; no artificial rounding is added at a cutout's safe boundary.
+     */
+    private fun fitAvoidingOcclusions(
+        panel: DisplayPanelLayout,
+        ratio: Double,
+        guard: Double,
+        obstacles: List<FoldRect>,
+    ): ScreenRect? {
+        var regions = listOf(panel.bounds)
+        for (obstacle in obstacles) {
+            regions =
+                regions.flatMap { region ->
+                    val cut = region.intersection(obstacle)
+                    if (cut.width == 0 || cut.height == 0) {
+                        listOf(region)
+                    } else {
+                        listOf(
+                            region.copy(right = cut.left),
+                            region.copy(left = cut.right),
+                            region.copy(bottom = cut.top),
+                            region.copy(top = cut.bottom),
+                        ).filter { it.width > guard * 2 && it.height > guard * 2 }
+                    }
+                }.distinct().let { candidates ->
+                    candidates.filter { candidate ->
+                        candidates.none { other ->
+                            other != candidate && candidate.left >= other.left && candidate.top >= other.top &&
+                                candidate.right <= other.right && candidate.bottom <= other.bottom
+                        }
+                    }
+                }
+        }
+        val bounds = panel.bounds
+        val centerX = (bounds.left.toDouble() + bounds.right) / 2
+        val centerY = (bounds.top.toDouble() + bounds.bottom) / 2
+        val radius = panel.cornerRadius.toDouble()
+        var best: ScreenRect? = null
+        var bestDistance = Double.POSITIVE_INFINITY
+        for (region in regions) {
+            var low = 0.0
+            var high = min((region.width - guard * 2) / ratio, region.height - guard * 2)
+            if (high <= 0) continue
+
+            fun fit(height: Double): ScreenRect? {
+                val halfWidth = height * ratio / 2
+                val halfHeight = height / 2
+                val minimumX = region.left + halfWidth + guard
+                val maximumX = region.right - halfWidth - guard
+                val minimumY = region.top + halfHeight + guard
+                val maximumY = region.bottom - halfHeight - guard
+                if (minimumX > maximumX || minimumY > maximumY) return null
+                val x = centerX.coerceIn(minimumX, maximumX)
+                val y = centerY.coerceIn(minimumY, maximumY)
+                for (edgeX in listOf(x - halfWidth - guard, x + halfWidth + guard)) {
+                    for (edgeY in listOf(y - halfHeight - guard, y + halfHeight + guard)) {
+                        val dx = edgeX - edgeX.coerceIn(bounds.left + radius, bounds.right - radius)
+                        val dy = edgeY - edgeY.coerceIn(bounds.top + radius, bounds.bottom - radius)
+                        if (dx * dx + dy * dy > radius * radius + 0.000001) return null
+                    }
+                }
+                return ScreenRect(
+                    (x - halfWidth).toFloat(),
+                    (y - halfHeight).toFloat(),
+                    (x + halfWidth).toFloat(),
+                    (y + halfHeight).toFloat(),
+                )
+            }
+            repeat(48) {
+                val candidate = (low + high) / 2
+                if (fit(candidate) != null) low = candidate else high = candidate
+            }
+            val screen = fit(low)?.takeIf { it.width > 0f && it.height > 0f } ?: continue
+            val dx = (screen.left + screen.right) / 2 - centerX
+            val dy = (screen.top + screen.bottom) / 2 - centerY
+            val distance = dx * dx + dy * dy
+            val previous = best
+            if (previous == null || screen.height > previous.height + 0.001f ||
+                (abs(screen.height - previous.height) <= 0.001f && distance < bestDistance)
+            ) {
+                best = screen
+                bestDistance = distance
+            }
+        }
+        return best
     }
 
     /** Requires a renderer that can place two source screens independently. */
     fun independentDualScreen(
         upper: DisplayPanelLayout,
         lower: DisplayPanelLayout,
+        upperOcclusions: List<FoldRect> = emptyList(),
     ): IndependentDualScreenLayout? {
         if (upper.bounds.bottom > lower.bounds.top) return null
-        val upperScreen = fitInsidePanel(upper, 4f / 3f) ?: return null
+        val upperScreen = fitInsidePanel(upper, 4f / 3f, occlusions = upperOcclusions) ?: return null
         val lowerScreen = fitInsidePanel(lower, 4f / 3f) ?: return null
         return IndependentDualScreenLayout(upperScreen, lowerScreen)
     }
@@ -257,6 +408,13 @@ data class ScreenRect(val left: Float, val top: Float, val right: Float, val bot
         x: Float,
         y: Float,
     ): Boolean = x >= left && x < right && y >= top && y < bottom
+
+    fun overlaps(
+        rect: FoldRect,
+        guard: Float = 0f,
+    ): Boolean =
+        left - guard < rect.right && right + guard > rect.left &&
+            top - guard < rect.bottom && bottom + guard > rect.top
 
     /** Inward rounding keeps a subsequent integer layout inside these safe bounds. */
     fun enclosedPixels() = FoldRect(ceil(left).toInt(), ceil(top).toInt(), floor(right).toInt(), floor(bottom).toInt())

@@ -1,6 +1,5 @@
 package com.swordfish.lemuroid.app.mobile.feature.home
 
-import android.view.KeyEvent
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
@@ -33,6 +32,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -96,6 +97,7 @@ import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.CollectionInfo
@@ -110,6 +112,7 @@ import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -147,17 +150,52 @@ internal fun ConsoleHomeScreen(
     onSyncSaves: (() -> Unit)?,
     onEnableNotifications: () -> Unit,
     onEnableMicrophone: () -> Unit,
+    selectionRequest: Int = 0,
     libraryActive: Boolean = true,
     onBack: (() -> Unit)? = null,
     centerContent: (@Composable (@Composable () -> Unit) -> Unit)? = null,
 ) {
     var filter by rememberSaveable { mutableStateOf(LibraryFilter.ALL) }
     var showSetup by rememberSaveable { mutableStateOf(false) }
-    val selectedGame = resolveLibrarySelection(state.allGames, selectedGameId) { it.id }
-    val games =
+    val filteredGames =
         remember(state.allGames, filter) {
             filterLibrary(state.allGames, filter, Game::isFavorite, Game::lastPlayedAt)
         }
+    var handledSelectionRequest by rememberSaveable { mutableStateOf(selectionRequest) }
+    val revealSelection =
+        revealLibrarySelectionRequest(
+            selectionRequest,
+            handledSelectionRequest,
+            selectedGameId,
+            filteredGames.map { it.id },
+        )
+    // A result click is explicit even when its ID matches the game hidden by an empty filter.
+    // Resolve it immediately so the old filter cannot overwrite it with its first game.
+    val games = if (revealSelection) state.allGames else filteredGames
+    LaunchedEffect(selectionRequest) {
+        if (revealSelection) filter = LibraryFilter.ALL
+        handledSelectionRequest = selectionRequest
+    }
+    val selectedGame = resolveLibrarySelection(games, selectedGameId) { it.id }
+    val primaryAction =
+        launcherPrimaryAction(
+            state.errorMessage != null,
+            state.isLoading,
+            state.indexInProgress,
+            state.allGames.size,
+            games.size,
+            selectedGame?.systemId != "3ds",
+        )
+    val activateLibrary = {
+        when (primaryAction) {
+            LauncherPrimaryAction.PLAY -> selectedGame?.let(onPlay)
+            LauncherPrimaryAction.IMPORT -> onImport()
+            LauncherPrimaryAction.RETRY -> onRetry()
+            LauncherPrimaryAction.SHOW_ALL -> filter = LibraryFilter.ALL
+            LauncherPrimaryAction.WAIT, LauncherPrimaryAction.UNSUPPORTED -> Unit
+        }
+        Unit
+    }
     LaunchedEffect(selectedGame?.id) {
         if (selectedGame != null && selectedGame.id != selectedGameId) onGameSelected(selectedGame)
     }
@@ -213,20 +251,27 @@ internal fun ConsoleHomeScreen(
             with(density) {
                 (lowerWindowBounds.width.toDp() * .22f).coerceIn(156.dp, 204.dp).roundToPx()
             }
-        val dialogBounds =
+        val dialogConsole =
             if (guidance == null) {
                 FoldGeometry.lowerConsole(
                     lowerWindowBounds,
                     dialogWingWidth,
                     with(density) { 6.dp.roundToPx() },
-                ).center.let { center ->
-                    val inset = with(density) { LAUNCHER_PANEL_INSET_DP.dp.roundToPx() }
-                    FoldRect(center.left + inset, center.top + inset, center.right - inset, center.bottom - inset)
-                }
+                )
             } else {
                 null
             }
-        CompositionLocalProvider(LocalConsoleDialogRegion provides ConsoleDialogRegion(dialogBounds)) {
+        val dialogBounds =
+            dialogConsole?.center?.let { center ->
+                val inset = with(density) { LAUNCHER_PANEL_INSET_DP.dp.roundToPx() }
+                FoldRect(center.left + inset, center.top + inset, center.right - inset, center.bottom - inset)
+            }
+        CompositionLocalProvider(
+            LocalConsoleDialogRegion provides
+                ConsoleDialogRegion(
+                    dialogBounds, dialogConsole?.leftControls, dialogConsole?.rightControls,
+                ),
+        ) {
             // Keep navigation and remembered library state composed through folding changes.
             // Unplaced content has no visible, touchable or accessible descendants.
             Box(
@@ -239,9 +284,9 @@ internal fun ConsoleHomeScreen(
                         PreviewPane(
                             state = state,
                             game = selectedGame,
-                            onPlay = onPlay,
+                            primaryAction = primaryAction,
+                            onPrimaryAction = activateLibrary,
                             onOptions = onGameOptions,
-                            onImport = onImport,
                             onOpenSettings = onOpenSettings,
                             onOpenHelp = onOpenHelp,
                             onSyncSaves = onSyncSaves,
@@ -259,7 +304,7 @@ internal fun ConsoleHomeScreen(
                             onRetry = onRetry,
                             onOpenSearch = onOpenSearch,
                             onOpenSystems = onOpenSystems,
-                            onPlay = { if (selectedGame != null) onPlay(selectedGame) else onImport() },
+                            onPlay = activateLibrary,
                             onMenu = { if (selectedGame != null) onGameOptions(selectedGame) else onOpenSettings() },
                             onBack = {
                                 if (showSetup) {
@@ -273,7 +318,8 @@ internal fun ConsoleHomeScreen(
                                 }
                             },
                             onOpenSettings = onOpenSettings,
-                            canLaunch = selectedGame?.systemId != "3ds",
+                            onOpenHelp = onOpenHelp,
+                            primaryAction = primaryAction,
                             libraryActive = libraryActive && !showSetup,
                             centerContent = centerContent,
                             setupContent =
@@ -330,19 +376,18 @@ internal fun ConsoleHomeScreen(
 private fun PreviewPane(
     state: HomeViewModel.UIState,
     game: Game?,
-    onPlay: (Game) -> Unit,
+    primaryAction: LauncherPrimaryAction,
+    onPrimaryAction: () -> Unit,
     onOptions: (Game) -> Unit,
-    onImport: () -> Unit,
     onOpenSettings: () -> Unit,
     onOpenHelp: () -> Unit,
     onSyncSaves: (() -> Unit)?,
 ) {
     Box(
-        Modifier.fillMaxSize().testTag("launcher_preview")
-            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
-            .padding(start = 12.dp, end = 12.dp, top = 12.dp),
+        Modifier.fillMaxSize().testTag("launcher_preview"),
     ) {
         val largeText = LocalDensity.current.fontScale >= 1.3f
+        var hasSavedPreview by remember(game?.id, game?.fileUri) { mutableStateOf(false) }
         Surface(
             Modifier.fillMaxSize().testTag("launcher_preview_surface"),
             color = MaterialTheme.colorScheme.surfaceContainer,
@@ -350,7 +395,9 @@ private fun PreviewPane(
         ) {
             Box(Modifier.fillMaxSize()) {
                 // A full-width artwork canvas is the upper screen, never a split text/cover card.
-                GameArtwork(game, Modifier.fillMaxSize(), preview = true)
+                SavedGamePreview(game, Modifier.fillMaxSize(), onPreviewAvailable = { hasSavedPreview = it }) {
+                    GameArtwork(game, Modifier.fillMaxSize(), preview = true)
+                }
                 Box(
                     Modifier.fillMaxSize().background(
                         Brush.verticalGradient(
@@ -362,7 +409,13 @@ private fun PreviewPane(
                         ),
                     ),
                 )
-                PreviewOverlayLayout(Modifier.fillMaxSize(), if (largeText) .52f else .44f) {
+                PreviewOverlayLayout(
+                    Modifier.fillMaxSize()
+                        .windowInsetsPadding(
+                            WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
+                        ).padding(start = 12.dp, end = 12.dp, top = 12.dp),
+                    if (largeText) .52f else .44f,
+                ) {
                     Surface(
                         modifier = Modifier.testTag("launcher_corner_brand"),
                         color = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = .94f),
@@ -438,9 +491,8 @@ private fun PreviewPane(
                     }
                     Button(
                         shapes = ButtonDefaults.shapes(),
-                        onClick = { if (game != null) onPlay(game) else onImport() },
-                        enabled =
-                            game?.systemId != "3ds" && (game != null || (!state.indexInProgress && !state.isLoading)),
+                        onClick = onPrimaryAction,
+                        enabled = primaryAction.isEnabled(),
                         colors =
                             ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -449,7 +501,7 @@ private fun PreviewPane(
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                         modifier =
                             Modifier.heightIn(min = 48.dp).testTag("launcher_corner_play")
-                                .semantics { contentDescription = if (game == null) "Add your games" else "Play game" },
+                                .semantics { contentDescription = primaryAction.label() },
                     ) {
                         Icon(
                             if (game == null) Icons.Outlined.FolderOpen else Icons.Filled.PlayArrow,
@@ -458,7 +510,7 @@ private fun PreviewPane(
                         )
                         if (!largeText) {
                             Spacer(Modifier.width(6.dp))
-                            Text(if (game == null) "Add your games" else "Play game")
+                            Text(primaryAction.label())
                         }
                     }
                     // Sits against the divider, wholly above the physical hinge exclusion zone.
@@ -488,9 +540,13 @@ private fun PreviewPane(
                                 modifier = Modifier.semantics { heading() },
                             )
                             Text(
-                                game?.developer?.takeIf { it.isNotBlank() }
-                                    ?: game?.systemId?.uppercase()
-                                    ?: "YOUR COLLECTION · YOUR CONSOLE",
+                                if (hasSavedPreview) {
+                                    "SAVED GAMEPLAY · ${game?.systemId?.uppercase().orEmpty()}"
+                                } else {
+                                    game?.developer?.takeIf { it.isNotBlank() }
+                                        ?: game?.systemId?.uppercase()
+                                        ?: "YOUR COLLECTION · YOUR CONSOLE"
+                                },
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 maxLines = 1,
@@ -526,8 +582,9 @@ private fun PreviewPane(
                     IconButton(
                         onClick = { onOptions(game) },
                         modifier =
-                            Modifier.align(Alignment.CenterEnd).padding(10.dp)
-                                .background(
+                            Modifier.align(Alignment.CenterEnd)
+                                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+                                .padding(10.dp).background(
                                     MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = .9f),
                                     CircleShape,
                                 ),
@@ -606,13 +663,15 @@ private fun LibraryPane(
     onMenu: () -> Unit,
     onBack: () -> Unit,
     onOpenSettings: () -> Unit,
-    canLaunch: Boolean,
+    onOpenHelp: () -> Unit,
+    primaryAction: LauncherPrimaryAction,
     libraryActive: Boolean,
     centerContent: (@Composable (@Composable () -> Unit) -> Unit)?,
     setupContent: (@Composable () -> Unit)?,
 ) {
     val density = LocalDensity.current
     val focusManager = LocalFocusManager.current
+    val inputModeManager = LocalInputModeManager.current
     val centerFocusRequester = remember { FocusRequester() }
     var centerHasFocus by remember { mutableStateOf(false) }
     val view = LocalView.current
@@ -635,12 +694,64 @@ private fun LibraryPane(
                 games.size,
             )
         val selectedIndex = games.indexOfFirst { it.id == selectedGameId }
+        var section by rememberSaveable { mutableStateOf(LauncherSection.GAMES) }
+        var sectionIndex by rememberSaveable { mutableStateOf(0) }
+        val navigation = LauncherNavigationTarget(section, sectionIndex)
+        val shortcuts =
+            buildList {
+                add(LauncherShortcut("Import games folder", Icons.Outlined.Add, !state.indexInProgress, onImport))
+                add(LauncherShortcut("Search library", Icons.Outlined.Search, true, onOpenSearch))
+                add(LauncherShortcut("Browse by system", Icons.Outlined.GridView, true, onOpenSystems))
+                add(LauncherShortcut("Library settings", Icons.Outlined.Tune, true, onOpenSettings))
+                add(LauncherShortcut("Console controls and help", Icons.Outlined.HelpOutline, true, onOpenHelp))
+                if (onSetup != null) {
+                    add(
+                        LauncherShortcut("Finish optional setup", Icons.Outlined.MoreHoriz, true, onSetup),
+                    )
+                }
+            }
+        val setNavigation: (LauncherNavigationTarget) -> Unit = { target ->
+            section = target.section
+            sectionIndex = target.index
+            if (target.section == LauncherSection.GAMES && state.errorMessage == null && !state.isLoading) {
+                games.getOrNull(target.index)?.let(onSelect)
+            }
+        }
+        val changeFilter: (LibraryFilter) -> Unit = { next ->
+            section = LauncherSection.GAMES
+            sectionIndex = 0
+            onFilter(next)
+        }
+        val selectGame: (Game) -> Unit = { game ->
+            section = LauncherSection.GAMES
+            onSelect(game)
+        }
+        LaunchedEffect(shortcuts.size) {
+            if (section == LauncherSection.SHORTCUTS) sectionIndex = sectionIndex.coerceIn(shortcuts.indices)
+        }
+        LaunchedEffect(libraryActive) {
+            // A previous route must not retain a focus target behind the visible menu.
+            if (!libraryActive) focusManager.clearFocus(force = true)
+        }
         val onNavigate: (LauncherDirection) -> Unit = { direction ->
             if (libraryActive) {
-                launcherSelectionIndex(games.size, selectedIndex, columns, direction)?.let { onSelect(games[it]) }
+                setNavigation(
+                    launcherNavigationTarget(
+                        navigation,
+                        selectedIndex,
+                        if (state.errorMessage == null && !state.isLoading) games.size else 0,
+                        columns,
+                        filter.ordinal,
+                        shortcuts.size,
+                        direction,
+                    ),
+                )
             } else {
-                if (!centerHasFocus) centerFocusRequester.requestFocus()
-                focusManager.moveFocus(
+                moveLauncherMenuFocus(
+                    inputModeManager,
+                    focusManager,
+                    centerFocusRequester,
+                    { centerHasFocus },
                     when (direction) {
                         LauncherDirection.UP -> FocusDirection.Up
                         LauncherDirection.DOWN -> FocusDirection.Down
@@ -652,31 +763,92 @@ private fun LibraryPane(
         }
         val activate = {
             if (libraryActive) {
-                onPlay()
+                when (section) {
+                    LauncherSection.GAMES -> onPlay()
+                    LauncherSection.FILTERS -> changeFilter(LibraryFilter.values()[sectionIndex])
+                    LauncherSection.SHORTCUTS ->
+                        shortcuts.getOrNull(sectionIndex)?.let {
+                            if (it.enabled) it.activate()
+                        }
+                }
             } else {
-                if (!centerHasFocus) centerFocusRequester.requestFocus()
-                view.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_CENTER))
-                view.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DPAD_CENTER))
-                Unit
+                activateLauncherMenuFocus(inputModeManager, centerFocusRequester, { centerHasFocus }, view)
             }
+            Unit
         }
         val cycleFilterOrFocus: (Boolean) -> Unit = { forward ->
             if (libraryActive) {
-                onFilter(cycleLibraryFilter(filter, forward))
+                changeFilter(cycleLibraryFilter(filter, forward))
             } else {
-                if (!centerHasFocus) centerFocusRequester.requestFocus()
-                focusManager.moveFocus(if (forward) FocusDirection.Next else FocusDirection.Previous)
+                moveLauncherMenuFocus(
+                    inputModeManager,
+                    focusManager,
+                    centerFocusRequester,
+                    { centerHasFocus },
+                    if (forward) FocusDirection.Next else FocusDirection.Previous,
+                )
             }
+        }
+        val selectSection = {
+            if (libraryActive) {
+                setNavigation(launcherNextSection(section, selectedIndex, filter.ordinal))
+            } else {
+                cycleFilterOrFocus(true)
+            }
+        }
+        val goBack = {
+            if (libraryActive && section != LauncherSection.GAMES) {
+                section = LauncherSection.GAMES
+            } else {
+                onBack()
+            }
+        }
+        val actionLabel =
+            when {
+                !libraryActive -> "activate focused item"
+                section == LauncherSection.FILTERS -> "choose ${LibraryFilter.values()[sectionIndex].label}"
+                section == LauncherSection.SHORTCUTS -> shortcuts.getOrNull(sectionIndex)?.label ?: "activate shortcut"
+                else ->
+                    if (primaryAction == LauncherPrimaryAction.PLAY) {
+                        "play selected game"
+                    } else {
+                        primaryAction.label().replaceFirstChar {
+                            it.lowercase()
+                        }
+                    }
+            }
+        val actionEnabled =
+            when {
+                !libraryActive -> true
+                section == LauncherSection.GAMES -> primaryAction.isEnabled()
+                section == LauncherSection.SHORTCUTS -> shortcuts.getOrNull(sectionIndex)?.enabled == true
+                else -> true
+            }
+        val wing: @Composable (Boolean) -> Unit = { left ->
+            LauncherControlWing(
+                left = left,
+                libraryActive = libraryActive,
+                canNavigate = true,
+                canPlay = actionEnabled,
+                hasGame = selectedGameId != null,
+                onNavigate = onNavigate,
+                onPlay = activate,
+                onBack = goBack,
+                onMenu = onMenu,
+                onSearch = onOpenSearch,
+                onCycleFilter = cycleFilterOrFocus,
+                onSelectSection = selectSection,
+                selectDescription = if (libraryActive) "Select, next library section" else null,
+                playDescription = "A, $actionLabel",
+                startDescription = "Start, $actionLabel",
+                backDescription =
+                    if (libraryActive && section != LauncherSection.GAMES) "B, return to games" else "B, back",
+                navigationIsSelection = libraryActive && section == LauncherSection.GAMES,
+            )
         }
         Layout(content = {
             Box(Modifier.fillMaxSize().testTag("launcher_left_controls")) {
-                LauncherControlWing(
-                    true, libraryActive, games.isNotEmpty() || !libraryActive,
-                    (canLaunch && (selectedGameId != null || (!state.indexInProgress && !state.isLoading))) ||
-                        !libraryActive,
-                    selectedGameId != null, onNavigate, activate, onBack, onMenu, onOpenSearch,
-                    cycleFilterOrFocus,
-                )
+                wing(true)
             }
             Surface(
                 Modifier.fillMaxSize().padding(LAUNCHER_PANEL_INSET_DP.dp).testTag("launcher_library_center")
@@ -692,21 +864,23 @@ private fun LibraryPane(
                         setupContent()
                     } else {
                         LibraryCenter(
-                            state, games, selectedGameId, filter, columns, onFilter, onSelect, onOptions,
-                            onImport, onRetry, onOpenSearch, onOpenSystems, onOpenSettings, onSetup,
+                            state, games, selectedGameId, filter, columns, changeFilter, selectGame, onOptions,
+                            onImport, onRetry, shortcuts, navigation,
+                            onFocusFilter = {
+                                sectionIndex = it
+                                section = LauncherSection.FILTERS
+                            },
+                            onFocusShortcut = {
+                                sectionIndex = it
+                                section = LauncherSection.SHORTCUTS
+                            },
                         )
                     }
                 }
                 if (centerContent != null) centerContent(library) else library()
             }
             Box(Modifier.fillMaxSize().testTag("launcher_right_controls")) {
-                LauncherControlWing(
-                    false, libraryActive, games.isNotEmpty() || !libraryActive,
-                    (canLaunch && (selectedGameId != null || (!state.indexInProgress && !state.isLoading))) ||
-                        !libraryActive,
-                    selectedGameId != null, onNavigate, activate, onBack, onMenu, onOpenSearch,
-                    cycleFilterOrFocus,
-                )
+                wing(false)
             }
         }, modifier = Modifier.fillMaxSize()) { measurables, parent ->
             val bounds = listOf(panes.leftControls, panes.center, panes.rightControls)
@@ -734,10 +908,10 @@ private fun LibraryCenter(
     onOptions: (Game) -> Unit,
     onImport: () -> Unit,
     onRetry: () -> Unit,
-    onOpenSearch: () -> Unit,
-    onOpenSystems: () -> Unit,
-    onOpenSettings: () -> Unit,
-    onSetup: (() -> Unit)?,
+    shortcuts: List<LauncherShortcut>,
+    navigation: LauncherNavigationTarget,
+    onFocusFilter: (Int) -> Unit,
+    onFocusShortcut: (Int) -> Unit,
 ) {
     BalancedLibraryLayout {
         Row(
@@ -766,7 +940,12 @@ private fun LibraryCenter(
                             selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
                             selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
                         ),
-                    modifier = Modifier.heightIn(min = 48.dp),
+                    modifier =
+                        Modifier.heightIn(min = 48.dp)
+                            .testTag("launcher_filter_${section.name.lowercase()}")
+                            .launcherNavigationFocus(
+                                navigation.section == LauncherSection.FILTERS && navigation.index == section.ordinal,
+                            ).onFocusChanged { if (it.isFocused) onFocusFilter(section.ordinal) },
                 )
             }
         }
@@ -833,17 +1012,16 @@ private fun LibraryCenter(
                 .testTag("launcher_dock"),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            IconButton(
-                onClick = onImport,
-                enabled = !state.indexInProgress,
-            ) { Icon(Icons.Outlined.Add, "Import games folder") }
-            IconButton(onClick = onOpenSearch) { Icon(Icons.Outlined.Search, "Search library") }
-            IconButton(onClick = onOpenSystems) { Icon(Icons.Outlined.GridView, "Browse by system") }
-            IconButton(onClick = onOpenSettings) { Icon(Icons.Outlined.Tune, "Library settings") }
-            if (onSetup != null) {
+            shortcuts.forEachIndexed { index, shortcut ->
                 IconButton(
-                    onClick = onSetup,
-                ) { Icon(Icons.Outlined.HelpOutline, "Finish optional setup") }
+                    onClick = shortcut.activate,
+                    enabled = shortcut.enabled,
+                    modifier =
+                        Modifier.testTag("launcher_shortcut_$index")
+                            .launcherNavigationFocus(
+                                navigation.section == LauncherSection.SHORTCUTS && navigation.index == index,
+                            ).onFocusChanged { if (it.isFocused) onFocusShortcut(index) },
+                ) { Icon(shortcut.icon, shortcut.label) }
             }
         }
     }
@@ -1312,4 +1490,40 @@ private fun OrientationGuidance(guidance: FoldGuidance) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
+}
+
+private data class LauncherShortcut(
+    val label: String,
+    val icon: ImageVector,
+    val enabled: Boolean,
+    val activate: () -> Unit,
+)
+
+private fun LauncherPrimaryAction.isEnabled(): Boolean =
+    this != LauncherPrimaryAction.WAIT && this != LauncherPrimaryAction.UNSUPPORTED
+
+private fun LauncherPrimaryAction.label(): String =
+    when (this) {
+        LauncherPrimaryAction.PLAY -> "Play game"
+        LauncherPrimaryAction.IMPORT -> "Add your games"
+        LauncherPrimaryAction.RETRY -> "Retry library"
+        LauncherPrimaryAction.SHOW_ALL -> "See all games"
+        LauncherPrimaryAction.WAIT -> "Please wait"
+        LauncherPrimaryAction.UNSUPPORTED -> "Unsupported system"
+    }
+
+/** Logical wing focus is visible and announced without stealing keyboard or accessibility focus. */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun Modifier.launcherNavigationFocus(active: Boolean): Modifier {
+    val bringIntoView = remember { BringIntoViewRequester() }
+    LaunchedEffect(active) { if (active) bringIntoView.bringIntoView() }
+    return this.bringIntoViewRequester(bringIntoView).then(
+        if (active) {
+            Modifier.border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(24.dp))
+                .semantics { stateDescription = "Ready to confirm with A" }
+        } else {
+            Modifier
+        },
+    )
 }

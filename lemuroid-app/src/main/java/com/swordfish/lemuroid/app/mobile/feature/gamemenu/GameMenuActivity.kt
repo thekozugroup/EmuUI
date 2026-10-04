@@ -5,7 +5,6 @@ package com.swordfish.lemuroid.app.mobile.feature.gamemenu
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.view.KeyEvent
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -51,6 +50,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
@@ -63,6 +63,7 @@ import androidx.navigation.compose.rememberNavController
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.emuui.FoldGeometry
 import com.swordfish.lemuroid.app.mobile.feature.emuui.FoldGuidance
+import com.swordfish.lemuroid.app.mobile.feature.emuui.allowDisplayCutouts
 import com.swordfish.lemuroid.app.mobile.feature.emuui.rememberFoldPosture
 import com.swordfish.lemuroid.app.mobile.feature.game.ConsoleRegion
 import com.swordfish.lemuroid.app.mobile.feature.game.FoldGameGuidance
@@ -72,6 +73,8 @@ import com.swordfish.lemuroid.app.mobile.feature.gamemenu.states.GameMenuStatesS
 import com.swordfish.lemuroid.app.mobile.feature.gamemenu.states.GameMenuStatesViewModel
 import com.swordfish.lemuroid.app.mobile.feature.home.LauncherControlWing
 import com.swordfish.lemuroid.app.mobile.feature.home.LauncherDirection
+import com.swordfish.lemuroid.app.mobile.feature.home.activateLauncherMenuFocus
+import com.swordfish.lemuroid.app.mobile.feature.home.moveLauncherMenuFocus
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.AppTheme
 import com.swordfish.lemuroid.app.shared.GameMenuContract
 import com.swordfish.lemuroid.app.shared.coreoptions.LemuroidCoreOption
@@ -120,6 +123,8 @@ class GameMenuActivity : RetrogradeComponentActivity() {
             SystemBarStyle.dark(Color.TRANSPARENT),
             SystemBarStyle.dark(Color.TRANSPARENT),
         )
+
+        window.allowDisplayCutouts()
 
         val extras = intent.extras
 
@@ -279,12 +284,16 @@ class GameMenuActivity : RetrogradeComponentActivity() {
         val root = remember { mutableStateOf(IntOffset.Zero) }
         val insets = WindowInsets.safeDrawing
         val focusManager = LocalFocusManager.current
+        val inputModeManager = LocalInputModeManager.current
         val centerFocus = remember { FocusRequester() }
         val centerHasFocus = remember { mutableStateOf(false) }
         val view = LocalView.current
         val navigate: (LauncherDirection) -> Unit = { direction ->
-            if (!centerHasFocus.value) centerFocus.requestFocus()
-            focusManager.moveFocus(
+            moveLauncherMenuFocus(
+                inputModeManager,
+                focusManager,
+                centerFocus,
+                { centerHasFocus.value },
                 when (direction) {
                     LauncherDirection.UP -> FocusDirection.Up
                     LauncherDirection.DOWN -> FocusDirection.Down
@@ -294,14 +303,16 @@ class GameMenuActivity : RetrogradeComponentActivity() {
             )
         }
         val activate = {
-            if (!centerHasFocus.value) centerFocus.requestFocus()
-            view.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_CENTER))
-            view.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DPAD_CENTER))
-            Unit
+            activateLauncherMenuFocus(inputModeManager, centerFocus, { centerHasFocus.value }, view)
         }
         val cycleFocus: (Boolean) -> Unit = { forward ->
-            if (!centerHasFocus.value) centerFocus.requestFocus()
-            focusManager.moveFocus(if (forward) FocusDirection.Next else FocusDirection.Previous)
+            moveLauncherMenuFocus(
+                inputModeManager,
+                focusManager,
+                centerFocus,
+                { centerHasFocus.value },
+                if (forward) FocusDirection.Next else FocusDirection.Previous,
+            )
         }
         BoxWithConstraints(
             modifier =
@@ -399,7 +410,14 @@ class GameMenuActivity : RetrogradeComponentActivity() {
                             right = centerPanel.bounds.right + root.value.x,
                             bottom = centerPanel.bounds.bottom + root.value.y,
                         )
-                    CompositionLocalProvider(LocalConsoleDialogRegion provides ConsoleDialogRegion(dialogBounds)) {
+                    CompositionLocalProvider(
+                        LocalConsoleDialogRegion provides
+                            ConsoleDialogRegion(
+                                dialogBounds,
+                                console.leftControls.translated(root.value.x, root.value.y),
+                                console.rightControls.translated(root.value.x, root.value.y),
+                            ),
+                    ) {
                         Column(modifier = Modifier.fillMaxSize()) { content() }
                     }
                 }
