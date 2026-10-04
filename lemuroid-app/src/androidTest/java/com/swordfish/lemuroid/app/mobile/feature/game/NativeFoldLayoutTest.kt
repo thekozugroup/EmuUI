@@ -70,6 +70,7 @@ import java.security.MessageDigest
 import java.util.Collections
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
+import java.util.regex.Pattern
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -345,7 +346,12 @@ class NativeFoldLayoutTest {
         val shown = device.wait(Until.hasObject(By.text("Viewing full screen")), 5_000)
         Log.i("NativeFoldRuntimeQA", "OS fullscreen education observed=$shown")
         if (shown) {
-            checkNotNull(device.findObject(By.text("GOT IT"))) { "Expected OS fullscreen acknowledgement" }.click()
+            val acknowledgement =
+                checkNotNull(device.findObject(By.text(Pattern.compile("Got it", Pattern.CASE_INSENSITIVE)))) {
+                    "Expected OS fullscreen acknowledgement"
+                }
+            Log.i("NativeFoldRuntimeQA", "OS fullscreen acknowledgement label=${acknowledgement.text}")
+            acknowledgement.click()
             check(device.wait(Until.gone(By.text("Viewing full screen")), 5_000))
             Log.i("NativeFoldRuntimeQA", "Known OS fullscreen education acknowledged with GOT IT")
             SystemClock.sleep(300) // Settle the platform dismissal animation before strict screenshot decoding.
