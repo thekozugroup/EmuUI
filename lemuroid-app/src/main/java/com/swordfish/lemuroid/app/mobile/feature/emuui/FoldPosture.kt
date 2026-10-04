@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -16,22 +17,40 @@ import androidx.window.layout.WindowInfoTracker
 import kotlinx.coroutines.CancellationException
 import timber.log.Timber
 
-data class FoldPosture(val fold: FoldBounds? = null, val isHalfOpened: Boolean = false)
+/** A feature reported for this window is positive evidence of its opened folding display. */
+data class FoldPosture(val fold: FoldBounds? = null, val isHalfOpened: Boolean = false) {
+    val isOpenInnerDisplay: Boolean get() = fold != null
+}
 
 /** Tracks window-local hardware geometry; the emulation view is never keyed to posture. */
 @Composable
 fun rememberFoldPosture(): FoldPosture {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val posture = remember(context, lifecycleOwner) { mutableStateOf(FoldPosture()) }
-    LaunchedEffect(context, lifecycleOwner) {
+    val configuration = LocalConfiguration.current
+    val posture =
+        remember(
+            context,
+            lifecycleOwner,
+            configuration.orientation,
+            configuration.screenWidthDp,
+            configuration.screenHeightDp,
+        ) {
+            mutableStateOf(FoldPosture())
+        }
+    LaunchedEffect(context, lifecycleOwner, posture) {
         // Reset stale geometry when the hosting activity or lifecycle changes.
         posture.value = FoldPosture()
         val activity = context.findActivity() ?: return@LaunchedEffect
         lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            // Moving to the cover screen or another display must not reuse the last open fold.
+            posture.value = FoldPosture()
             try {
                 WindowInfoTracker.getOrCreate(context).windowLayoutInfo(activity).collect { info ->
-                    val feature = info.displayFeatures.filterIsInstance<FoldingFeature>().firstOrNull()
+                    val feature =
+                        info.displayFeatures.filterIsInstance<FoldingFeature>().firstOrNull {
+                            it.state == FoldingFeature.State.FLAT || it.state == FoldingFeature.State.HALF_OPENED
+                        }
                     posture.value =
                         if (feature == null) {
                             FoldPosture()
@@ -53,8 +72,9 @@ fun rememberFoldPosture(): FoldPosture {
             } catch (exception: CancellationException) {
                 throw exception
             } catch (exception: Exception) {
-                // Older non-folding devices may not expose a WindowManager extension.
-                Timber.w(exception, "Fold posture unavailable; using the flat console layout")
+                // Missing OEM data, a cover/external display, and an ordinary phone all fail closed.
+                Timber.w(exception, "Fold posture unavailable; showing open-inner-display guidance")
+            } finally {
                 posture.value = FoldPosture()
             }
         }
@@ -62,7 +82,7 @@ fun rememberFoldPosture(): FoldPosture {
     return posture.value
 }
 
-private fun Context.findActivity(): Activity? =
+internal fun Context.findActivity(): Activity? =
     when (this) {
         is Activity -> this
         is ContextWrapper -> if (baseContext !== this) baseContext.findActivity() else null

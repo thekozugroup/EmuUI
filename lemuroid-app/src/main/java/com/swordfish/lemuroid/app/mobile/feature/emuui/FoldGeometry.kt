@@ -1,6 +1,9 @@
 package com.swordfish.lemuroid.app.mobile.feature.emuui
 
+import kotlin.math.abs
+import kotlin.math.ceil
 import kotlin.math.floor
+import kotlin.math.max
 import kotlin.math.min
 
 /** Window coordinates in physical pixels, independent of Android and Compose. */
@@ -14,6 +17,11 @@ data class FoldRect(val left: Int, val top: Int, val right: Int, val bottom: Int
         x: Float,
         y: Float,
     ): Boolean = x >= left && x < right && y >= top && y < bottom
+
+    fun inset(pixels: Int): FoldRect {
+        val inset = pixels.coerceIn(0, min(width, height) / 2)
+        return FoldRect(left + inset, top + inset, right - inset, bottom - inset)
+    }
 }
 
 enum class FoldAxis { HORIZONTAL, VERTICAL }
@@ -31,7 +39,7 @@ data class FoldBounds(
     ) = copy(left = left - x, top = top - y, right = right - x, bottom = bottom - y)
 }
 
-enum class FoldGuidance { ROTATE_LANDSCAPE, ROTATE_HINGE, WINDOW_TOO_SMALL }
+enum class FoldGuidance { OPEN_FOLDABLE, ROTATE_LANDSCAPE, ROTATE_HINGE, WINDOW_TOO_SMALL }
 
 data class FoldLayout(
     val upper: FoldRect,
@@ -41,7 +49,11 @@ data class FoldLayout(
     val physicalHinge: Boolean = false,
 )
 
-/** Uses the actual horizontal crease, including zero-height folds and off-centre hinges. */
+/**
+ * A current-window hardware FoldingFeature is required. A wide window, remembered device,
+ * model name, or an absent feature is never evidence that the inner display is open.
+ * The midpoint below only positions the guidance background, never an enabled console.
+ */
 object FoldGeometry {
     fun resolve(
         width: Int,
@@ -53,7 +65,8 @@ object FoldGeometry {
         val h = height.coerceAtLeast(0)
         val padding = safetyPadding.coerceAtLeast(0)
         // A feature outside this window must not split a multi-window surface.
-        val intersects = fold != null && fold.right >= 0 && fold.left <= w && fold.bottom >= 0 && fold.top <= h
+        val validBounds = fold != null && fold.left <= fold.right && fold.top <= fold.bottom
+        val intersects = validBounds && fold!!.right >= 0 && fold.left <= w && fold.bottom >= 0 && fold.top <= h
         val horizontal = intersects && fold?.axis == FoldAxis.HORIZONTAL
         val top = if (horizontal) fold!!.top.coerceIn(0, h) else h / 2
         val bottom = if (horizontal) fold!!.bottom.coerceIn(top, h) else h / 2
@@ -61,8 +74,10 @@ object FoldGeometry {
         val lowerStart = (bottom + padding).coerceIn(upperEnd, h)
         val guidance =
             when {
+                !intersects -> FoldGuidance.OPEN_FOLDABLE
                 w <= h -> FoldGuidance.ROTATE_LANDSCAPE
-                intersects && fold?.axis == FoldAxis.VERTICAL -> FoldGuidance.ROTATE_HINGE
+                fold?.axis == FoldAxis.VERTICAL -> FoldGuidance.ROTATE_HINGE
+                fold == null || fold.left > 0 || fold.right < w -> FoldGuidance.WINDOW_TOO_SMALL
                 upperEnd == 0 || lowerStart == h || w == 0 -> FoldGuidance.WINDOW_TOO_SMALL
                 else -> null
             }
@@ -75,10 +90,94 @@ object FoldGeometry {
         )
     }
 
+    /** Fixed lower wings keep both touch controls visible, even with a hardware gamepad. */
+    fun lowerConsole(
+        lower: FoldRect,
+        sideControlsWidth: Int,
+        contentGap: Int = 0,
+    ): LowerConsoleLayout {
+        val side = sideControlsWidth.coerceIn(0, lower.width / 2)
+        val gap = contentGap.coerceIn(0, (lower.width - side * 2) / 2)
+        return LowerConsoleLayout(
+            leftControls = lower.copy(right = lower.left + side),
+            center = lower.copy(left = lower.left + side + gap, right = lower.right - side - gap),
+            rightControls = lower.copy(left = lower.right - side),
+        )
+    }
+
     /**
-     * DS cores produce one top/bottom framebuffer. Reserve a native-pixel gap that covers
-     * the physical hinge, and size BOTH screens to the smaller pane. No crop or stretch.
-     * The lower screen leaves room on each side for controls. Returns null if it cannot fit.
+     * The native viewport stays rectangular and entirely inside this rounded backing.
+     * Half a radius on both axes clears the corner arc; one extra pixel also protects
+     * outward-rounded native raster edges. Never apply a rounded clip to game pixels.
+     */
+    fun displayPanel(
+        region: FoldRect,
+        outerInset: Int,
+        cornerRadius: Int,
+    ): DisplayPanelLayout {
+        val bounds = region.inset(outerInset)
+        val radius = cornerRadius.coerceIn(0, min(bounds.width, bounds.height) / 2)
+        val contentInset = (radius + 1) / 2 + 1
+        return DisplayPanelLayout(bounds, bounds.inset(contentInset), radius)
+    }
+
+    /**
+     * Largest centered, aspect-preserving rectangle inside the actual rounded backing.
+     * Letterboxing often already clears the corner arcs, so a blanket radius inset would
+     * unnecessarily shrink the image. The guard keeps native raster rounding off the arc.
+     */
+    fun fitInsidePanel(
+        panel: DisplayPanelLayout,
+        aspectRatio: Float,
+        rasterGuard: Int = 1,
+    ): ScreenRect? {
+        if (!aspectRatio.isFinite() || aspectRatio <= 0f) return null
+        val bounds = panel.bounds
+        val guard = rasterGuard.coerceAtLeast(0).toDouble()
+        val ratio = aspectRatio.toDouble()
+        val maximumHeight = min((bounds.width - guard * 2) / ratio, bounds.height - guard * 2)
+        if (maximumHeight <= 0.0) return null
+        val radius = panel.cornerRadius.toDouble()
+
+        fun clearsCorners(height: Double): Boolean {
+            val dx = max(0.0, radius - (bounds.width - height * ratio) / 2 + guard)
+            val dy = max(0.0, radius - (bounds.height - height) / 2 + guard)
+            return dx * dx + dy * dy <= radius * radius
+        }
+        var low = 0.0
+        var high = maximumHeight
+        // The four corners are symmetric and clearance decreases monotonically with size.
+        repeat(48) {
+            val candidate = (low + high) / 2
+            if (clearsCorners(candidate)) low = candidate else high = candidate
+        }
+        if (low <= 0.0) return null
+        val centerX = (bounds.left.toDouble() + bounds.right) / 2
+        val centerY = (bounds.top.toDouble() + bounds.bottom) / 2
+        return ScreenRect(
+            (centerX - low * ratio / 2).toFloat(),
+            (centerY - low / 2).toFloat(),
+            (centerX + low * ratio / 2).toFloat(),
+            (centerY + low / 2).toFloat(),
+        ).takeIf { it.width > 0f && it.height > 0f }
+    }
+
+    /** Requires a renderer that can place two source screens independently. */
+    fun independentDualScreen(
+        upper: DisplayPanelLayout,
+        lower: DisplayPanelLayout,
+    ): IndependentDualScreenLayout? {
+        if (upper.bounds.bottom > lower.bounds.top) return null
+        val upperScreen = fitInsidePanel(upper, 4f / 3f) ?: return null
+        val lowerScreen = fitInsidePanel(lower, 4f / 3f) ?: return null
+        return IndependentDualScreenLayout(upperScreen, lowerScreen)
+    }
+
+    /**
+     * Compatibility path for one stacked native DS framebuffer. Both screens must have
+     * the same scale. Search every legal core gap for the largest scale that fits, while
+     * anchoring the lower screen at the exact vertical center of its safe pane. A layout
+     * that needs a larger native gap is rejected instead of cropping or shifting a screen.
      */
     fun dualScreen(
         layout: FoldLayout,
@@ -87,37 +186,68 @@ object FoldGeometry {
         maxGap: Int = 126,
     ): DualScreenLayout? {
         if (layout.guidance != null || gapStep <= 0) return null
-        val availableWidth = layout.lower.width - sideControlsWidth.coerceAtLeast(0) * 2
-        if (availableWidth <= 0) return null
-        val centerY = (layout.hinge.top + layout.hinge.bottom) / 2f
-        val outerHalfHeight = min(centerY - layout.upper.top, layout.lower.bottom - centerY)
-        var scale = 0f
+        val side = sideControlsWidth.coerceAtLeast(0)
+        val availableLeft = max(layout.upper.left, layout.lower.left + side)
+        val availableRight = min(layout.upper.right, layout.lower.right - side)
+        val availableWidth = availableRight - availableLeft
+        if (availableWidth <= 0 || layout.upper.height <= 0 || layout.lower.height <= 0) return null
+        val lowerCenter = (layout.lower.top.toDouble() + layout.lower.bottom) / 2
+        val upperCenter = (layout.upper.top.toDouble() + layout.upper.bottom) / 2
+        var scale = 0.0
         var finalGap = -1
-        // Search the small legal core-option range. This also handles quantisation when
-        // fitting the total framebuffer changes the initial pixel-to-screen scale.
+        var upperCenterError = Double.POSITIVE_INFINITY
         for (gap in 0..maxGap step gapStep) {
-            val candidateScale = min(availableWidth / 256f, outerHalfHeight / (192f + gap / 2f))
-            if (candidateScale > 0f && gap * candidateScale >= layout.hinge.height) {
+            val candidateScale =
+                minOf(
+                    availableWidth / 256.0,
+                    layout.lower.height / 192.0,
+                    (lowerCenter - layout.upper.top) / (288.0 + gap),
+                )
+            val upperBottom = lowerCenter - (96.0 + gap) * candidateScale
+            if (candidateScale <= 0.0 || upperBottom > layout.upper.bottom + 0.000001) continue
+            val centerError = abs(lowerCenter - (192.0 + gap) * candidateScale - upperCenter)
+            if (candidateScale > scale || (candidateScale == scale && centerError < upperCenterError)) {
                 scale = candidateScale
                 finalGap = gap
-                break
+                upperCenterError = centerError
             }
         }
         if (finalGap < 0) return null
-        val screenWidth = 256f * scale
-        val screenHeight = 192f * scale
-        val gapHeight = finalGap * scale
-        val left = layout.lower.left + (layout.lower.width - screenWidth) / 2f
-        val top = centerY - gapHeight / 2f - screenHeight
-        val lowerTop = centerY + gapHeight / 2f
+        val screenWidth = 256.0 * scale
+        val screenHeight = 192.0 * scale
+        val left = availableLeft + (availableWidth - screenWidth) / 2
+        val top = lowerCenter - (288.0 + finalGap) * scale
+        val lowerTop = lowerCenter - screenHeight / 2
         return DualScreenLayout(
-            viewport = ScreenRect(left, top, left + screenWidth, lowerTop + screenHeight),
-            upperScreen = ScreenRect(left, top, left + screenWidth, top + screenHeight),
-            lowerScreen = ScreenRect(left, lowerTop, left + screenWidth, lowerTop + screenHeight),
+            viewport =
+                ScreenRect(
+                    left.toFloat(),
+                    top.toFloat(),
+                    (left + screenWidth).toFloat(),
+                    (lowerTop + screenHeight).toFloat(),
+                ),
+            upperScreen =
+                ScreenRect(
+                    left.toFloat(),
+                    top.toFloat(),
+                    (left + screenWidth).toFloat(),
+                    (top + screenHeight).toFloat(),
+                ),
+            lowerScreen =
+                ScreenRect(
+                    left.toFloat(),
+                    lowerTop.toFloat(),
+                    (left + screenWidth).toFloat(),
+                    (lowerTop + screenHeight).toFloat(),
+                ),
             nativeGap = finalGap,
         )
     }
 }
+
+data class LowerConsoleLayout(val leftControls: FoldRect, val center: FoldRect, val rightControls: FoldRect)
+
+data class DisplayPanelLayout(val bounds: FoldRect, val content: FoldRect, val cornerRadius: Int)
 
 data class ScreenRect(val left: Float, val top: Float, val right: Float, val bottom: Float) {
     val width: Float get() = right - left
@@ -127,6 +257,19 @@ data class ScreenRect(val left: Float, val top: Float, val right: Float, val bot
         x: Float,
         y: Float,
     ): Boolean = x >= left && x < right && y >= top && y < bottom
+
+    /** Inward rounding keeps a subsequent integer layout inside these safe bounds. */
+    fun enclosedPixels() = FoldRect(ceil(left).toInt(), ceil(top).toInt(), floor(right).toInt(), floor(bottom).toInt())
+}
+
+data class IndependentDualScreenLayout(
+    val upperScreen: ScreenRect,
+    val lowerScreen: ScreenRect,
+) {
+    fun touchCoordinates(
+        x: Float,
+        y: Float,
+    ): Pair<Int, Int>? = lowerTouchCoordinates(lowerScreen, x, y)
 }
 
 data class DualScreenLayout(
@@ -139,9 +282,19 @@ data class DualScreenLayout(
     fun touchCoordinates(
         x: Float,
         y: Float,
-    ): Pair<Int, Int>? {
-        if (!lowerScreen.contains(x, y)) return null
-        return floor((x - lowerScreen.left) * 256f / lowerScreen.width).toInt().coerceIn(0, 255) to
-            floor((y - lowerScreen.top) * 192f / lowerScreen.height).toInt().coerceIn(0, 191)
-    }
+    ): Pair<Int, Int>? = lowerTouchCoordinates(lowerScreen, x, y)
+}
+
+private fun lowerTouchCoordinates(
+    screen: ScreenRect,
+    x: Float,
+    y: Float,
+): Pair<Int, Int>? {
+    if (!screen.contains(x, y)) return null
+    // Center-relative arithmetic avoids a one-pixel bias when fractional viewport edges
+    // are rounded to Float: the exact display center always maps to DS pixel (128, 96).
+    val centerX = (screen.left + screen.right) / 2f
+    val centerY = (screen.top + screen.bottom) / 2f
+    return floor(128.0 + (x - centerX) * 256.0 / screen.width).toInt().coerceIn(0, 255) to
+        floor(96.0 + (y - centerY) * 192.0 / screen.height).toInt().coerceIn(0, 191)
 }

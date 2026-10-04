@@ -1,0 +1,75 @@
+name: Independent native screen checks
+on:
+  push:
+    branches: [qa/native-independent-screens-20261004]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      CMAKE_BUILD_PARALLEL_LEVEL: '2'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Verify existing native tools
+        run: |
+          test -f "$ANDROID_HOME/ndk/27.3.13750724/source.properties"
+          test -x "$ANDROID_HOME/cmake/3.31.5/bin/cmake"
+          cat "$ANDROID_HOME/ndk/27.3.13750724/source.properties"
+          "$ANDROID_HOME/cmake/3.31.5/bin/cmake" --version
+          df -h .
+      - run: python3 qa/check_publication.py
+      - run: python3 libretrodroid/tests/run_host_tests.py
+      - run: python3 -m unittest discover -s qa/homebrew/ds -p test_header.py
+      - run: python3 -m unittest discover -s qa -p test_metadata_archive.py
+      - name: Build source and main-process tests
+        run: ./gradlew :lemuroid-app:ktlintCheck :lemuroid-metadata-libretro-db:ktlintCheck :lemuroid-app:testFreeDynamicDebugUnitTest :libretrodroid:testDebugUnitTest :lemuroid-app:lintFreeDynamicDebug :libretrodroid:assembleDebug :lemuroid-app:assembleFreeDynamicDebug :lemuroid-app:assembleFreeDynamicDebugAndroidTest --max-workers=2 -Dorg.gradle.parallel=false -Pkotlin.compiler.execution.strategy=in-process --no-configuration-cache
+      - name: Preserve main-process artifacts
+        run: |
+          mkdir -p native-preview native-support
+          cp lemuroid-app/build/outputs/apk/freeDynamic/debug/lemuroid-app-free-dynamic-debug.apk native-preview/EmuUI-native-preview-debug.apk
+          cp lemuroid-app/build/outputs/apk/androidTest/freeDynamic/debug/lemuroid-app-free-dynamic-debug-androidTest.apk native-support/emuui-default-tests.apk
+          cp libretrodroid/build/outputs/aar/libretrodroid-debug.aar native-support/
+      - name: Build game-process tests
+        run: ./gradlew :lemuroid-app:assembleFreeDynamicDebugAndroidTest -PemuuiGameTests=true --max-workers=2 -Dorg.gradle.parallel=false -Pkotlin.compiler.execution.strategy=in-process --no-configuration-cache
+      - name: Prepare verification records
+        run: |
+          cp lemuroid-app/build/outputs/apk/androidTest/freeDynamic/debug/lemuroid-app-free-dynamic-debug-androidTest.apk native-support/emuui-game-tests.apk
+          cp COPYING native-preview/COPYING
+          printf '%s\n' \
+            'EmuUI independent-renderer QA build. Runtime acceptance is pending.' \
+            "Source: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/tree/${GITHUB_SHA}" \
+            'Built from the pinned renderer source in this repository.' \
+            'No ROMs, BIOS files, signing keys or user data are included.' \
+            'Debug signing keys may differ between builds. Back up saves before any reinstall.' \
+            > native-preview/README.txt
+          cp native-preview/README.txt native-preview/COPYING native-support/
+          (cd native-preview && sha256sum *.apk > SHA256SUMS.txt)
+          (cd native-support && sha256sum *.apk *.aar > SHA256SUMS.txt)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: emuui-native-preview-${{ github.sha }}
+          path: native-preview/
+          if-no-files-found: error
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: emuui-native-test-support-${{ github.sha }}
+          path: native-support/
+          if-no-files-found: error
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: emuui-native-checks-${{ github.sha }}
+          path: |
+            lemuroid-app/build/reports
+            libretrodroid/build/reports

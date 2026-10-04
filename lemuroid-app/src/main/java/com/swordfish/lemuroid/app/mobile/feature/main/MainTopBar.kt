@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -83,6 +84,7 @@ fun LemuroidTopAppBar(
     val topBarColor = BottomAppBarDefaults.containerColor
 
     TopAppBar(
+        windowInsets = WindowInsets(0, 0, 0, 0),
         title = {
             if (route == MainRoute.SEARCH) {
                 LemuroidSearchView(

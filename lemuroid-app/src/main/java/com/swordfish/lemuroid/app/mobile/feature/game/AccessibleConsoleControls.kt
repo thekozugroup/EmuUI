@@ -1,6 +1,7 @@
 package com.swordfish.lemuroid.app.mobile.feature.game
 
 import android.view.KeyEvent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -16,7 +18,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.customActions
@@ -82,7 +83,8 @@ internal fun AccessibleConsoleControls(
             }
         }
     Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(4.dp),
+        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceContainer)
+            .verticalScroll(rememberScrollState()).padding(4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -113,7 +115,7 @@ internal fun AccessibleConsoleControls(
                                         },
                                     )
                             },
-                    ) { Text(if (code in held) "$label •" else label, color = Color.White) }
+                    ) { Text(if (code in held) "$label •" else label, color = MaterialTheme.colorScheme.onSurface) }
                 }
             }
         }

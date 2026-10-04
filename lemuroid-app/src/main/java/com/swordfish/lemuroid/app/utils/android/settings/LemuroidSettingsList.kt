@@ -4,14 +4,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -68,7 +65,6 @@ fun LemuroidSettingsList(
     if (!showDialog) return
 
     val coroutineScope = rememberCoroutineScope()
-    val scrollState = rememberScrollState()
     val onSelected: (Int, Boolean) -> Unit = { selectedIndex, updateState ->
         coroutineScope.launch {
             if (updateState) state.value = selectedIndex
@@ -77,14 +73,13 @@ fun LemuroidSettingsList(
         }
     }
 
-    AlertDialog(
+    ConsoleSettingsDialog(
         title = title,
         text = {
             Column(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .verticalScroll(scrollState)
                         .selectableGroup(),
             ) {
                 if (subtitle != null) {
@@ -98,7 +93,7 @@ fun LemuroidSettingsList(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
-                                .height(56.dp)
+                                .heightIn(min = 56.dp)
                                 .selectable(
                                     role = Role.RadioButton,
                                     selected = isSelected,
@@ -123,7 +118,5 @@ fun LemuroidSettingsList(
             }
         },
         onDismissRequest = { showDialog = false },
-        confirmButton = {},
-        dismissButton = {},
     )
 }

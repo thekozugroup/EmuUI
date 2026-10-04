@@ -1,12 +1,14 @@
 package com.swordfish.lemuroid.app.shared.game
 
 import android.app.Activity
+import android.widget.Toast
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.shared.main.GameLaunchTaskHandler
 import com.swordfish.lemuroid.app.utils.android.displayErrorDialog
 import com.swordfish.lemuroid.common.displayToast
 import com.swordfish.lemuroid.lib.core.CoresSelection
 import com.swordfish.lemuroid.lib.library.GameSystem
+import com.swordfish.lemuroid.lib.library.SystemID
 import com.swordfish.lemuroid.lib.library.db.entity.Game
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -27,6 +29,15 @@ class GameLauncher(
         loadSave: Boolean,
         leanback: Boolean,
     ): Boolean {
+        // Block before starting the native core, including external shortcuts and context actions.
+        if (game.systemId == SystemID.NINTENDO_3DS.dbname) {
+            Toast.makeText(
+                activity,
+                "3DS split-screen layout is not supported in EmuUI yet. Nintendo DS uses both screens.",
+                Toast.LENGTH_LONG,
+            ).show()
+            return false
+        }
         if (GameProcessLock.isHeldByAnotherProcess(activity.applicationContext)) {
             activity.displayToast(R.string.game_process_another_game_running)
             return false

@@ -26,6 +26,9 @@ fun HomeScreen(
     onOpenSearch: () -> Unit,
     onOpenHelp: () -> Unit,
     onSyncSaves: (() -> Unit)? = null,
+    libraryActive: Boolean = true,
+    onBack: (() -> Unit)? = null,
+    centerContent: @Composable (library: @Composable () -> Unit) -> Unit = { it() },
 ) {
     val context = LocalContext.current
     ComposableLifecycle { _, event ->
@@ -39,6 +42,9 @@ fun HomeScreen(
     val state = viewModel.getViewStates().collectAsState(HomeViewModel.UIState()).value
     ConsoleHomeScreen(
         modifier = modifier,
+        libraryActive = libraryActive,
+        onBack = onBack,
+        centerContent = centerContent,
         state = state,
         selectedGameId = selectedGameId,
         onGameSelected = onGameSelected,

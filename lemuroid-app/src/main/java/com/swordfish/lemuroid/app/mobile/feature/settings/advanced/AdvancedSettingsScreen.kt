@@ -1,7 +1,7 @@
 package com.swordfish.lemuroid.app.mobile.feature.settings.advanced
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -11,10 +11,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.main.MainRoute
+import com.swordfish.lemuroid.app.utils.android.settings.ConsoleSettingsDialog
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidCardSettingsGroup
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsList
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsMenuLink
@@ -131,13 +133,15 @@ private fun FactoryResetDialog(
     val onDismiss = {
         factoryResetDialogState.value = false
     }
-    AlertDialog(
+    ConsoleSettingsDialog(
         title = { Text(stringResource(id = R.string.reset_settings_warning_message_title)) },
         text = { Text(stringResource(id = R.string.reset_settings_warning_message_description)) },
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(
+                modifier = Modifier.heightIn(min = 48.dp),
                 onClick = {
+                    factoryResetDialogState.value = false
                     viewModel.resetAllSettings()
                     navController.popBackStack(MainRoute.SETTINGS.route, false)
                 },
@@ -146,7 +150,7 @@ private fun FactoryResetDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            TextButton(onClick = onDismiss, modifier = Modifier.heightIn(min = 48.dp)) {
                 Text(text = stringResource(id = R.string.cancel))
             }
         },

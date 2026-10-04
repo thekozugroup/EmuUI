@@ -23,13 +23,29 @@ Do not replace the pin with Material 3 `1.4.0` stable and assume that Expressive
 ## APIs used in the app
 
 - `MaterialExpressiveTheme` is the root theme in `LemuroidTheme.kt`
-- `MotionScheme.expressive()` supplies the official Expressive motion system while preserving EmuUI's original color, typography, and shape palette
+- `MotionScheme.expressive()` supplies the official Expressive motion system with EmuUI's neutral fallback colors, typography, and shape palette
 - The primary Play / Add games action uses the Expressive `Button` overload with `ButtonDefaults.shapes()`, including its animated pressed-shape behavior
 - A standard `CircularProgressIndicator` handles initial library loading. The morphing `LoadingIndicator` was removed after an API 35 ANR trace identified synchronous polygon-matching work on the main thread during startup; rendering progress must stay lightweight.
 - `LinearWavyProgressIndicator` displays active library-import progress
 - Cartridge selection color transitions use `MaterialTheme.motionScheme.fastEffectsSpec()`
 
 Experimental API opt-ins are scoped to the affected composables. Labels, content descriptions, touch targets, navigation routes, and the physical hinge layout remain unchanged. Console preview placeholders are original procedural cartridge art; imported library entries may display their own cover art. Upstream system icons retain their original attribution.
+
+## Appearance and wallpaper colors (0.2.0 source revision)
+
+Settings → Appearance → Theme offers **System**, **Light**, and **Dark**. System is the default and follows Android's current dark-mode configuration; an explicit Light or Dark choice overrides it. The choice is stored as a stable string, rather than a translated label or list index. Unknown/corrupt stored values fall back to System.
+
+On Android 12 (API 31) and later, **Wallpaper colors** is on by default and uses AndroidX `dynamicLightColorScheme(context)` / `dynamicDarkColorScheme(context)` to obtain the system's wallpaper-derived Material You palette. Turning it off uses the neutral fallback. Older Android versions always use the complete neutral light/dark schemes. Missing OEM dynamic-color resources also fall back safely. Wallpaper appearance depends on the device's Android implementation and wallpaper settings; the app does not infer a palette from game artwork.
+
+All launcher surfaces, selection roles, settings, menus, dialogs, and posture guidance use Material color roles with their corresponding foreground roles. Broad shell/panel surfaces stay understated; selection and primary actions use the primary family. The neutral fallback explicitly sets every role in the pinned Material 3 API, including all surface-container and fixed-color roles, to avoid accidental default purple components. Error colors retain their semantic red. Native emulator pixels are never recolored. Accessibility controls have an opaque theme surface with matching text; radial gameplay controls retain their existing neutral overlay styling.
+
+The implementation reuses the existing **Harmony 1.1.9 multi-process preferences** store used by the rest of EmuUI. Each `AppTheme` subscribes to preference changes and refreshes on Activity resume. This matters because the launcher and game/menu run in separate processes: ordinary Android `SharedPreferences` or `MODE_MULTI_PROCESS` are not used for this feature. Resume and configuration changes also invalidate dynamic-color calculation, allowing fresh wallpaper resources to be read. Launcher status/navigation-bar icon contrast follows the selected mode via `WindowInsetsControllerCompat`; gameplay's immersive and black-system-bar policy is preserved without showing or hiding bars.
+
+The theme keeps `MaterialExpressiveTheme` and `MotionScheme.expressive()`; Material You color selection is complementary to these APIs. No new runtime dependency, permission, account, network request, or credential is needed.
+
+Focused JVM coverage includes stable preference parsing, explicit and System mode resolution, neutral-surface saturation, and 4.5:1 minimum contrast for fallback text-role pairs. These tests are not a substitute for native verification: check actual theme selection and persistence, cold relaunch, main/`:game` propagation and return, system dark-mode changes, font scaling, dialogs, game controls, and system-bar icons. Dynamic wallpaper behavior requires a working Android 12+ device; API 29 fallback screenshots cannot establish Monet runtime support. See [QA.md](QA.md) for the executed, artifact-specific results.
+
+Sources: [Android Compose Material 3 dynamic color and roles](https://developer.android.com/develop/ui/compose/designsystems/material3#dynamic_color_schemes), [Harmony multi-process preference implementation](https://github.com/pablobaxter/Harmony).
 
 ## Verification
 

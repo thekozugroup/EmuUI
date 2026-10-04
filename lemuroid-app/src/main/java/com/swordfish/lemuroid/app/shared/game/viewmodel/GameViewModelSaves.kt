@@ -70,11 +70,22 @@ class GameViewModelSaves(
         }
     }
 
-    suspend fun captureSaveSnapshot(useEmulationThread: Boolean): SaveSnapshot? {
-        val retroGameView = retroGameView.retroGameView ?: return null
-        val sramState = retroGameView.serializeSRAM(useEmulationThread)
-        val autoSaveState = if (isAutoSaveEnabled()) getCurrentSaveState(useEmulationThread) else null
-        return SaveSnapshot(sramState, autoSaveState)
+    suspend fun captureSaveSnapshot(expectedView: GLRetroView? = null): SaveSnapshot? {
+        // Resolve suspendable preferences before touching native state. A fold or Activity
+        // transition can occur while this lookup is on IO, so revalidate afterward.
+        val requestedView = expectedView ?: retroGameView.existingRetroView() ?: return null
+        val autoSaveEnabled = isAutoSaveEnabled()
+        return withContext(Dispatchers.Main.immediate) {
+            if (!retroGameView.canCaptureState || retroGameView.existingRetroView() !== requestedView) {
+                return@withContext null
+            }
+            // No suspension is permitted between choosing the execution mode and capture.
+            // Main-thread lifecycle events cannot resume a paused core during this block.
+            val useEmulationThread = retroGameView.isNativeViewResumed
+            val sramState = requestedView.serializeSRAM(useEmulationThread)
+            val autoSaveState = if (autoSaveEnabled) getCurrentSaveState(useEmulationThread) else null
+            SaveSnapshot(sramState, autoSaveState)
+        }
     }
 
     suspend fun writeSaveSnapshot(snapshot: SaveSnapshot?) {

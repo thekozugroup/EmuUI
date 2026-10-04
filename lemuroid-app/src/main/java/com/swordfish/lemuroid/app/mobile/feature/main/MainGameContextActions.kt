@@ -1,40 +1,29 @@
 package com.swordfish.lemuroid.app.mobile.feature.main
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContent
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AppShortcut
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.RestartAlt
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
-import androidx.compose.material3.SheetValue
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,7 +35,7 @@ import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LemuroidGameTexts
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LemuroidSmallGameImage
 import com.swordfish.lemuroid.lib.library.db.entity.Game
 
-@OptIn(ExperimentalMaterial3Api::class)
+/** In-console options keep the upper preview and side controls visible. */
 @Composable
 fun MainGameContextActions(
     selectedGameState: MutableState<Game?>,
@@ -56,31 +45,21 @@ fun MainGameContextActions(
     onFavoriteToggle: (Game, Boolean) -> Unit,
     onCreateShortcut: (Game) -> Unit,
 ) {
-    val modalSheetState = rememberModalBottomSheetState(true)
-    val selectedGame = selectedGameState.value
-
-    LaunchedEffect(selectedGame) {
-        if (selectedGame != null) {
-            modalSheetState.show()
-        } else {
-            modalSheetState.hide()
-        }
-    }
-
-    if (selectedGame != null) {
-        ModalBottomSheet(
-            sheetState = modalSheetState,
-            onDismissRequest = { selectedGameState.value = null },
-        ) {
-            ContextActionContent(
-                selectedGame = selectedGame,
-                onGamePlay = onGamePlay,
-                selectedGameState = selectedGameState,
-                onGameRestart = onGameRestart,
-                onFavoriteToggle = onFavoriteToggle,
-                shortcutSupported = shortcutSupported,
-                onCreateShortcut = onCreateShortcut,
-            )
+    val selectedGame = selectedGameState.value ?: return
+    Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
+        Column(Modifier.fillMaxSize()) {
+            TextButton(onClick = { selectedGameState.value = null }) { Text("Back to library") }
+            Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+                ContextActionContent(
+                    selectedGame = selectedGame,
+                    onGamePlay = onGamePlay,
+                    selectedGameState = selectedGameState,
+                    onGameRestart = onGameRestart,
+                    onFavoriteToggle = onFavoriteToggle,
+                    shortcutSupported = shortcutSupported,
+                    onCreateShortcut = onCreateShortcut,
+                )
+            }
         }
     }
 }
@@ -97,9 +76,7 @@ private fun ContextActionContent(
 ) {
     Column(
         modifier =
-            Modifier
-                .fillMaxWidth()
-                .windowInsetsPadding(WindowInsets.safeContent.only(WindowInsetsSides.Bottom)),
+            Modifier.fillMaxWidth(),
     ) {
         ContextActionHeader(game = selectedGame)
         Divider()
@@ -194,34 +171,17 @@ private fun ContextActionEntry(
             modifier
                 .fillMaxWidth()
                 .clickable(onClick = onClick)
-                .height(56.dp),
+                .heightIn(min = 56.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
             modifier = Modifier.padding(start = 16.dp),
             imageVector = icon,
-            contentDescription = label,
+            contentDescription = null,
         )
         Text(
             modifier = Modifier.padding(start = 16.dp),
             text = label,
-        )
-    }
-}
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun FakeScrim(modalSheetState: SheetState) {
-    AnimatedVisibility(
-        visible = modalSheetState.targetValue != SheetValue.Hidden,
-        enter = fadeIn(),
-        exit = fadeOut(),
-    ) {
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .background(BottomSheetDefaults.ScrimColor),
         )
     }
 }

@@ -52,8 +52,6 @@ class GameViewModelTouchControls(
 
     private var loadingMenuJob: Job? = null
     private val pressedVirtualKeys = mutableSetOf<Int>()
-    private val accessiblePressTokens = mutableMapOf<Int, Any>()
-    private val accessiblePressJobs = mutableMapOf<Int, Job>()
     val accessibleHeldButtons = MutableStateFlow<Set<Int>>(emptySet())
 
     override fun onCreate(owner: LifecycleOwner) {
@@ -67,6 +65,10 @@ class GameViewModelTouchControls(
                 hapticFeedbackMode.value = HapticFeedbackMode.parse(settingsManager.hapticFeedbackMode())
             }
         }
+    }
+
+    override fun onPause(owner: LifecycleOwner) {
+        releaseVirtualControls()
     }
 
     fun getTouchControlsSettings(
@@ -174,9 +176,7 @@ class GameViewModelTouchControls(
 
     fun releaseVirtualControls() {
         accessibleHeldButtons.value = emptySet()
-        accessiblePressTokens.clear()
-        accessiblePressJobs.values.forEach { it.cancel() }
-        accessiblePressJobs.clear()
+        retroGameView.retroGameView?.cancelAccessibleTaps()
         onMenuPressed(false)
         pressedVirtualKeys.forEach { retroGameView.retroGameView?.sendKeyEvent(KeyEvent.ACTION_UP, it) }
         pressedVirtualKeys.clear()
@@ -191,29 +191,14 @@ class GameViewModelTouchControls(
     ) {
         accessibleHeldButtons.value =
             if (pressed) accessibleHeldButtons.value + keyCode else accessibleHeldButtons.value - keyCode
-        accessiblePressTokens.remove(keyCode)
-        accessiblePressJobs.remove(keyCode)?.cancel()
+        retroGameView.retroGameView?.cancelAccessibleTaps(keyCode)
         sendVirtualButton(keyCode, pressed)
     }
 
     fun tapAccessibleButton(keyCode: Int) {
-        val token = Any()
-        accessiblePressTokens[keyCode] = token
-        accessiblePressJobs.remove(keyCode)?.cancel()
-        sendVirtualButton(keyCode, true)
-        accessiblePressJobs[keyCode] =
-            scope.launch {
-                try {
-                    // A screen-reader activation must survive multiple emulation frames.
-                    delay(120)
-                } finally {
-                    if (accessiblePressTokens[keyCode] === token) {
-                        accessiblePressTokens.remove(keyCode)
-                        accessiblePressJobs.remove(keyCode)
-                        sendVirtualButton(keyCode, false)
-                    }
-                }
-            }
+        // Native pulse state is independent of explicit holds and physical keys.
+        // It advances only after retro_run(), even when GL is very slow.
+        retroGameView.retroGameView?.enqueueAccessibleTap(keyCode)
     }
 
     private fun handleVirtualInputButton(event: InputEvent.Button) {

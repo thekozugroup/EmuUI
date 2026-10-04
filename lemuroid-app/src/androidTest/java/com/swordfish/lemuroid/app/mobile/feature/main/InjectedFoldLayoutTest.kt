@@ -35,6 +35,7 @@ class InjectedFoldLayoutTest {
 
     @Test
     fun offCentreHorizontalHingeKeepsPreviewAboveAndLibraryBelow() {
+        publishOpenInnerDisplay()
         waitForLibrary()
         compose.onNodeWithText("Favorites").performClick()
         val bounds = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(compose.activity).bounds
@@ -70,12 +71,21 @@ class InjectedFoldLayoutTest {
         }
 
         windowInfo.overrideWindowLayoutInfo(TestWindowLayoutInfo())
+        compose.waitUntil(TIMEOUT) {
+            runCatching {
+                compose.onAllNodes(hasText("Open your foldable")).fetchSemanticsNodes().isNotEmpty()
+            }.getOrDefault(false)
+        }
+        compose.onNodeWithText("Open your foldable").assertIsDisplayed()
+        assertTrue(compose.onAllNodes(hasContentDescription("Import games folder")).fetchSemanticsNodes().isEmpty())
+        publishOpenInnerDisplay()
         waitForLibrary()
         compose.onNodeWithText("Favorites").assertIsSelected()
     }
 
     @Test
     fun verticalHingeShowsGuidanceAndUnfoldRestoresSelection() {
+        publishOpenInnerDisplay()
         waitForLibrary()
         compose.onNodeWithText("Favorites").performClick()
         windowInfo.overrideWindowLayoutInfo(
@@ -99,8 +109,44 @@ class InjectedFoldLayoutTest {
             "Rotate your device so the crease runs left to right. Preview goes above; your library goes below.",
         ).assertIsDisplayed()
         windowInfo.overrideWindowLayoutInfo(TestWindowLayoutInfo())
+        compose.waitUntil(TIMEOUT) {
+            runCatching {
+                compose.onAllNodes(hasText("Open your foldable")).fetchSemanticsNodes().isNotEmpty()
+            }.getOrDefault(false)
+        }
+        compose.onNodeWithText("Open your foldable").assertIsDisplayed()
+        assertTrue(compose.onAllNodes(hasContentDescription("Import games folder")).fetchSemanticsNodes().isEmpty())
+        publishOpenInnerDisplay()
         waitForLibrary()
         compose.onNodeWithText("Favorites").assertIsSelected()
+    }
+
+    @Test
+    fun ordinaryLandscapePhoneHasNoInteractiveConsoleUntilHardwareFeatureArrives() {
+        windowInfo.overrideWindowLayoutInfo(TestWindowLayoutInfo())
+        compose.waitUntil(TIMEOUT) {
+            runCatching {
+                compose.onAllNodes(hasText("Open your foldable")).fetchSemanticsNodes().isNotEmpty()
+            }.getOrDefault(false)
+        }
+        compose.onNodeWithText("Open your foldable").assertIsDisplayed()
+        assertTrue(compose.onAllNodes(hasContentDescription("Import games folder")).fetchSemanticsNodes().isEmpty())
+        publishOpenInnerDisplay()
+        waitForLibrary()
+    }
+
+    private fun publishOpenInnerDisplay() {
+        windowInfo.overrideWindowLayoutInfo(
+            TestWindowLayoutInfo(
+                listOf(
+                    TestFoldingFeature(
+                        activity = compose.activity,
+                        state = FoldingFeature.State.FLAT,
+                        orientation = FoldingFeature.Orientation.HORIZONTAL,
+                    ),
+                ),
+            ),
+        )
     }
 
     private fun waitForLibrary() {

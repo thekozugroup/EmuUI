@@ -77,6 +77,7 @@ class GameViewModelRetroGameView(
     private var hasRenderedFrame = false
     private var frameReadyJob: Job? = null
     private var restoringView: GLRetroView? = null
+    private var nativeLifecycle: Lifecycle? = null
     private var retainedGameData: GameLoader.GameData? = null
     private val recreationCheckpoint = GameRecreationCheckpoint<RecreationSnapshot>()
 
@@ -89,6 +90,12 @@ class GameViewModelRetroGameView(
     )
 
     val acceptsTouchInput: Boolean get() = system.hasTouchScreen
+    val canCaptureState: Boolean
+        get() =
+            hasRenderedFrame && restoringView == null && gameState.value == GameState.Ready &&
+                nativeLifecycle?.currentState?.isAtLeast(Lifecycle.State.CREATED) == true
+    val isNativeViewResumed: Boolean
+        get() = nativeLifecycle?.currentState?.isAtLeast(Lifecycle.State.RESUMED) == true
 
     fun existingRetroView(): GLRetroView? = if (gameState.value == GameState.Ready) retroGameView else null
 
@@ -119,6 +126,7 @@ class GameViewModelRetroGameView(
         // Re-open ROM/VFS handles through GameLoader. They were consumed by the old core.
         hasRenderedFrame = false
         retainedGameData = null
+        nativeLifecycle = null
         retroGameView = null
         gameState.value = GameState.Uninitialized
     }
@@ -248,6 +256,11 @@ class GameViewModelRetroGameView(
         val currentState = gameState.value
         if (currentState !is GameState.Loaded) throw IllegalStateException("Game is not loaded.")
 
+        // Mobile presentation overrides must be present at native create/load,
+        // before any frame or save-state restore can expose a different DS layout.
+        currentState.retroViewData.variables =
+            (currentState.retroViewData.variables.toList() + consoleLayoutVariables.map { Variable(it.key, it.value) })
+                .associateBy { it.key }.values.toTypedArray()
         val result =
             GLRetroView(context, currentState.retroViewData)
                 .apply {
@@ -259,6 +272,7 @@ class GameViewModelRetroGameView(
             result.disableTouchEvents()
         }
 
+        nativeLifecycle = lifecycle.lifecycle
         lifecycle.lifecycle.addObserver(result)
 
         if (BuildConfig.DEBUG) {

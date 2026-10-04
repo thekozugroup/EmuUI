@@ -5,20 +5,24 @@ package com.swordfish.lemuroid.app.mobile.feature.gamemenu
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.view.KeyEvent
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -31,25 +35,49 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.swordfish.lemuroid.R
+import com.swordfish.lemuroid.app.mobile.feature.emuui.FoldGeometry
+import com.swordfish.lemuroid.app.mobile.feature.emuui.FoldGuidance
+import com.swordfish.lemuroid.app.mobile.feature.emuui.rememberFoldPosture
+import com.swordfish.lemuroid.app.mobile.feature.game.ConsoleRegion
+import com.swordfish.lemuroid.app.mobile.feature.game.FoldGameGuidance
 import com.swordfish.lemuroid.app.mobile.feature.gamemenu.coreoptions.GameMenuCoreOptionsScreen
 import com.swordfish.lemuroid.app.mobile.feature.gamemenu.coreoptions.GameMenuCoreOptionsViewModel
 import com.swordfish.lemuroid.app.mobile.feature.gamemenu.states.GameMenuStatesScreen
 import com.swordfish.lemuroid.app.mobile.feature.gamemenu.states.GameMenuStatesViewModel
+import com.swordfish.lemuroid.app.mobile.feature.home.LauncherControlWing
+import com.swordfish.lemuroid.app.mobile.feature.home.LauncherDirection
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.AppTheme
 import com.swordfish.lemuroid.app.shared.GameMenuContract
 import com.swordfish.lemuroid.app.shared.coreoptions.LemuroidCoreOption
 import com.swordfish.lemuroid.app.shared.input.InputDeviceManager
+import com.swordfish.lemuroid.app.utils.android.settings.ConsoleDialogRegion
+import com.swordfish.lemuroid.app.utils.android.settings.LocalConsoleDialogRegion
 import com.swordfish.lemuroid.common.kotlin.serializable
 import com.swordfish.lemuroid.lib.android.RetrogradeComponentActivity
 import com.swordfish.lemuroid.lib.library.SystemCoreConfig
@@ -59,6 +87,7 @@ import com.swordfish.lemuroid.lib.saves.StatesPreviewManager
 import com.swordfish.touchinput.radial.sensors.TiltConfiguration
 import java.security.InvalidParameterException
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 class GameMenuActivity : RetrogradeComponentActivity() {
     @Inject
@@ -147,7 +176,12 @@ class GameMenuActivity : RetrogradeComponentActivity() {
                     ?.let { GameMenuRoute.findByRoute(it) }
                     ?: GameMenuRoute.HOME
 
-            SideMenu {
+            SideMenu(
+                gameTitle = gameMenuRequest.game.title,
+                onBack = { if (currentRoute.canGoBack()) navController.popBackStack() else onResult { } },
+                onMenuHome = { navController.popBackStack(GameMenuRoute.HOME.route, false) },
+                onOptions = { navController.navigate(GameMenuRoute.OPTIONS.route) { launchSingleTop = true } },
+            ) {
                 TopAppBar(
                     title = { Text(stringResource(currentRoute.titleId)) },
                     windowInsets = WindowInsets(0.dp),
@@ -231,28 +265,147 @@ class GameMenuActivity : RetrogradeComponentActivity() {
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Composable
-    private fun SideMenu(content: @Composable () -> Unit) {
+    private fun SideMenu(
+        gameTitle: String,
+        onBack: () -> Unit,
+        onMenuHome: () -> Unit,
+        onOptions: () -> Unit,
+        content: @Composable () -> Unit,
+    ) {
+        val posture = rememberFoldPosture()
+        val density = LocalDensity.current
+        val root = remember { mutableStateOf(IntOffset.Zero) }
+        val insets = WindowInsets.safeDrawing
+        val focusManager = LocalFocusManager.current
+        val centerFocus = remember { FocusRequester() }
+        val centerHasFocus = remember { mutableStateOf(false) }
+        val view = LocalView.current
+        val navigate: (LauncherDirection) -> Unit = { direction ->
+            if (!centerHasFocus.value) centerFocus.requestFocus()
+            focusManager.moveFocus(
+                when (direction) {
+                    LauncherDirection.UP -> FocusDirection.Up
+                    LauncherDirection.DOWN -> FocusDirection.Down
+                    LauncherDirection.LEFT -> FocusDirection.Left
+                    LauncherDirection.RIGHT -> FocusDirection.Right
+                },
+            )
+        }
+        val activate = {
+            if (!centerHasFocus.value) centerFocus.requestFocus()
+            view.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_CENTER))
+            view.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DPAD_CENTER))
+            Unit
+        }
+        val cycleFocus: (Boolean) -> Unit = { forward ->
+            if (!centerHasFocus.value) centerFocus.requestFocus()
+            focusManager.moveFocus(if (forward) FocusDirection.Next else FocusDirection.Previous)
+        }
         BoxWithConstraints(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.CenterEnd,
+            modifier =
+                Modifier.fillMaxSize().onGloballyPositioned {
+                    val position = it.positionInWindow()
+                    root.value = IntOffset(position.x.roundToInt(), position.y.roundToInt())
+                },
         ) {
-            val panelWidth =
-                remember(maxWidth) {
-                    minOf(maxWidth * 0.8f, 400f.dp)
+            val width = constraints.maxWidth
+            val height = constraints.maxHeight
+            val raw =
+                FoldGeometry.resolve(
+                    width,
+                    height,
+                    posture.fold?.relativeTo(root.value.x, root.value.y),
+                    with(density) { 8.dp.roundToPx() },
+                )
+            val left = insets.getLeft(density, LayoutDirection.Ltr)
+            val right = (width - insets.getRight(density, LayoutDirection.Ltr)).coerceAtLeast(left)
+            val layout =
+                raw.copy(
+                    upper = raw.upper.copy(left = left, right = right, top = insets.getTop(density)),
+                    lower = raw.lower.copy(left = left, right = right, bottom = height - insets.getBottom(density)),
+                )
+            val guidance =
+                layout.guidance ?: if (layout.lower.height < with(density) { 144.dp.roundToPx() }) {
+                    FoldGuidance.WINDOW_TOO_SMALL
+                } else {
+                    null
                 }
-
-            Surface(
-                modifier =
-                    Modifier
-                        .padding()
-                        .fillMaxHeight()
-                        .width(panelWidth)
-                        .clip(MaterialTheme.shapes.large),
-            ) {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    content()
+            if (guidance != null) {
+                FoldGameGuidance(guidance, { onResult { } })
+                return@BoxWithConstraints
+            }
+            val console =
+                FoldGeometry.lowerConsole(
+                    layout.lower,
+                    minOf(with(density) { 172.dp.roundToPx() }, width / 4),
+                )
+            val centerPanel =
+                FoldGeometry.displayPanel(
+                    console.center,
+                    with(density) { 6.dp.roundToPx() },
+                    with(density) { 24.dp.roundToPx() },
+                )
+            // This Activity is translucent: retain the actual paused native display above
+            // the crease, rather than replacing it with a placeholder or another core.
+            ConsoleRegion(layout.upper, "emuui_menu_upper") {
+                Surface(
+                    modifier = Modifier.align(Alignment.TopCenter).padding(8.dp),
+                    shape = MaterialTheme.shapes.large,
+                ) {
+                    Text("Paused · $gameTitle", modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
                 }
+            }
+            ConsoleRegion(layout.lower) {
+                Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface))
+            }
+            for ((isLeft, region) in listOf(true to console.leftControls, false to console.rightControls)) {
+                val tag = if (isLeft) "emuui_menu_left_controls" else "emuui_menu_right_controls"
+                ConsoleRegion(region, tag) {
+                    LauncherControlWing(
+                        left = isLeft,
+                        libraryActive = false,
+                        canNavigate = true,
+                        canPlay = true,
+                        hasGame = true,
+                        onNavigate = navigate,
+                        onPlay = activate,
+                        onBack = onBack,
+                        onMenu = onOptions,
+                        onSearch = onMenuHome,
+                        onCycleFilter = cycleFocus,
+                        onStart = { onResult { } },
+                        startDescription = "Start, resume game",
+                        searchDescription = "X, game menu home",
+                        menuDescription = "Y, core options",
+                    )
+                }
+            }
+            ConsoleRegion(centerPanel.bounds, "emuui_menu_center") {
+                Surface(
+                    modifier =
+                        Modifier.fillMaxSize().clip(RoundedCornerShape(24.dp))
+                            .focusRequester(centerFocus)
+                            .onFocusChanged { centerHasFocus.value = it.hasFocus }
+                            .focusProperties { exit = { FocusRequester.Cancel } }.focusGroup(),
+                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                    shape = RoundedCornerShape(24.dp),
+                ) {
+                    val dialogBounds =
+                        centerPanel.bounds.copy(
+                            left = centerPanel.bounds.left + root.value.x,
+                            top = centerPanel.bounds.top + root.value.y,
+                            right = centerPanel.bounds.right + root.value.x,
+                            bottom = centerPanel.bounds.bottom + root.value.y,
+                        )
+                    CompositionLocalProvider(LocalConsoleDialogRegion provides ConsoleDialogRegion(dialogBounds)) {
+                        Column(modifier = Modifier.fillMaxSize()) { content() }
+                    }
+                }
+            }
+            ConsoleRegion(raw.hinge, "emuui_menu_hinge") {
+                Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface))
             }
         }
     }

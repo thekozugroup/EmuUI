@@ -11,9 +11,11 @@ plugins {
 val gameProcessTests = providers.gradleProperty("emuuiGameTests").map(String::toBoolean).getOrElse(false)
 
 android {
+    // Use the renderer's toolchain for consistent native stripping and packaging.
+    ndkVersion = "27.3.13750724"
     defaultConfig {
-        versionCode = 2
-        versionName = "0.1.1" // Core download tag remains independently pinned upstream.
+        versionCode = 3
+        versionName = "0.2.0" // Core download tag remains independently pinned upstream.
         applicationId = "com.thekozugroup.emuui"
         testInstrumentationRunner =
             if (gameProcessTests) {
@@ -206,7 +208,7 @@ dependencies {
     implementation(deps.libs.composeSettings.diskStorage)
     implementation(deps.libs.composeSettings.memoryStorage)
 
-    implementation(deps.libs.libretrodroid)
+    implementation(project(":libretrodroid"))
 
     // Uncomment this when using a local aar file.
     // implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))

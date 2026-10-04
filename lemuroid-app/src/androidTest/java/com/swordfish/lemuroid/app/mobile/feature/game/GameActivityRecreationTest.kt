@@ -13,6 +13,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.window.layout.FoldingFeature
+import androidx.window.testing.layout.TestWindowLayoutInfo
+import androidx.window.testing.layout.WindowLayoutInfoPublisherRule
 import com.swordfish.lemuroid.app.shared.game.BaseGameScreenViewModel
 import com.swordfish.lemuroid.app.shared.game.viewmodel.GameViewModelRetroGameView
 import com.swordfish.lemuroid.lib.library.GameSystem
@@ -32,10 +35,12 @@ import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
 import java.util.concurrent.atomic.AtomicReference
+import androidx.window.testing.layout.FoldingFeature as TestFoldingFeature
 
 /**
  * Requires an already imported lawful fixture and its downloaded core. No rows, permissions,
@@ -45,6 +50,9 @@ import java.util.concurrent.atomic.AtomicReference
 @LargeTest
 @SdkSuppress(minSdkVersion = 26)
 class GameActivityRecreationTest {
+    @get:Rule
+    val windowInfo = WindowLayoutInfoPublisherRule()
+
     @Test
     fun readyGameRecreatesTwiceWithRetainedViewModelAndNewNativeView() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -77,6 +85,8 @@ class GameActivityRecreationTest {
                 initialModel.set(ViewModelProvider(it)[BaseGameScreenViewModel::class.java])
             }
             val model = initialModel.get()
+            awaitConstructedView(model)
+            publishOpenFold(initialActivity.get())
             var oldActivity = initialActivity.get()
             var oldView = awaitUsableCore(model)
             captureCheckpoint(context, "00-before.png")
@@ -93,6 +103,8 @@ class GameActivityRecreationTest {
                     assertEquals(game.id, (activity.intent.getSerializableExtra("GAME") as Game).id)
                     oldActivity = activity
                 }
+                awaitConstructedView(model)
+                publishOpenFold(oldActivity)
                 val newView = awaitUsableCore(model)
                 assertNotSame("A recreated Activity must create a fresh native view", oldView, newView)
                 oldView = newView
@@ -106,6 +118,32 @@ class GameActivityRecreationTest {
             instrumentation.waitForIdleSync()
             scenario.close()
         }
+    }
+
+    private fun awaitConstructedView(model: BaseGameScreenViewModel) {
+        runBlocking {
+            withTimeout(180_000) {
+                model.getGameState().first { it == GameViewModelRetroGameView.GameState.Ready }
+            }
+        }
+        // This class uses the real Android frame clock. Let the new game-screen
+        // composition subscribe before the non-replaying test publisher emits.
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+    }
+
+    private fun publishOpenFold(activity: GameActivity) {
+        windowInfo.overrideWindowLayoutInfo(
+            TestWindowLayoutInfo(
+                listOf(
+                    TestFoldingFeature(
+                        activity = activity,
+                        size = 24,
+                        state = FoldingFeature.State.HALF_OPENED,
+                        orientation = FoldingFeature.Orientation.HORIZONTAL,
+                    ),
+                ),
+            ),
+        )
     }
 
     private fun captureCheckpoint(

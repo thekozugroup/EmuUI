@@ -1,6 +1,7 @@
 package com.swordfish.lemuroid.app.mobile.feature.settings.general
 
 import android.net.Uri
+import android.os.Build
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -10,9 +11,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.documentfile.provider.DocumentFile
 import androidx.navigation.NavController
+import com.alorma.compose.settings.storage.base.SettingValueState
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.main.MainRoute
 import com.swordfish.lemuroid.app.mobile.feature.main.navigateToRoute
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LocalThemePreferences
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ThemeMode
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ThemePreferences
 import com.swordfish.lemuroid.app.shared.library.LibraryIndexScheduler
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidCardSettingsGroup
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsList
@@ -24,6 +29,7 @@ import com.swordfish.lemuroid.app.utils.android.settings.booleanPreferenceState
 import com.swordfish.lemuroid.app.utils.android.settings.indexPreferenceState
 import com.swordfish.lemuroid.app.utils.android.settings.intPreferenceState
 import com.swordfish.lemuroid.app.utils.android.stringListResource
+import com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper
 
 @Composable
 fun SettingsScreen(
@@ -53,6 +59,7 @@ fun SettingsScreen(
             indexingInProgress = indexingInProgress,
             scanInProgress = scanInProgress,
         )
+        AppearanceSettings()
         GeneralSettings()
         InputSettings(navController = navController)
         MiscSettings(
@@ -60,6 +67,64 @@ fun SettingsScreen(
             isSaveSyncSupported = state.isSaveSyncSupported,
             navController = navController,
         )
+    }
+}
+
+@Composable
+private fun AppearanceSettings() {
+    val context = LocalContext.current
+    val preferences = remember(context) { SharedPreferencesHelper.getSharedPreferences(context) }
+    val theme = LocalThemePreferences.current
+    // Read the same observed snapshot as AppTheme. Returning from :game, resetting
+    // preferences, or changing the system mode cannot leave this row out of sync.
+    val themeState =
+        remember(preferences, theme.mode) {
+            object : SettingValueState<Int> {
+                override var value: Int
+                    get() = theme.mode.ordinal
+                    set(value) {
+                        preferences.edit()
+                            .putString(ThemePreferences.THEME_MODE_KEY, ThemeMode.entries[value].preferenceValue)
+                            .apply()
+                    }
+
+                override fun reset() {
+                    value = ThemeMode.SYSTEM.ordinal
+                }
+            }
+        }
+    val dynamicState =
+        remember(preferences, theme.dynamicColor) {
+            object : SettingValueState<Boolean> {
+                override var value: Boolean
+                    get() = theme.dynamicColor
+                    set(value) {
+                        preferences.edit().putBoolean(ThemePreferences.DYNAMIC_COLOR_KEY, value).apply()
+                    }
+
+                override fun reset() {
+                    value = true
+                }
+            }
+        }
+    LemuroidCardSettingsGroup(title = { Text(stringResource(R.string.settings_category_appearance)) }) {
+        LemuroidSettingsList(
+            state = themeState,
+            title = { Text(stringResource(R.string.settings_title_theme)) },
+            items =
+                listOf(
+                    stringResource(R.string.theme_mode_system),
+                    stringResource(R.string.theme_mode_light),
+                    stringResource(R.string.theme_mode_dark),
+                ),
+        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            LemuroidSettingsSwitch(
+                state = dynamicState,
+                title = { Text(stringResource(R.string.settings_title_dynamic_color)) },
+                subtitle = { Text(stringResource(R.string.settings_description_dynamic_color)) },
+            )
+        }
     }
 }
 

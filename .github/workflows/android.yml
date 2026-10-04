@@ -7,7 +7,7 @@ permissions:
   contents: read
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
@@ -19,9 +19,10 @@ jobs:
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
       - run: python3 qa/check_publication.py
+      - run: python3 libretrodroid/tests/run_host_tests.py
       - run: python3 -m unittest discover -s qa/homebrew/ds -p test_header.py
       - run: python3 -m unittest discover -s qa -p test_metadata_archive.py
-      - run: ./gradlew :lemuroid-app:ktlintCheck :lemuroid-metadata-libretro-db:ktlintCheck :lemuroid-app:testFreeDynamicDebugUnitTest :lemuroid-app:lintFreeDynamicDebug :lemuroid-app:assembleFreeDynamicDebug --max-workers=2 -Dorg.gradle.parallel=false -Pkotlin.compiler.execution.strategy=in-process --no-configuration-cache
+      - run: ./gradlew :lemuroid-app:ktlintCheck :lemuroid-metadata-libretro-db:ktlintCheck :lemuroid-app:testFreeDynamicDebugUnitTest :libretrodroid:testDebugUnitTest :lemuroid-app:lintFreeDynamicDebug :lemuroid-app:assembleFreeDynamicDebug --max-workers=2 -Dorg.gradle.parallel=false -Pkotlin.compiler.execution.strategy=in-process --no-configuration-cache
       - name: Prepare preview download
         run: |
           mkdir -p preview
@@ -34,6 +35,9 @@ jobs:
             'This CI debug APK is not byte-identical to the locally tested APK.' \
             'Debug keys may differ between builds; in-place upgrades are not guaranteed.' \
             'Do not delete an installation containing saves without a verified backup.' \
+            'Requires an open foldable inner display reporting a horizontal crease in landscape.' \
+            'Ordinary phones, closed displays and unsupported postures show open/rotate guidance.' \
+            'Nintendo 3DS gameplay is disabled until a hinge-safe split-screen renderer is supported.' \
             > preview/README.txt
           (cd preview && sha256sum EmuUI-preview-debug.apk > SHA256SUMS.txt)
       - uses: actions/upload-artifact@v4

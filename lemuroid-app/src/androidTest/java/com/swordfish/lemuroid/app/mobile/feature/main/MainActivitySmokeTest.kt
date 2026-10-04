@@ -2,6 +2,7 @@ package com.swordfish.lemuroid.app.mobile.feature.main
 
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.os.SystemClock
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
@@ -19,6 +20,9 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
+import androidx.window.layout.FoldingFeature
+import androidx.window.testing.layout.TestWindowLayoutInfo
+import androidx.window.testing.layout.WindowLayoutInfoPublisherRule
 import com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotSame
@@ -27,6 +31,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.atomic.AtomicReference
+import androidx.window.testing.layout.FoldingFeature as TestFoldingFeature
 
 /**
  * Device smoke tests. They deliberately use the public UI and real storage picker.
@@ -36,7 +41,10 @@ import java.util.concurrent.atomic.AtomicReference
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class MainActivitySmokeTest {
-    @get:Rule
+    @get:Rule(order = 0)
+    val windowInfo = WindowLayoutInfoPublisherRule()
+
+    @get:Rule(order = 1)
     val compose = createAndroidComposeRule<MainActivity>()
 
     private val instrumentation get() = InstrumentationRegistry.getInstrumentation()
@@ -114,6 +122,15 @@ class MainActivitySmokeTest {
             }
             compose.waitUntil(TIMEOUT) {
                 runCatching {
+                    compose.activity.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+                }.getOrDefault(false)
+            }
+            // A new Activity/configuration correctly discards stale fold data. Publish
+            // current-window metadata only after its composition has subscribed.
+            compose.waitForIdle()
+            publishOpenInnerDisplay()
+            compose.waitUntil(TIMEOUT) {
+                runCatching {
                     compose.onAllNodes(hasText("Turn to your happy place")).fetchSemanticsNodes().isNotEmpty()
                 }.getOrDefault(false)
             }
@@ -127,6 +144,11 @@ class MainActivitySmokeTest {
             compose.activityRule.scenario.onActivity {
                 it.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
             }
+        }
+        compose.waitUntil(TIMEOUT) {
+            runCatching {
+                compose.activity.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+            }.getOrDefault(false)
         }
         waitForLibrary()
         compose.onNodeWithText("Favorites").assertIsSelected()
@@ -145,6 +167,7 @@ class MainActivitySmokeTest {
     }
 
     private fun waitForLibrary() {
+        publishOpenInnerDisplay()
         compose.waitUntil(TIMEOUT) {
             runCatching {
                 compose.onAllNodes(hasContentDescription("EmuUI home")).fetchSemanticsNodes().isNotEmpty()
@@ -155,5 +178,21 @@ class MainActivitySmokeTest {
 
     private companion object {
         const val TIMEOUT = 30_000L
+    }
+
+    private fun publishOpenInnerDisplay() {
+        compose.waitForIdle()
+        // Test-process-only WindowManager event. Production has no posture override.
+        windowInfo.overrideWindowLayoutInfo(
+            TestWindowLayoutInfo(
+                listOf(
+                    TestFoldingFeature(
+                        activity = compose.activity,
+                        state = FoldingFeature.State.FLAT,
+                        orientation = FoldingFeature.Orientation.HORIZONTAL,
+                    ),
+                ),
+            ),
+        )
     }
 }

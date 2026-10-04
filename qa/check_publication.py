@@ -9,9 +9,9 @@ CORE_REVISION = 'fee2e824525daa22bcf318f96127fe43fa8a15ad'
 FORBIDDEN_SUFFIXES = {
     '.keystore', '.jks', '.p12', '.pem', '.rom', '.nds', '.gba', '.gb',
     '.gbc', '.nes', '.sfc', '.smc', '.bios', '.elf', '.o', '.class',
-    '.dex', '.apk', '.aab', '.log', '.pyc', '.hprof',
+    '.dex', '.apk', '.aab', '.aar', '.so', '.a', '.log', '.pyc', '.hprof',
 }
-GENERATED_DIRECTORIES = {'.kotlin', '.gradle', '.qa-output', '__pycache__', 'build'}
+GENERATED_DIRECTORIES = {'.kotlin', '.gradle', '.qa-output', '.cxx', '.externalNativeBuild', '__pycache__', 'build'}
 MARKERS = [
     b'-----BEGIN PRIVATE KEY-----', b'-----BEGIN RSA PRIVATE KEY-----',
     b'-----BEGIN OPENSSH PRIVATE KEY-----', b'github_pat_', b'ghp_',

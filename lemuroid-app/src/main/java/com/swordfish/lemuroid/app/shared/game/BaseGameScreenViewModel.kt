@@ -148,8 +148,11 @@ class BaseGameScreenViewModel(
 
     private inline fun withLoading(block: () -> Unit) {
         loadingState.value = true
-        block()
-        loadingState.value = false
+        try {
+            block()
+        } finally {
+            loadingState.value = false
+        }
     }
 
     fun getGameState(): Flow<GameViewModelRetroGameView.GameState> {
@@ -300,17 +303,24 @@ class BaseGameScreenViewModel(
         if (loadingState.value) return
         viewModelScope.launch {
             withLoading {
-                val snapshot = saves.captureSaveSnapshot(true) ?: return@launch
-                saves.writeSaveSnapshot(snapshot)
+                // An initially blocked inner display may never have run the first frame.
+                // Exit without replacing existing saves with an uninitialized core snapshot.
+                if (retroGameView.canCaptureState) {
+                    val snapshot = saves.captureSaveSnapshot() ?: return@launch
+                    saves.writeSaveSnapshot(snapshot)
+                }
                 sideEffects.requestSuccessfulFinish()
             }
         }
     }
 
     fun requestBackgroundSave() {
-        if (loadingState.value) return
+        if (loadingState.value || !retroGameView.canCaptureState) return
+        val requestedView = retroGameView.existingRetroView() ?: return
         GameService.schedule {
-            val snapshot = saves.captureSaveSnapshot(false)
+            // A queued save must not capture a replacement or partially restored core.
+            if (!retroGameView.canCaptureState || retroGameView.existingRetroView() !== requestedView) return@schedule
+            val snapshot = saves.captureSaveSnapshot(requestedView)
             saves.writeSaveSnapshot(snapshot)
         }
     }
@@ -345,8 +355,17 @@ class BaseGameScreenViewModel(
         touchControls.releaseVirtualControls()
     }
 
+    private var consoleInputEnabled = false
+
+    fun setConsoleInputEnabled(enabled: Boolean) {
+        if (consoleInputEnabled == enabled) return
+        consoleInputEnabled = enabled
+        if (!enabled) releaseVirtualControls()
+        inputs.setConsoleInputEnabled(enabled)
+    }
+
     fun handleVirtualInputEvent(events: List<InputEvent>) {
-        touchControls.handleVirtualInputEvent(events)
+        if (consoleInputEnabled) touchControls.handleVirtualInputEvent(events)
     }
 
     override fun onCreate(owner: LifecycleOwner) {

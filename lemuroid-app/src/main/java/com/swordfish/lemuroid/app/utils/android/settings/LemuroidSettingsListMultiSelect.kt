@@ -4,12 +4,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -45,7 +42,6 @@ fun LemuroidSettingsListMultiSelect(
     }
 
     var showDialog by remember { mutableStateOf(false) }
-    val scrollState = rememberScrollState()
 
     LemuroidSettingsMenuLink(
         enabled = enabled,
@@ -69,11 +65,11 @@ fun LemuroidSettingsListMultiSelect(
         state.value = mutable
     }
 
-    AlertDialog(
+    ConsoleSettingsDialog(
         title = title,
         text = {
             Column(
-                modifier = Modifier.verticalScroll(scrollState),
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 if (subtitle != null) {
                     subtitle()
@@ -86,7 +82,7 @@ fun LemuroidSettingsListMultiSelect(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
-                                .height(56.dp)
+                                .heightIn(min = 56.dp)
                                 .toggleable(
                                     role = Role.Checkbox,
                                     value = isSelected,
@@ -116,6 +112,7 @@ fun LemuroidSettingsListMultiSelect(
         onDismissRequest = { showDialog = false },
         confirmButton = {
             TextButton(
+                modifier = Modifier.heightIn(min = 48.dp),
                 onClick = {
                     showDialog = false
                     onItemsSelected?.invoke(entryValues.filter { state.value.contains(it) })

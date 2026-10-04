@@ -64,6 +64,33 @@ class GameViewModelInput(
     private val keyEventsFlow: MutableSharedFlow<KeyEvent?> = MutableSharedFlow()
     private val motionEventsFlow: MutableSharedFlow<MotionEvent> = MutableSharedFlow()
 
+    private var consoleInputEnabled = false
+    private val heldCoreButtons = mutableSetOf<Pair<Int, Int>>()
+
+    fun setConsoleInputEnabled(enabled: Boolean) {
+        consoleInputEnabled = enabled
+        if (enabled) return
+        heldCoreButtons.toList().forEach { (port, key) ->
+            retroGameView.retroGameView?.sendKeyEvent(KeyEvent.ACTION_UP, key, port)
+        }
+        heldCoreButtons.clear()
+        controllerConfigsState.value.keys.forEach { port ->
+            for (source in listOf(MOTION_SOURCE_DPAD, MOTION_SOURCE_ANALOG_LEFT, MOTION_SOURCE_ANALOG_RIGHT)) {
+                retroGameView.retroGameView?.sendMotionEvent(source, 0f, 0f, port)
+            }
+        }
+    }
+
+    private fun sendCoreKeyEvent(
+        action: Int,
+        key: Int,
+        port: Int,
+    ) {
+        if (!consoleInputEnabled) return
+        if (action == KeyEvent.ACTION_DOWN) heldCoreButtons.add(port to key) else heldCoreButtons.remove(port to key)
+        retroGameView.retroGameView?.sendKeyEvent(action, key, port)
+    }
+
     fun getAllTiltConfigurations(): List<TiltConfiguration> {
         return controllerConfigsState.value[0]
             ?.tiltConfigurations
@@ -301,6 +328,10 @@ class GameViewModelInput(
             .onStart { pressedKeys.clear() }
             .onCompletion { pressedKeys.clear() }
             .safeCollect { (shortcuts, ports, bindings, event) ->
+                if (!consoleInputEnabled) {
+                    pressedKeys.clear()
+                    return@safeCollect
+                }
                 val (device, action, keyCode) = event
                 val port = ports(device)
                 val bindKeyCode = bindings(device)[InputKey(keyCode)]?.keyCode ?: keyCode
@@ -331,7 +362,7 @@ class GameViewModelInput(
                 }
 
                 port?.let {
-                    retroGameView.retroGameView?.sendKeyEvent(action, bindKeyCode, it)
+                    sendCoreKeyEvent(action, bindKeyCode, it)
                 }
             }
     }
@@ -363,7 +394,7 @@ class GameViewModelInput(
             }
             .scan(emptySet<SingleAxisEvent>()) { prev, next ->
                 next.minus(prev).forEach {
-                    retroGameView.retroGameView?.sendKeyEvent(it.action, it.keyCode, it.port)
+                    sendCoreKeyEvent(it.action, it.keyCode, it.port)
                 }
                 next
             }
@@ -381,7 +412,7 @@ class GameViewModelInput(
         events
             .safeCollect { (ports, event) ->
                 ports(event.device)?.let {
-                    sendStickMotions(event, it)
+                    if (consoleInputEnabled) sendStickMotions(event, it)
                 }
             }
     }

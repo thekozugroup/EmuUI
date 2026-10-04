@@ -11,7 +11,6 @@ import com.swordfish.lemuroid.app.shared.ImmersiveActivity
 import com.swordfish.lemuroid.app.shared.library.PendingOperationsMonitor
 import com.swordfish.lemuroid.app.shared.main.GameLaunchTaskHandler
 import com.swordfish.lemuroid.app.tv.channel.ChannelUpdateWork
-import com.swordfish.lemuroid.app.tv.shared.TVHelper
 import com.swordfish.lemuroid.app.utils.android.displayErrorDialog
 import com.swordfish.lemuroid.common.animationDuration
 import com.swordfish.lemuroid.common.coroutines.launchOnState
@@ -96,7 +95,8 @@ class ExternalGameLauncherActivity : ImmersiveActivity() {
                 this,
                 game,
                 true,
-                TVHelper.isTV(applicationContext),
+                // EmuUI always uses the posture-gated mobile console.
+                false,
             )
 
         if (!gameLaunchSuccessful) {
