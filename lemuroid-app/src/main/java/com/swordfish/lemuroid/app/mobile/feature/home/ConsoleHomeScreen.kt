@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -92,6 +93,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
@@ -100,6 +102,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.CollectionInfo
 import androidx.compose.ui.semantics.CollectionItemInfo
 import androidx.compose.ui.semantics.CustomAccessibilityAction
@@ -122,9 +125,12 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.swordfish.lemuroid.R
+import com.swordfish.lemuroid.app.mobile.feature.emuui.CornerOverlayGeometry
 import com.swordfish.lemuroid.app.mobile.feature.emuui.FoldGeometry
 import com.swordfish.lemuroid.app.mobile.feature.emuui.FoldGuidance
 import com.swordfish.lemuroid.app.mobile.feature.emuui.FoldRect
+import com.swordfish.lemuroid.app.mobile.feature.emuui.LocalWindowCutout
 import com.swordfish.lemuroid.app.mobile.feature.emuui.rememberFoldPosture
 import com.swordfish.lemuroid.app.utils.android.settings.ConsoleDialogRegion
 import com.swordfish.lemuroid.app.utils.android.settings.LocalConsoleDialogRegion
@@ -287,6 +293,10 @@ internal fun ConsoleHomeScreen(
                             primaryAction = primaryAction,
                             onPrimaryAction = activateLibrary,
                             onOptions = onGameOptions,
+                            onBrandClick = {
+                                showSetup = false
+                                onBack?.invoke()
+                            },
                             onOpenSettings = onOpenSettings,
                             onOpenHelp = onOpenHelp,
                             onSyncSaves = onSyncSaves,
@@ -379,13 +389,20 @@ private fun PreviewPane(
     primaryAction: LauncherPrimaryAction,
     onPrimaryAction: () -> Unit,
     onOptions: (Game) -> Unit,
+    onBrandClick: () -> Unit,
     onOpenSettings: () -> Unit,
     onOpenHelp: () -> Unit,
     onSyncSaves: (() -> Unit)?,
 ) {
-    Box(
-        Modifier.fillMaxSize().testTag("launcher_preview"),
+    var previewPosition by remember { mutableStateOf(Offset.Zero) }
+    val cutout = LocalWindowCutout.current
+    val density = LocalDensity.current
+    val statusBarTop = WindowInsets.statusBars.getTop(density)
+    BoxWithConstraints(
+        Modifier.fillMaxSize().testTag("launcher_preview")
+            .onGloballyPositioned { previewPosition = it.positionInWindow() },
     ) {
+        val previewConstraints = constraints
         val largeText = LocalDensity.current.fontScale >= 1.3f
         var hasSavedPreview by remember(game?.id, game?.fileUri) { mutableStateOf(false) }
         Surface(
@@ -410,45 +427,71 @@ private fun PreviewPane(
                     ),
                 )
                 PreviewOverlayLayout(
-                    Modifier.fillMaxSize()
-                        .windowInsetsPadding(
-                            WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
-                        ).padding(start = 12.dp, end = 12.dp, top = 12.dp),
-                    if (largeText) .52f else .44f,
-                ) {
-                    Surface(
-                        modifier = Modifier.testTag("launcher_corner_brand"),
-                        color = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = .94f),
-                        shape = RoundedCornerShape(18.dp),
-                        tonalElevation = 2.dp,
-                    ) {
-                        Row(
-                            Modifier.heightIn(min = 48.dp).padding(horizontal = 14.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxSize(),
+                    titleFraction = if (largeText) .52f else .44f,
+                    statusBarTop = (statusBarTop - previewPosition.y.roundToInt()).coerceAtLeast(0),
+                    cutouts =
+                        cutout.localOcclusions(
+                            // Insets can precede the first window measurement. Keep unknown
+                            // camera shapes conservative using this already measured preview.
+                            previewConstraints.maxWidth,
+                            maxOf(cutout.windowHeight, previewConstraints.maxHeight),
+                            previewPosition.x.roundToInt(),
+                            previewPosition.y.roundToInt(),
+                        ),
+                    brand = { compact, measuring ->
+                        Surface(
+                            onClick = onBrandClick,
+                            modifier =
+                                if (measuring) {
+                                    Modifier.clearAndSetSemantics { }
+                                } else {
+                                    Modifier.testTag("launcher_corner_brand")
+                                        .semantics { contentDescription = "EmuUI home" }
+                                },
+                            color = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = .94f),
+                            shape = RoundedCornerShape(18.dp),
+                            tonalElevation = 2.dp,
                         ) {
-                            Box(Modifier.size(7.dp).background(MaterialTheme.colorScheme.primary, CircleShape))
-                            Spacer(Modifier.width(9.dp))
-                            Text(
-                                "emuui",
-                                fontWeight = FontWeight.ExtraBold,
-                                fontSize = 23.sp,
-                                letterSpacing = (-1).sp,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier =
-                                    Modifier.testTag("launcher_brand_label")
-                                        .semantics { contentDescription = "EmuUI home" },
-                            )
-                            if (!largeText) {
-                                Spacer(Modifier.width(14.dp))
-                                Text(
-                                    game?.systemId?.uppercase() ?: "PLAY SOMETHING GOOD",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                )
+                            Row(
+                                Modifier.heightIn(
+                                    min = 48.dp,
+                                ).padding(horizontal = if (compact) 12.dp else 14.dp, vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Icon(painterResource(R.drawable.emuui_mark), null, Modifier.size(24.dp))
+                                if (!compact) {
+                                    Spacer(Modifier.width(9.dp))
+                                    Text(
+                                        "emuui",
+                                        fontWeight = FontWeight.ExtraBold,
+                                        fontSize = 23.sp,
+                                        letterSpacing = (-1).sp,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        maxLines = 1,
+                                        modifier =
+                                            if (measuring) {
+                                                Modifier
+                                            } else {
+                                                Modifier.testTag(
+                                                    "launcher_brand_label",
+                                                )
+                                            },
+                                    )
+                                }
+                                if (!largeText && !compact) {
+                                    Spacer(Modifier.width(14.dp))
+                                    Text(
+                                        game?.systemId?.uppercase() ?: "PLAY SOMETHING GOOD",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                    )
+                                }
                             }
                         }
-                    }
+                    },
+                ) {
                     Surface(
                         modifier = Modifier.testTag("launcher_corner_tools"),
                         color = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = .94f),
@@ -597,43 +640,74 @@ private fun PreviewPane(
     }
 }
 
-/** Shared measurement reserves the title between the lower pills and below the top controls. */
+/** One status-bar inset, one horizontal margin, and precise camera avoidance for the top row. */
 @Composable
 private fun PreviewOverlayLayout(
     modifier: Modifier,
     titleFraction: Float,
+    statusBarTop: Int,
+    cutouts: List<FoldRect>,
+    brand: @Composable (Boolean, Boolean) -> Unit,
     content: @Composable () -> Unit,
 ) {
-    Layout(content = content, modifier = modifier) { measurables, constraints ->
+    SubcomposeLayout(modifier = modifier) { constraints ->
         val inset = 12.dp.roundToPx()
         val gap = 8.dp.roundToPx()
         val cornerWidth = ((constraints.maxWidth - inset * 2 - gap) / 2).coerceAtLeast(0)
-        val cornerHeight = maxOf(48.dp.roundToPx(), measurables.take(4).maxOf { it.maxIntrinsicHeight(cornerWidth) })
-        val corners =
-            measurables.take(4).map {
-                it.measure(Constraints(maxWidth = cornerWidth, minHeight = cornerHeight, maxHeight = cornerHeight))
-            }
+        val fullBrand = subcompose("brand_measure") { brand(false, true) }.single()
+        val measurables = subcompose("controls", content)
+        val cornerHeight =
+            maxOf(
+                48.dp.roundToPx(),
+                fullBrand.maxIntrinsicHeight(cornerWidth),
+                measurables.take(3).maxOf { it.maxIntrinsicHeight(cornerWidth) },
+            )
+        val cornerConstraints = Constraints(maxWidth = cornerWidth, minHeight = cornerHeight, maxHeight = cornerHeight)
+        val fullBrandWidth = fullBrand.maxIntrinsicWidth(cornerHeight).coerceAtMost(cornerWidth)
+        val toolsWidth = measurables[0].maxIntrinsicWidth(cornerHeight).coerceAtMost(cornerWidth)
+        val placement =
+            CornerOverlayGeometry.resolve(
+                FoldRect(0, statusBarTop, constraints.maxWidth, constraints.maxHeight),
+                fullBrandWidth,
+                48.dp.roundToPx(),
+                toolsWidth,
+                cornerHeight,
+                inset,
+                gap,
+                cutouts,
+            )
+        val brandMeasurable = subcompose("brand") { brand(placement?.compactBrand == true, false) }.single()
+        val brandPlaceable = brandMeasurable.measure(cornerConstraints)
+        val corners = measurables.take(3).map { it.measure(cornerConstraints) }
         val titleWidth =
             launcherPreviewTitleWidth(
                 constraints.maxWidth,
                 titleFraction,
+                corners[1].width,
                 corners[2].width,
-                corners[3].width,
                 inset,
                 gap,
             )
-        val titleHeight = measurables[4].maxIntrinsicHeight(titleWidth)
-        val title = measurables[4].measure(Constraints.fixed(titleWidth, titleHeight))
-        val fits = titleWidth > 0 && launcherPreviewFits(constraints.maxHeight, cornerHeight, titleHeight, inset, gap)
+        val titleHeight = measurables[3].maxIntrinsicHeight(titleWidth)
+        val title = measurables[3].measure(Constraints.fixed(titleWidth, titleHeight))
+        val fits =
+            placement != null && titleWidth > 0 &&
+                launcherPreviewFits(constraints.maxHeight - placement.left.top, cornerHeight, titleHeight, inset, gap)
         val guidance =
-            if (!fits) measurables[5].measure(Constraints.fixed(constraints.maxWidth, constraints.maxHeight)) else null
+            if (!fits) {
+                measurables[4].measure(
+                    Constraints.fixed(constraints.maxWidth, constraints.maxHeight),
+                )
+            } else {
+                null
+            }
         layout(constraints.maxWidth, constraints.maxHeight) {
-            if (fits) {
-                corners[0].placeRelative(inset, inset)
-                corners[1].placeRelative(constraints.maxWidth - inset - corners[1].width, inset)
-                corners[2].placeRelative(inset, constraints.maxHeight - inset - cornerHeight)
-                corners[3].placeRelative(
-                    constraints.maxWidth - inset - corners[3].width,
+            if (fits && placement != null) {
+                brandPlaceable.place(placement.left.left, placement.left.top)
+                corners[0].place(placement.right.left, placement.right.top)
+                corners[1].placeRelative(inset, constraints.maxHeight - inset - cornerHeight)
+                corners[2].placeRelative(
+                    constraints.maxWidth - inset - corners[2].width,
                     constraints.maxHeight - inset - cornerHeight,
                 )
                 title.placeRelative((constraints.maxWidth - titleWidth) / 2, constraints.maxHeight - titleHeight)

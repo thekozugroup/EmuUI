@@ -13,16 +13,19 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Height
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.filled.RotateLeft
 import androidx.compose.material3.CircularProgressIndicator
@@ -54,17 +57,21 @@ import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.swordfish.lemuroid.app.mobile.feature.emuui.CornerOverlayGeometry
 import com.swordfish.lemuroid.app.mobile.feature.emuui.DisplayPanelLayout
 import com.swordfish.lemuroid.app.mobile.feature.emuui.FoldGeometry
 import com.swordfish.lemuroid.app.mobile.feature.emuui.FoldGuidance
@@ -148,15 +155,31 @@ fun MobileGameScreen(
                     safeInsets.getBottom(density),
                 ),
             )
-        val upperControls = rawLayout.upper.intersection(safeBounds)
+        val statusBarTop = (WindowInsets.statusBars.getTop(density) - rootPosition.value.y).coerceAtLeast(0)
+        val upperBounds = rawLayout.upper.copy(top = statusBarTop.coerceAtMost(rawLayout.upper.bottom))
+        val navigation = WindowInsets.navigationBars
+        val upperControls =
+            upperBounds.intersection(
+                FoldGeometry.safeBounds(
+                    width,
+                    height,
+                    FoldInsets(
+                        navigation.getLeft(density, LayoutDirection.Ltr),
+                        statusBarTop,
+                        navigation.getRight(density, LayoutDirection.Ltr),
+                        navigation.getBottom(density),
+                    ),
+                ),
+            )
         val cutoutOcclusions =
             remember(displayCutout, width, height, rootPosition.value) {
                 displayCutout.localOcclusions(width, height, rootPosition.value.x, rootPosition.value.y)
             }
         val foldLayout =
             rawLayout.copy(
-                // Render through usable space alongside a cutout. Only essential overlays
-                // and lower controls/touchscreen inherit the full safeDrawing edge bands.
+                // Reserve the visible status bar once. Precise camera bounds protect native
+                // pixels and top actions; the lower touchscreen keeps its existing safe bounds.
+                upper = upperBounds,
                 lower = rawLayout.lower.intersection(safeBounds),
             ).let { layout ->
                 val minimumDisplayHeight = with(density) { 96.dp.roundToPx() }
@@ -378,34 +401,22 @@ fun MobileGameScreen(
                         // Explicit 48dp action supplements the existing radial hold-menu
                         // gesture and remains available when a hardware controller is paired.
                         ConsoleRegion(upperControlsPanel.content, "emuui_game_upper_controls") {
-                            TextButton(
-                                onClick = { viewModel.openGameMenu() },
-                                modifier =
-                                    Modifier.align(Alignment.TopStart).sizeIn(minWidth = 64.dp, minHeight = 48.dp)
-                                        .background(
-                                            MaterialTheme.colorScheme.surfaceContainer,
-                                            RoundedCornerShape(16.dp),
-                                        ),
-                            ) { Text("Menu", color = MaterialTheme.colorScheme.onSurface) }
-                            if (supportsAccessibleConsole(config.touchControllerID)) {
-                                TextButton(
-                                    onClick = {
-                                        viewModel.releaseVirtualControls()
-                                        accessibleControls.value = !accessibleControls.value
-                                    },
-                                    modifier =
-                                        Modifier.align(Alignment.TopEnd).sizeIn(minHeight = 48.dp)
-                                            .background(
-                                                MaterialTheme.colorScheme.surfaceContainer,
-                                                RoundedCornerShape(16.dp),
-                                            ),
-                                ) {
-                                    Text(
-                                        if (accessibleControls.value) "Radial controls" else "Accessible controls",
-                                        color = MaterialTheme.colorScheme.onSurface,
+                            GameTopCornerControls(
+                                Modifier.fillMaxSize(),
+                                cutoutOcclusions.map {
+                                    it.translated(
+                                        -upperControlsPanel.content.left,
+                                        -upperControlsPanel.content.top,
                                     )
-                                }
-                            }
+                                },
+                                supportsAccessibleConsole(config.touchControllerID),
+                                accessibleControls.value,
+                                onMenu = viewModel::openGameMenu,
+                                onToggle = {
+                                    viewModel.releaseVirtualControls()
+                                    accessibleControls.value = !accessibleControls.value
+                                },
+                            )
                             GameScreenRunningCentralMenu(
                                 Modifier.align(Alignment.Center),
                                 viewModel,
@@ -488,7 +499,81 @@ private fun ScreenRect.normalized(
     height: Int,
 ) = RectF(left / width, top / height, right / width, bottom / height)
 
-/** Paint only the casing and panel backing; no rounded clip ever touches the GL view. */
+/** Camera-aware menu actions retain their touch targets and one shared top edge. */
+@Composable
+private fun GameTopCornerControls(
+    modifier: Modifier,
+    cutouts: List<FoldRect>,
+    hasToggle: Boolean,
+    accessible: Boolean,
+    onMenu: () -> Unit,
+    onToggle: () -> Unit,
+) {
+    val menu: @Composable (Boolean, Boolean) -> Unit = { compact, measuring ->
+        TextButton(
+            onClick = onMenu,
+            modifier =
+                Modifier.sizeIn(minWidth = if (compact) 48.dp else 64.dp, minHeight = 48.dp)
+                    .then(if (measuring) Modifier.clearAndSetSemantics { } else Modifier.testTag("emuui_game_menu"))
+                    .background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(16.dp)),
+        ) {
+            if (compact) {
+                Icon(
+                    Icons.Default.Menu,
+                    if (measuring) null else "Game menu",
+                )
+            } else {
+                Text("Menu", color = MaterialTheme.colorScheme.onSurface)
+            }
+        }
+    }
+    SubcomposeLayout(modifier) { constraints ->
+        val full = subcompose("menu-measure") { menu(false, true) }.single()
+        val toggle =
+            if (hasToggle) {
+                subcompose("toggle") {
+                    TextButton(
+                        onClick = onToggle,
+                        modifier =
+                            Modifier.sizeIn(minHeight = 48.dp).testTag("emuui_game_controls_toggle")
+                                .background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(16.dp)),
+                    ) {
+                        Text(
+                            if (accessible) "Radial controls" else "Accessible controls",
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                }.single()
+            } else {
+                null
+            }
+        val widthLimit = constraints.maxWidth / 2
+        val height =
+            maxOf(48.dp.roundToPx(), full.maxIntrinsicHeight(widthLimit), toggle?.maxIntrinsicHeight(widthLimit) ?: 0)
+        val placement =
+            CornerOverlayGeometry.resolve(
+                FoldRect(0, 0, constraints.maxWidth, constraints.maxHeight),
+                full.maxIntrinsicWidth(height),
+                48.dp.roundToPx(),
+                toggle?.maxIntrinsicWidth(height)?.coerceAtMost(widthLimit) ?: 0,
+                height,
+                0,
+                8.dp.roundToPx(),
+                cutouts,
+            )
+        val chosen = subcompose("menu") { menu(placement?.compactBrand == true, false) }.single()
+        val measureConstraints = Constraints(maxWidth = widthLimit, minHeight = height, maxHeight = height)
+        val menuPlaceable = chosen.measure(measureConstraints)
+        val togglePlaceable = toggle?.measure(measureConstraints)
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            if (placement != null) {
+                menuPlaceable.place(placement.left.left, placement.left.top)
+                togglePlaceable?.place(placement.right.left, placement.right.top)
+            }
+        }
+    }
+}
+
 @Composable
 private fun GameDisplayPanels(
     upper: DisplayPanelLayout,

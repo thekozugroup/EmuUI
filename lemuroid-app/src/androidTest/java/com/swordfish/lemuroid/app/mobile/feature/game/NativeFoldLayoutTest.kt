@@ -523,7 +523,12 @@ class NativeFoldLayoutTest {
                     native,
                     model.retroGameView.existingRetroView(),
                 )
-                assertEquals("Upper backing must use the complete upper half", surface.top, panel.top, 1f)
+                assertEquals(
+                    "Upper backing begins below the visible status bar once",
+                    surface.top + delivered.getInsets(WindowInsets.Type.statusBars()).top,
+                    panel.top,
+                    1f,
+                )
                 assertTrue(
                     "The complete native image must avoid the exact cutout rectangle",
                     image.right <= obstruction.left || image.left >= obstruction.right ||
@@ -533,7 +538,7 @@ class NativeFoldLayoutTest {
                 assertEquals("Cutout fit must preserve native aspect", aspect, image.width / image.height, .015f)
                 assertTrue("Cutout fit must remain inside the rounded backing", fitsRoundedPanel(image, panel))
                 if (label == "corner") {
-                    assertEquals("A notch in letterboxing must not shrink the image", baseline.height, image.height, 1f)
+                    assertCenteredMaximum("Corner cutout below visible status bar", image, panel)
                     assertEquals(
                         "An irrelevant corner notch must not shift the image",
                         baseline.center.x,

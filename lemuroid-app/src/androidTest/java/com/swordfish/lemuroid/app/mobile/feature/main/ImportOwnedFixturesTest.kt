@@ -40,9 +40,11 @@ class ImportOwnedFixturesTest {
         check(InstrumentationRegistry.getArguments().getString("qaImportFolder") == "EmuUI-QA") {
             "Explicit opt-in requires staging original fixtures in EmuUI-QA first"
         }
-        val expected = setOf("EmuUI_QA.nes", "EmuUI_QA_Second.nes", "EmuUI_DS_Legacy_Long_Title_QA.nds")
+        val expected =
+            InstrumentationRegistry.getArguments().getString("expectedFiles")?.split(',')?.toSet()
+                ?: setOf("EmuUI_QA.nes", "EmuUI_QA_Second.nes", "EmuUI_DS_Legacy_Long_Title_QA.nds")
         val before = runBlocking { compose.activity.retrogradeDb.gameDao().observeLibrary().first() }
-        check(before.isEmpty()) { "This setup test only runs against the dedicated empty API31 QA library" }
+        check(before.isEmpty()) { "This setup test only runs against the dedicated empty QA library" }
         compose.waitForIdle()
         windowInfo.overrideWindowLayoutInfo(
             TestWindowLayoutInfo(

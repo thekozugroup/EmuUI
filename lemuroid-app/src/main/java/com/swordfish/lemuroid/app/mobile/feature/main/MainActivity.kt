@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.view.View
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -23,11 +24,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalFocusManager
@@ -35,6 +39,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
+import androidx.core.view.ViewCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -42,6 +47,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.fredporciuncula.flow.preferences.FlowSharedPreferences
 import com.swordfish.lemuroid.R
+import com.swordfish.lemuroid.app.mobile.feature.emuui.LocalWindowCutout
+import com.swordfish.lemuroid.app.mobile.feature.emuui.WindowCutoutSnapshot
 import com.swordfish.lemuroid.app.mobile.feature.emuui.allowDisplayCutouts
 import com.swordfish.lemuroid.app.mobile.feature.favorites.FavoritesScreen
 import com.swordfish.lemuroid.app.mobile.feature.favorites.FavoritesViewModel
@@ -96,6 +103,8 @@ import javax.inject.Inject
 
 @OptIn(DelicateCoroutinesApi::class)
 class MainActivity : RetrogradeComponentActivity(), BusyActivity {
+    private var displayCutout by mutableStateOf(WindowCutoutSnapshot())
+
     @Inject
     lateinit var gameLaunchTaskHandler: GameLaunchTaskHandler
 
@@ -134,13 +143,23 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
         window.allowDisplayCutouts()
         super.onCreate(savedInstanceState)
 
+        val content = findViewById<View>(android.R.id.content)
+        ViewCompat.setOnApplyWindowInsetsListener(content) { view, insets ->
+            displayCutout = WindowCutoutSnapshot.from(view, insets)
+            insets
+        }
+        ViewCompat.getRootWindowInsets(content)?.let { displayCutout = WindowCutoutSnapshot.from(content, it) }
+        ViewCompat.requestApplyInsets(content)
+
         GlobalScope.safeLaunch {
             reviewManager.initialize(applicationContext)
         }
 
         setContent {
             val navController = rememberNavController()
-            MainScreen(navController)
+            CompositionLocalProvider(LocalWindowCutout provides displayCutout) {
+                MainScreen(navController)
+            }
         }
     }
 

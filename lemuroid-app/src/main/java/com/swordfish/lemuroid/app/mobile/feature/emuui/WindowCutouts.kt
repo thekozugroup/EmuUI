@@ -4,7 +4,10 @@ import android.os.Build
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.core.view.WindowInsetsCompat
+
+val LocalWindowCutout = staticCompositionLocalOf { WindowCutoutSnapshot() }
 
 /** Keep the window edge-to-edge even when entering or leaving immersive gameplay. */
 fun Window.allowDisplayCutouts() {
