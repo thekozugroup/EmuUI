@@ -1,3 +1,5 @@
+> Account check update: the available browser reaches Google sign-in; existing app/signing/payments/agreement status is **unknown**. Do not request new-key or payment-setup approval before the authenticated read. See [EXISTING_ACCOUNT_AND_CORE_CLOSURE.md](EXISTING_ACCOUNT_AND_CORE_CLOSURE.md) for the direct-login handoff and scoped local findings.
+
 # Next owner actions — signing, Play setup and source publication
 
 Applies to Kōzu Digital 6549433501192319912 / com.kozudigital.emuui. Prepared read-only; no key, account, agreement or publication action occurred. Pricing is settled: US$0.99/month and US$19.99 lifetime; use localized Play prices.
