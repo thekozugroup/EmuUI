@@ -41,3 +41,20 @@ Source-Han-Sans-OFL.txt. These font assets retain their own licenses.
 Provenance: https://github.com/hrydgard/ppsspp/commit/dc34bea8d4de
 Adobe historical license: https://github.com/adobe-fonts/source-han-sans/blob/dbe6e6eca603ff6ddf96b027ad1337cb5a06da8c/LICENSE.txt
 Ume upstream license mirror: https://sources.debian.org/src/fonts-horai-umefont/670-5/license.html/
+
+Source-built arm64 replacement cores (see source-cores/ for original licenses):
+WonderSwan: libretro/beetle-wswan-libretro 4b01295838ea89e3f1355bbe4cb5cf98aa6108cd.
+PPSSPP: hrydgard/ppsspp eab2cc85bca530d47873c2015457cfa754a0115d.
+FFmpeg: hrydgard/ppsspp-ffmpeg 654c7da2ccffc7fd147abbe809aad7ba9e50b0a4.
+Citra: libretro/citra 5263fae3344e5e9af43036e0e38bec2d10fb2407 plus documented Android build fixes.
+Original dependency notices and licenses remain in force. Source release must
+include exact patched sources, pinned dependencies and build/link configuration.
+Static LGPL components require corresponding source and relinking material as
+applicable; release publication is pending and must accompany distribution.
+
+Code from FAAD2 is copyright (c) Nero AG, www.nero.com
+FAAD2 is distributed under GPL version 2 or later (see retained source notices).
+Play PSP asset contents match hrydgard/ppsspp c6352a262d272468e867138f3d3310234302210b
+and unknownbrackets/ppsspp-debugger 9776332f720c854ef26f325a0cf9e32c02115a9c.
+Only two Git metadata pointer files are omitted. Runtime assets now ship in Play.
+PPSSPP and upstream contributors retain all copyright and trademark rights.

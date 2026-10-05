@@ -5,6 +5,8 @@ import com.swordfish.lemuroid.BuildConfig
 
 /** Public Console configuration only. No service account, EmuUI login or backend. */
 object PlayBillingConfiguration {
+    // Console price targets: US$0.99/month and US$19.99 lifetime.
+    // Checkout labels use localized ProductDetails prices, never these reference amounts.
     val products = BillingProducts()
     // Copy this app's public RSA licensing key after Console setup; never a keystore/private key.
     private const val PUBLIC_LICENSE_KEY = ""

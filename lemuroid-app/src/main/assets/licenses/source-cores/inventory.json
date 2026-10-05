@@ -1,0 +1,558 @@
+[
+  {
+    "path": "wswan/COPYING",
+    "sha256": "a6996dcf0c334281f734560926e079b2dbbd5b78e81c0ca00a413ec01e1cd2fb"
+  },
+  {
+    "path": "ppsspp/LICENSE.TXT",
+    "sha256": "ff265754cbb2e0d3b674f90a79ef5bbaa1f7f1075aec9f5e241524520e5049fa"
+  },
+  {
+    "path": "ppsspp/ext/OpenXR-SDK/COPYING.adoc",
+    "sha256": "56e17fd90cc5ff1d930db979bfbfcffeb7f311a57068f435e14e4f0548b3a4fc"
+  },
+  {
+    "path": "ppsspp/ext/OpenXR-SDK/LICENSE",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+  },
+  {
+    "path": "ppsspp/ext/OpenXR-SDK/LICENSES/Apache-2.0.txt",
+    "sha256": "d3910dee6fe9fe134856d76268fe82adb1ade1ecf51b3568b7da6b94894b88f3"
+  },
+  {
+    "path": "ppsspp/ext/OpenXR-SDK/LICENSES/BSD-3-Clause.txt",
+    "sha256": "e11af671c491efac2f94c1d752bea92f4308ca2450c7d11e582e4b48c40e4de1"
+  },
+  {
+    "path": "ppsspp/ext/OpenXR-SDK/LICENSES/BSL-1.0.txt",
+    "sha256": "ced281c5b79c2d6bc368e557c738cba0892fa8b4f25cff0bbdf9d7f1b26b2070"
+  },
+  {
+    "path": "ppsspp/ext/OpenXR-SDK/LICENSES/CC-BY-4.0.txt",
+    "sha256": "b89aeb7c2a164a0576786dd2a8b57f2fb628b23981f0a06bd77e2f99a9befa0f"
+  },
+  {
+    "path": "ppsspp/ext/OpenXR-SDK/LICENSES/CC0-1.0.txt",
+    "sha256": "6a573fb2f9082662978cf21fb153096df0a1981deaea7dbc10a11046fe005d9f"
+  },
+  {
+    "path": "ppsspp/ext/OpenXR-SDK/LICENSES/ISC.txt",
+    "sha256": "f2ec607f67bb0dd3053b49835b02110d5cd0f8eb6da3aac4dc0b142a6b299be9"
+  },
+  {
+    "path": "ppsspp/ext/OpenXR-SDK/LICENSES/LicenseRef-Khronos-Free-Use-License-for-Software-and-Documentation.txt",
+    "sha256": "631caf35cb7a21e2fa4e36617551d72566cc272619003857fe79b82399e8e8fa"
+  },
+  {
+    "path": "ppsspp/ext/OpenXR-SDK/LICENSES/LicenseRef-KhronosSpecCopyright-WithNormativeWording-v10.txt",
+    "sha256": "35dea6a17ed48dfac1e6ad8491332af7acee340681ffc61a631ec9a1656476ad"
+  },
+  {
+    "path": "ppsspp/ext/OpenXR-SDK/LICENSES/LicenseRef-jsoncpp-public-domain.txt",
+    "sha256": "c8da3722b796121a751f8ea76d9edcad976de2313b23345a895154b448744ee0"
+  },
+  {
+    "path": "ppsspp/ext/OpenXR-SDK/LICENSES/MIT.txt",
+    "sha256": "8f25018489d6fe0dec34a352314c38dc146247b7de65735790f4398a92afa84b"
+  },
+  {
+    "path": "ppsspp/ext/OpenXR-SDK/LICENSES/OFL-1.1-RFN.txt",
+    "sha256": "797832eda5ff4360a10fee3be94a3250995e76423b79675c9c44204c37ca492d"
+  },
+  {
+    "path": "ppsspp/ext/OpenXR-SDK/LICENSES/Unlicense.txt",
+    "sha256": "567675401b124cc8ed1095665474a4f04ce1ed44134ee7eec46a691e387a1397"
+  },
+  {
+    "path": "ppsspp/ext/OpenXR-SDK/LICENSES/Zlib.txt",
+    "sha256": "bfb1112d49db5b1daecdfef24bd7e2f3ea0bafb33aa67aa0ab51e2bf8407c03d"
+  },
+  {
+    "path": "ppsspp/ext/OpenXR-SDK/src/external/jnipp/LICENSE",
+    "sha256": "3f46b895fbd843c7abe5b49fa0b699a5093fc8b345940a7c587948c57cc8f270"
+  },
+  {
+    "path": "ppsspp/ext/OpenXR-SDK/src/external/jsoncpp/LICENSE",
+    "sha256": "cec0db5f6d7ed6b3a72647bd50aed02e13c3377fd44382b96dc2915534c042ad"
+  },
+  {
+    "path": "ppsspp/ext/OpenXR-SDK/src/external/jsoncpp/devtools/licenseupdater.py",
+    "sha256": "81d0fc4498e695444090a0ba9a74398f8738cd1ae18c788734be93fec2dc3515"
+  },
+  {
+    "path": "ppsspp/ext/SPIRV-Cross/LICENSE",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+  },
+  {
+    "path": "ppsspp/ext/SPIRV-Cross/LICENSES/Apache-2.0.txt",
+    "sha256": "44b0a56e80b41a1b0a6bd1292515e806539fd97b30be54c2719e6c763190ab57"
+  },
+  {
+    "path": "ppsspp/ext/SPIRV-Cross/LICENSES/CC-BY-4.0.txt",
+    "sha256": "b89aeb7c2a164a0576786dd2a8b57f2fb628b23981f0a06bd77e2f99a9befa0f"
+  },
+  {
+    "path": "ppsspp/ext/SPIRV-Cross/LICENSES/MIT.txt",
+    "sha256": "8f25018489d6fe0dec34a352314c38dc146247b7de65735790f4398a92afa84b"
+  },
+  {
+    "path": "ppsspp/ext/armips/LICENSE.txt",
+    "sha256": "791ff46884cdf62188f17cabf0f099b462e92ec68986033bab243b26573b7573"
+  },
+  {
+    "path": "ppsspp/ext/armips/ext/filesystem/LICENSE",
+    "sha256": "1b265537c97cfb422ffb52492c96979943f54fab8746a6dd38d8329953d487cc"
+  },
+  {
+    "path": "ppsspp/ext/cityhash/COPYING",
+    "sha256": "3ed00dd93c75655599456c83cba2f69c6824fd53f24fc24206ba27b65057709d"
+  },
+  {
+    "path": "ppsspp/ext/cpu_features/LICENSE",
+    "sha256": "af272c1b4dd08dd61d43e001d3134119d03ca7a2b057a64f7355fdf27fbea3dd"
+  },
+  {
+    "path": "ppsspp/ext/discord-rpc/LICENSE",
+    "sha256": "12054cc15e274c9a10966fd7d8740c12dbd679dec2468e370818d899f9a3a634"
+  },
+  {
+    "path": "ppsspp/ext/freetype/LICENSE.TXT",
+    "sha256": "bd36c8b474855fa294c2ec5c184544478ef3720aad37d65a6296a4f264fd2d3b"
+  },
+  {
+    "path": "ppsspp/ext/gason/LICENSE",
+    "sha256": "a9a5c0646d67d9cc2596fab2ee1cac35bdcd4057d9dea7745425bd3cfcab40f0"
+  },
+  {
+    "path": "ppsspp/ext/glslang/LICENSE.txt",
+    "sha256": "adb783e734e906d1f46db5df29991dbde84bdb0ceab502ac2febb44fe3c2b5f4"
+  },
+  {
+    "path": "ppsspp/ext/glslang/kokoro/license-check/build-docker.sh",
+    "sha256": "c489d0182e713653eb7d2d9d05b7bc7f8dc360a814c633b5488d1775f5d83372"
+  },
+  {
+    "path": "ppsspp/ext/glslang/kokoro/license-check/build.sh",
+    "sha256": "9cd354fccec3e0627b3647576a33ffb6e1b3b4cb37aaee2e17fea7dc48fae458"
+  },
+  {
+    "path": "ppsspp/ext/glslang/kokoro/license-check/continuous.cfg",
+    "sha256": "4624ec9999e6e21a27937a36a478a36c7251133e1dba05efd34043e6ae820248"
+  },
+  {
+    "path": "ppsspp/ext/glslang/kokoro/license-check/presubmit.cfg",
+    "sha256": "5afb0fbf62022918d9b62fa8057bd7794d68f9110bc999c6f8c279d56ff4a5c1"
+  },
+  {
+    "path": "ppsspp/ext/glslang/license-checker.cfg",
+    "sha256": "e6ead88c5894007be86546cfd24d6c0b9fafcbf832fc27d8330eb7d46cedc84a"
+  },
+  {
+    "path": "ppsspp/ext/libadrenotools/LICENSE",
+    "sha256": "7ea796e199e46093c2f5c391697bce5abeacd02b7216aa0a84e5839afb5584f3"
+  },
+  {
+    "path": "ppsspp/ext/libadrenotools/lib/linkernsbypass/LICENSE",
+    "sha256": "7ea796e199e46093c2f5c391697bce5abeacd02b7216aa0a84e5839afb5584f3"
+  },
+  {
+    "path": "ppsspp/ext/libchdr/LICENSE.txt",
+    "sha256": "e3989a7aee74a91b8cdbdfe204a6b8d03288863ec7533a21c51f1a987ba73539"
+  },
+  {
+    "path": "ppsspp/ext/libchdr/deps/lzma-24.05/LICENSE",
+    "sha256": "06721414a6decad6d6677feb470f01f47126e154d895d85bc1e17628697715e5"
+  },
+  {
+    "path": "ppsspp/ext/libchdr/deps/zlib-1.3.1/LICENSE",
+    "sha256": "845efc77857d485d91fb3e0b884aaa929368c717ae8186b66fe1ed2495753243"
+  },
+  {
+    "path": "ppsspp/ext/libchdr/deps/zlib-1.3.1/contrib/dotzlib/LICENSE_1_0.txt",
+    "sha256": "36266a8fd073568394cb81cdb2b124f7fdae2c64c1a7ed09db34b4d22efa2951"
+  },
+  {
+    "path": "ppsspp/ext/libchdr/deps/zstd-1.5.6/COPYING",
+    "sha256": "f9c375a1be4a41f7b70301dd83c91cb89e41567478859b77eef375a52d782505"
+  },
+  {
+    "path": "ppsspp/ext/libchdr/deps/zstd-1.5.6/LICENSE",
+    "sha256": "7055266497633c9025b777c78eb7235af13922117480ed5c674677adc381c9d8"
+  },
+  {
+    "path": "ppsspp/ext/libchdr/deps/zstd-1.5.6/build/LICENSE",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "ppsspp/ext/miniupnp/LICENSE",
+    "sha256": "7480ae23b082c05ad9823896163d78f3a96f1beadce51f29c96cf898545c27e5"
+  },
+  {
+    "path": "ppsspp/ext/naett/LICENSE",
+    "sha256": "48b79daf8988912a6c2dadffdbbba99f514817dddf11cebf3605a5f0dbfafa94"
+  },
+  {
+    "path": "ppsspp/ext/nanosvg/LICENSE.txt",
+    "sha256": "e82bc3dd03400aecabe12201219ba14750dbc4b36faab58663a7a6068548d372"
+  },
+  {
+    "path": "ppsspp/ext/portable-file-dialogs/COPYING",
+    "sha256": "d20ad7990610153b563c52681da860b8302afcf0778f75237f8815c07d05141f"
+  },
+  {
+    "path": "ppsspp/ext/rapidjson/bin/jsonschema/LICENSE",
+    "sha256": "837402bd25fad9b704265801ca3f92566a98157c1f9a7acd6f446299ba1c305a"
+  },
+  {
+    "path": "ppsspp/ext/rapidjson/contrib/natvis/LICENSE",
+    "sha256": "394faaedb93c1da8ecbd61322518834908fee64381117e01a611bf9fac20baa6"
+  },
+  {
+    "path": "ppsspp/ext/rapidjson/license.txt",
+    "sha256": "a140e5d46fe734a1c78f1a3c3ef207871dd75648be71fdda8e309b23ab8b1f32"
+  },
+  {
+    "path": "ppsspp/ext/rcheevos/LICENSE",
+    "sha256": "bf820c034966a3b6be050bb85f94ec841a0b972bd5d477e362337d0574b5c219"
+  },
+  {
+    "path": "ppsspp/ext/snappy/COPYING",
+    "sha256": "5221a36a801b981fbdfda7b87db64cff231a3b88223a066c325411b539df796f"
+  },
+  {
+    "path": "ppsspp/ext/udis86/LICENSE",
+    "sha256": "1070640aab24327354da44507627d1db6c67482a6facc8375a758796a05e3dff"
+  },
+  {
+    "path": "ppsspp/ext/zlib/LICENSE",
+    "sha256": "845efc77857d485d91fb3e0b884aaa929368c717ae8186b66fe1ed2495753243"
+  },
+  {
+    "path": "ppsspp/ext/zstd/COPYING",
+    "sha256": "f9c375a1be4a41f7b70301dd83c91cb89e41567478859b77eef375a52d782505"
+  },
+  {
+    "path": "ppsspp/ext/zstd/LICENSE",
+    "sha256": "7055266497633c9025b777c78eb7235af13922117480ed5c674677adc381c9d8"
+  },
+  {
+    "path": "ppsspp/ext/zstd/build/LICENSE",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "ffmpeg/COPYING.GPLv2",
+    "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643"
+  },
+  {
+    "path": "ffmpeg/COPYING.GPLv3",
+    "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+  },
+  {
+    "path": "ffmpeg/COPYING.LGPLv2.1",
+    "sha256": "b634ab5640e258563c536e658cad87080553df6f34f62269a21d554844e58bfe"
+  },
+  {
+    "path": "ffmpeg/COPYING.LGPLv3",
+    "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768"
+  },
+  {
+    "path": "ffmpeg/LICENSE.md",
+    "sha256": "2e06d5375e3ec10363d38f4ba0680d311ff4f2024ee7f9ddb1c7a2e2bb8a5585"
+  },
+  {
+    "path": "citra/dist/license.md",
+    "sha256": "710696d8aff089e89fdc118f060d94aa398db0f8dd85c6d81fe81be279405c06"
+  },
+  {
+    "path": "citra/dist/qt_themes/qdarkstyle/LICENSE.md",
+    "sha256": "6949417b17d6a63ec378d7d27a95b1dade2f477c97eadcccf7bfd6194af024a1"
+  },
+  {
+    "path": "citra/dist/qt_themes/qdarkstyle_midnight_blue/LICENSE.rst",
+    "sha256": "8abb75a74659870347ceca80e8f551ae26be6d71b26634404f3e8082ca55bef1"
+  },
+  {
+    "path": "citra/externals/boost/LICENSE_1_0.txt",
+    "sha256": "c9bff75738922193e67fa726fa225535870d2aa1059f91452c411736284ad566"
+  },
+  {
+    "path": "citra/externals/catch2/LICENSE.txt",
+    "sha256": "c9bff75738922193e67fa726fa225535870d2aa1059f91452c411736284ad566"
+  },
+  {
+    "path": "citra/externals/cpp-jwt/LICENSE",
+    "sha256": "b94e67785852db5abe84b362aa4d950d98a02e1969caa2321df71672bf433631"
+  },
+  {
+    "path": "citra/externals/cryptopp/License.txt",
+    "sha256": "78e4010b682cb94187fe0b57e50116d0ba271ef81104d1ddb35c80c3d81e3169"
+  },
+  {
+    "path": "citra/externals/cryptopp-cmake/LICENSE",
+    "sha256": "706f8a27e7a69a198bc7c5752cabb59a1b6dcb683ee9a0819c4684088dd8a13c"
+  },
+  {
+    "path": "citra/externals/cubeb/LICENSE",
+    "sha256": "44c6b5ae5ec3fe2fbc608b00e6f4896f4d2d5c7e525fcbaa3eaa3cf2f3d5a983"
+  },
+  {
+    "path": "citra/externals/dds-ktx/LICENSE",
+    "sha256": "70c7fbd0f0df984c63a1ae6497b961745eb06672b8108d77c82af3498bf59d20"
+  },
+  {
+    "path": "citra/externals/discord-rpc/LICENSE",
+    "sha256": "12054cc15e274c9a10966fd7d8740c12dbd679dec2468e370818d899f9a3a634"
+  },
+  {
+    "path": "citra/externals/dynarmic/LICENSE.txt",
+    "sha256": "14ef8e5ce8e564bbbe28bc7a306de80c786124de34955b2b4e868cb64bbe9faa"
+  },
+  {
+    "path": "citra/externals/dynarmic/externals/catch/LICENSE.txt",
+    "sha256": "c9bff75738922193e67fa726fa225535870d2aa1059f91452c411736284ad566"
+  },
+  {
+    "path": "citra/externals/dynarmic/externals/fmt/LICENSE.rst",
+    "sha256": "825c9324e70f8c839c8ba910543dd4a7daee243b86ef960594c11381a19980b8"
+  },
+  {
+    "path": "citra/externals/dynarmic/externals/mcl/LICENSE",
+    "sha256": "63343a4ec1a8ae9a0183dafe2663c1ea5a95eb583c1447ec2e93c9c9f02817ee"
+  },
+  {
+    "path": "citra/externals/dynarmic/externals/oaknut/LICENSE",
+    "sha256": "8b689195ab4141a20f92a525d1f268893a1e44d51adf2fb5b4caec8769a33dbd"
+  },
+  {
+    "path": "citra/externals/dynarmic/externals/robin-map/LICENSE",
+    "sha256": "11f2c685ba565a31aef1219f63a7a8845602c97bff70016b9e3278dfe51a2ec5"
+  },
+  {
+    "path": "citra/externals/dynarmic/externals/xbyak/COPYRIGHT",
+    "sha256": "7e411d5c5d38501a504843f58afb6824439c828872b35d2ff1e892e73fd1a30d"
+  },
+  {
+    "path": "citra/externals/dynarmic/externals/zycore/LICENSE",
+    "sha256": "bad974d260b4697edfdf3a126c33d451a512947b5265f6014fb66173f42ccab3"
+  },
+  {
+    "path": "citra/externals/dynarmic/externals/zydis/LICENSE",
+    "sha256": "1218751ea297d1559d768da22dfb95248d6b7c6fdcf3aedecd53a818694b6bf9"
+  },
+  {
+    "path": "citra/externals/enet/LICENSE",
+    "sha256": "77f94e3be39938801163844b8bf9a4f12badcc0da136e9886e7da14a816d74d3"
+  },
+  {
+    "path": "citra/externals/enet/docs/license.dox",
+    "sha256": "c3a3268b32afa0988f51bb19381c1642bcdb2df77e5534a74901db971d876922"
+  },
+  {
+    "path": "citra/externals/faad2/faad2/COPYING",
+    "sha256": "d3baf3a54943cf12a994c85867a18dec84f810901b2f2878ddfd77efcc3c150f"
+  },
+  {
+    "path": "citra/externals/fmt/LICENSE",
+    "sha256": "07580f2a3b35709ce703d523f447b242f6dfec7582a8c0df102c7fa2849375f8"
+  },
+  {
+    "path": "citra/externals/glslang/LICENSE.txt",
+    "sha256": "adb783e734e906d1f46db5df29991dbde84bdb0ceab502ac2febb44fe3c2b5f4"
+  },
+  {
+    "path": "citra/externals/glslang/kokoro/license-check/build-docker.sh",
+    "sha256": "c489d0182e713653eb7d2d9d05b7bc7f8dc360a814c633b5488d1775f5d83372"
+  },
+  {
+    "path": "citra/externals/glslang/kokoro/license-check/build.sh",
+    "sha256": "9cd354fccec3e0627b3647576a33ffb6e1b3b4cb37aaee2e17fea7dc48fae458"
+  },
+  {
+    "path": "citra/externals/glslang/kokoro/license-check/continuous.cfg",
+    "sha256": "4624ec9999e6e21a27937a36a478a36c7251133e1dba05efd34043e6ae820248"
+  },
+  {
+    "path": "citra/externals/glslang/kokoro/license-check/presubmit.cfg",
+    "sha256": "5afb0fbf62022918d9b62fa8057bd7794d68f9110bc999c6f8c279d56ff4a5c1"
+  },
+  {
+    "path": "citra/externals/glslang/license-checker.cfg",
+    "sha256": "e6ead88c5894007be86546cfd24d6c0b9fafcbf832fc27d8330eb7d46cedc84a"
+  },
+  {
+    "path": "citra/externals/inih/inih/LICENSE.txt",
+    "sha256": "9ae3b39e83e9158e44b67733baa3bb2d84e80efdcfb14a5820210a42c7abdf7f"
+  },
+  {
+    "path": "citra/externals/libadrenotools/LICENSE",
+    "sha256": "7ea796e199e46093c2f5c391697bce5abeacd02b7216aa0a84e5839afb5584f3"
+  },
+  {
+    "path": "citra/externals/libadrenotools/lib/linkernsbypass/LICENSE",
+    "sha256": "7ea796e199e46093c2f5c391697bce5abeacd02b7216aa0a84e5839afb5584f3"
+  },
+  {
+    "path": "citra/externals/library-headers/fdk-aac/NOTICE",
+    "sha256": "95ec80da40b4af12ad4c4f3158c9cfb80f2479f3246e4260cb600827cc8c7836"
+  },
+  {
+    "path": "citra/externals/library-headers/ffmpeg/COPYING.GPLv2",
+    "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643"
+  },
+  {
+    "path": "citra/externals/library-headers/ffmpeg/COPYING.GPLv3",
+    "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+  },
+  {
+    "path": "citra/externals/library-headers/ffmpeg/COPYING.LGPLv2.1",
+    "sha256": "b634ab5640e258563c536e658cad87080553df6f34f62269a21d554844e58bfe"
+  },
+  {
+    "path": "citra/externals/library-headers/ffmpeg/COPYING.LGPLv3",
+    "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768"
+  },
+  {
+    "path": "citra/externals/library-headers/ffmpeg/LICENSE.md",
+    "sha256": "cb48bf09a11f5fb576cddb0431c8f5ed0a60157a9ec942adffc13907cbe083f2"
+  },
+  {
+    "path": "citra/externals/libressl/COPYING",
+    "sha256": "5c63613f008f16a9c0025c096bbd736cecf720494d121b5c5203e0ec6e5955b1"
+  },
+  {
+    "path": "citra/externals/libusb/libusb/COPYING",
+    "sha256": "5df07007198989c622f5d41de8d703e7bef3d0e79d62e24332ee739a452af62a"
+  },
+  {
+    "path": "citra/externals/libyuv/LICENSE",
+    "sha256": "2b2cc1180c7e6988328ad2033b04b80117419db9c4c584918bbb3cfec7e9364f"
+  },
+  {
+    "path": "citra/externals/lodepng/lodepng/LICENSE",
+    "sha256": "bdafa318b8e637d600ca1b60545e894881977a16a16b74809c95e805701621e3"
+  },
+  {
+    "path": "citra/externals/nihstro/license.txt",
+    "sha256": "27506f579df456adae7c4cab1264c99c895177fa1c7aa9743ab1f3bf77a66ff5"
+  },
+  {
+    "path": "citra/externals/oaknut/LICENSE",
+    "sha256": "8b689195ab4141a20f92a525d1f268893a1e44d51adf2fb5b4caec8769a33dbd"
+  },
+  {
+    "path": "citra/externals/openal-soft/COPYING",
+    "sha256": "d808ce217e5b611854da622b57ec29fe545584c48bc5352fae72a4b6e5074a15"
+  },
+  {
+    "path": "citra/externals/sdl2/SDL/LICENSE.txt",
+    "sha256": "9928507f684c1965d07f2b6ef4b4723d5efc2f6b4ab731f743a413c51c319927"
+  },
+  {
+    "path": "citra/externals/sdl2/SDL/Xcode/SDL/pkg-support/resources/License.txt",
+    "sha256": "77edc2b8cb8d4eebe362cf87383cf8e1bde7b0e1f0c09aa573240eabbaa100f7"
+  },
+  {
+    "path": "citra/externals/sdl2/SDL/Xcode-iOS/Demos/data/bitmapfont/license.txt",
+    "sha256": "5059bc9c2f37b7e7a557685ae9330ecfd798537bdfde94de63a9c721c92a8856"
+  },
+  {
+    "path": "citra/externals/sdl2/SDL/src/hidapi/LICENSE-bsd.txt",
+    "sha256": "30eb1bef29b46f8ba7ab8b416035dbd93cb034a45481dd97815b944284582cd2"
+  },
+  {
+    "path": "citra/externals/sdl2/SDL/src/hidapi/LICENSE-gpl3.txt",
+    "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+  },
+  {
+    "path": "citra/externals/sdl2/SDL/src/hidapi/LICENSE-orig.txt",
+    "sha256": "fb5436aa63d1b71a8dfbf74ecaf1a5b4e1ec4df7f80074d11fec99284f69ca5f"
+  },
+  {
+    "path": "citra/externals/sdl2/SDL/src/hidapi/LICENSE.txt",
+    "sha256": "7d3b087c34f35d4d538e3bcddd1ff8f66e92f9ef336881999482800ddf840913"
+  },
+  {
+    "path": "citra/externals/sdl2/SDL/src/video/yuv2rgb/LICENSE",
+    "sha256": "f7d74004cc75778cae46c5f0139f244d67c07ef64cf51937e8272352197dcb18"
+  },
+  {
+    "path": "citra/externals/sdl2/SDL/test/COPYING",
+    "sha256": "d5a549e4a7b88cb696d0db15b21830061131ed361257ab399a33ca08ce0b33d5"
+  },
+  {
+    "path": "citra/externals/sdl2/SDL/visualtest/COPYING.txt",
+    "sha256": "dae65ccf728227eff8e10194437078a5628047b9f55d796039688e7ca8e3aa4e"
+  },
+  {
+    "path": "citra/externals/sirit/LICENSE.txt",
+    "sha256": "85037eeef55658177becb552477576a41bbc933705534b529c4c4818bb490480"
+  },
+  {
+    "path": "citra/externals/sirit/externals/SPIRV-Headers/LICENSE",
+    "sha256": "9b243f6f0bf44e295ff411a0f7b7642d1d0dff7cdc42507e9f7206f439e51b5a"
+  },
+  {
+    "path": "citra/externals/soundtouch/COPYING.TXT",
+    "sha256": "84c6d82dc7de80f5b73f231edfd3ddc5b53513908117452bfa37ea36bb4b7e0a"
+  },
+  {
+    "path": "citra/externals/teakra/LICENSE",
+    "sha256": "84ac887a2ae105eacfb5aeb1921502ef91e0bd230bb2e6de3e8507f79177adf5"
+  },
+  {
+    "path": "citra/externals/vma/LICENSE.txt",
+    "sha256": "cdb520614db3ec62e667ece01e64e6afa21948fa51e85e748b1494597a7be907"
+  },
+  {
+    "path": "citra/externals/vulkan-headers/LICENSE.md",
+    "sha256": "ac24e5ea920e4318e4d02c4086ae51f53cfb03feed06c18df1019e7ada1ec7bc"
+  },
+  {
+    "path": "citra/externals/vulkan-headers/LICENSES/Apache-2.0.txt",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+  },
+  {
+    "path": "citra/externals/vulkan-headers/LICENSES/MIT.txt",
+    "sha256": "1ca3502222d967f3be5751c55f6b7ee735b5383909c3b501495f54b216dbf227"
+  },
+  {
+    "path": "citra/externals/xbyak/COPYRIGHT",
+    "sha256": "7e411d5c5d38501a504843f58afb6824439c828872b35d2ff1e892e73fd1a30d"
+  },
+  {
+    "path": "citra/externals/zstd/COPYING",
+    "sha256": "f9c375a1be4a41f7b70301dd83c91cb89e41567478859b77eef375a52d782505"
+  },
+  {
+    "path": "citra/externals/zstd/LICENSE",
+    "sha256": "7055266497633c9025b777c78eb7235af13922117480ed5c674677adc381c9d8"
+  },
+  {
+    "path": "citra/externals/zstd/build/LICENSE",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "citra/license.txt",
+    "sha256": "f1060df9f5ce99e42981d9708c55c1071e0a47e93b7dd512a639a612e43b3570"
+  },
+  {
+    "path": "citra/src/android/app/src/main/java/org/citra/citra_emu/adapters/LicenseAdapter.kt",
+    "sha256": "2fb393c533db32c4bef41f68afbb18cb2cbd66d7c52b02cfe86dc1cc36b9fd4e"
+  },
+  {
+    "path": "citra/src/android/app/src/main/java/org/citra/citra_emu/fragments/LicenseBottomSheetDialogFragment.kt",
+    "sha256": "519210b9d7f24d43f10f5714ca01ee26d90675605f81af750d2c0b47c44326a8"
+  },
+  {
+    "path": "citra/src/android/app/src/main/java/org/citra/citra_emu/fragments/LicensesFragment.kt",
+    "sha256": "eeee2382b02e09d0cde3f3764d702091e1a55371c00b1ff7dfae5352bf870e68"
+  },
+  {
+    "path": "citra/src/android/app/src/main/java/org/citra/citra_emu/model/License.kt",
+    "sha256": "9b4c30d80be86ca145efd86beca20a762bcf708582e84f5421d316894c515952"
+  },
+  {
+    "path": "citra/src/android/app/src/main/res/values/licenses.xml",
+    "sha256": "ceaafc1294172c7ef6d277694bb7d63492caeeb5001b098aeaa7f305c412ff37"
+  }
+]

@@ -1,3 +1,4 @@
+import java.security.MessageDigest
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -218,3 +219,22 @@ fun usePlayDynamicFeatures(): Boolean {
     val task = gradle.startParameter.taskRequests.toString()
     return task.contains("Play") && task.contains("Dynamic")
 }
+
+// PSP assets are delivered in the Play bundle, including shaders and debugger scripts.
+android.sourceSets.getByName("play").assets.srcDir(rootProject.file(".release-native/assets"))
+val bundledCoreAssets = rootProject.file(".release-native/assets/core-assets/ppsspp.zip")
+val bundledCoreAssetLock = rootProject.file("qa/source-core-assets.json")
+val expectedCoreAssetHash = (groovy.json.JsonSlurper().parse(bundledCoreAssetLock) as Map<*, *>)["core-assets/ppsspp.zip"]
+val verifyBundledCoreAssets = tasks.register("verifyBundledCoreAssets") {
+    val assetInput = bundledCoreAssets
+    val expectedHash = expectedCoreAssetHash as String
+    inputs.files(assetInput, bundledCoreAssetLock)
+    doLast {
+        check(assetInput.isFile) { "Missing bundled PSP assets. See docs/SOURCE_CORE_INTEGRATION.md." }
+        val actual = MessageDigest.getInstance("SHA-256")
+            .digest(assetInput.readBytes()).joinToString("") { "%02x".format(it) }
+        check(actual == expectedHash) { "Bundled PSP asset hash mismatch" }
+    }
+}
+tasks.matching { it.name.startsWith("mergePlay") && it.name.endsWith("Assets") }
+    .configureEach { dependsOn(verifyBundledCoreAssets) }

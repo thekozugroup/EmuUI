@@ -24,13 +24,17 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.takeWhile
 import retrofit2.Retrofit
+import retrofit2.Response
+import java.io.InputStream
+import java.io.IOException
+import java.util.zip.ZipInputStream
+import com.swordfish.lemuroid.lib.core.assetsmanager.PPSSPPAssetsManager
 import kotlin.time.Duration.Companion.seconds
 
 class CoreUpdaterImpl(
     private val directoriesManager: DirectoriesManager,
-    retrofit: Retrofit,
+    @Suppress("UNUSED_PARAMETER") retrofit: Retrofit,
 ) : CoreUpdater {
-    private val api = retrofit.create(CoreUpdater.CoreManagerApi::class.java)
 
     override suspend fun downloadCores(
         context: Context,
@@ -112,6 +116,19 @@ class CoreUpdaterImpl(
         context: Context,
         coreIDs: List<CoreID>,
     ) {
+        // Play owns delivery of every core asset. Missing assets fail without a network fallback.
+        val api = object : CoreUpdater.CoreManagerApi {
+            override suspend fun downloadFile(url: String): Response<InputStream> {
+                if (url != PPSSPPAssetsManager.PPSSPP_ASSETS_URL.toString()) {
+                    throw IOException("Unsupported bundled core asset")
+                }
+                return Response.success(context.assets.open("core-assets/ppsspp.zip"))
+            }
+
+            override suspend fun downloadZip(url: String): Response<ZipInputStream> {
+                throw IOException("Network core asset delivery is unavailable in Play builds")
+            }
+        }
         val sharedPreferences = SharedPreferencesHelper.getSharedPreferences(context.applicationContext)
         coreIDs.asFlow()
             .map { CoreID.getAssetManager(it) }

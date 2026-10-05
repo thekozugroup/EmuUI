@@ -1,6 +1,10 @@
+# Settled price decision
+
+US$0.99/month plus US$19.99 one-time lifetime access. The user delegated a reasonable lifetime price and the coordinating parent selected/communicated US$19.99. Official lifetime gift codes redeem the same non-consumable entitlement. Show only actual localized Play ProductDetails pricing in checkout; these US reference prices do not enable unconfigured products. Public product/base-plan/purchase-option IDs and licensing key remain pending.
+
 # Play-only billing — current decision
 
-Supersedes the backend/account requirements in earlier billing preparation notes. The owner requested Google Play only, one US$0.99/month subscription and one normally purchasable lifetime product. Lifetime price is still undecided. No Supabase, app login, backend, service account, paid service or new signing key was created or is required by this implementation.
+Supersedes the backend/account requirements in earlier billing preparation notes. The owner requested Google Play only, one US$0.99/month subscription and one normally purchasable lifetime product. Lifetime price is US$19.99 one-time. No Supabase, app login, backend, service account, paid service or new signing key was created or is required by this implementation.
 
 ## Implemented
 
@@ -22,7 +26,7 @@ Lifetime is one-time access, not a subscription conversion. Buying/redeeming it 
 
 ## Remaining billing validation
 
-Console/owner: lifetime price; actual products/base plan/purchase option; public licensing key; merchant/agreements/signing decisions; reviewer access instructions. Supply a practical repeatable review path through Play Console's app-access process without publisher credentials or a shipped universal bypass. Single-use gifts alone should not be assumed sufficient reviewer access. No separate app account is required simply because the app has a paywall.
+Console/owner: actual products/base plan/purchase option; public licensing key; merchant/agreements/signing decisions; reviewer access instructions. Supply a practical repeatable review path through Play Console's app-access process without publisher credentials or a shipped universal bypass. Single-use gifts alone should not be assumed sufficient reviewer access. No separate app account is required simply because the app has a paywall.
 
 Live Play-track tests remain necessary: monthly purchase, pending completion/cancel, lifetime, gift without order ID, acknowledgment/retry, same-account reinstall/second-device restore, multi-account selection, cancel/paid period, grace/hold/pause/expiry, refund/revoke, offline/reconnect, duplicate purchase handling and subscription-to-lifetime overlap. Also exercise the minified production game-launch gate and return from checkout to game selection. Unit fakes and a sideloaded debug APK cannot prove these.
 

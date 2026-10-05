@@ -33,3 +33,6 @@ local.properties
 
 # Local verification products
 .qa-output/
+
+# Locally built, hash-locked source core replacements
+.release-native/

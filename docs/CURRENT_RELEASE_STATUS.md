@@ -1,3 +1,22 @@
+# Current checkpoint — integrated source cores and local Play assets
+
+This section supersedes earlier candidate-only, asset-gap and pending-price entries below. See SOURCE_CORE_INTEGRATION.md for staging/rebuild and obligations.
+
+- WonderSwan, PPSSPP/FFmpeg and Citra source-built replacements are integrated in Play and bundled QA. Citra unneeded symbols stripped; original source candidate retained. Hash-locked inputs and an offline staging script supplied. All other release native bytes, including DS, match the previous baseline; no systems additionally removed.
+- All 137 PSP content files have exact source matches. Only two Git pointer files omitted. Play bundles the assets and has no external asset-download fallback; free flavor unchanged. Real Play installer test passes without network and preserves existing test content. Existing user assets/saves are not forcibly replaced or deleted. Privacy/Data safety should remove the prior Play PSP-download statement while retaining covers, optional Drive and Billing disclosures.
+- Price SETTLED: US$0.99/month or US$19.99 one-time lifetime. Official lifetime gifts redeem the same non-consumable; UI uses localized Play-returned prices. Product/base-plan/purchase-option IDs and public licensing key remain pending.
+- PASS: final production build; 227 unit tests, zero failures/errors/skips; lint 0 errors, 45 warnings, 4 hints; bundle validation and 16 KB APK alignment.
+- PASS: 12 final instrumented regressions (real bundled PSP asset install, billing, icon/cutout, navigation/lifecycle) and real lawful NES gameplay with two Activity recreations. Fresh screenshots retained; they are QA captures, not proof of Play-delivered production gameplay.
+- PASS: complete minified ExternalGameLauncherActivity startup reaches the unconfigured purchase gate without reflection or entitlement injection. Earlier ten-second timeout was too short; current harness allows sixty seconds. No native gameplay through the unconfigured production gate is claimed.
+- PASS: all 18 arm64 entries load on actual API36/16384-byte pages; three replacement cores pass two init/deinit cycles without content. Final stripped Citra separately rechecked. All LOAD alignments pass; 12 retained RELRO end-boundary heuristic flags remain, but those exact libraries load on actual 16 KB pages. No non-arm64 ABI is shipped.
+- Current unsigned AAB: 52625137 bytes, SHA256 `27360ae69693b844eb1649c6d7ced8b4e2ac7559a76173d9f30c7e7ef1c55291`; `EmuUI-0.2.1-integrated-source-cores-unsigned-REVIEW-BLOCKED.aab`.
+- UNRUN: replacement PSP/WonderSwan/3DS gameplay and prior-save/state compatibility (no lawful fixtures available); clean exported-source rebuild; live Play purchase/restore/refund/gift and split delivery; production OAuth; independent latest physical/DS gameplay/disk-save checks. Preserve the user's DS-save success report. Existing 3DS UI limitation remains.
+- Before public distribution: publish exact frontend/core/dependency source, configurations and applicable GPL/LGPL installation/relinking material; finish notices review, signing/agreements, privacy/listing and Play configuration/testing. No source publication or account change occurred here.
+- Recovered build/check attempts are retained: Gradle MessageDigest import and configuration-cache capture errors fixed; QA AAR comparison narrowed to exact replacement bytes because Android strips some retained cores differently. Retained release bytes are independently compared against baseline. No failed attempt is counted as a pass.
+- Emulator stopped after final captures. Library upload remains unavailable; no output IDs/versions or alternate transfer. No new software, credentials, agreements, public upload or physical-device actions.
+
+## Prior checkpoints (historical)
+
 # Latest checkpoint — source candidates and production gate
 
 This section supersedes the older checkpoints below. See SOURCE_CANDIDATES_AND_GATE_QA.md for exact source pins, probe limits, asset gaps and failed attempts.

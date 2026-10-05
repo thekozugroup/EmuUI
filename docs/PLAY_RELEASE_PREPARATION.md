@@ -1,3 +1,5 @@
+> Current integration supersedes the original PSP download/source gaps below: Play now bundles 137 exactly traced PSP asset files and never downloads them externally. Three source-built cores are integrated. See SOURCE_CORE_INTEGRATION.md and CURRENT_RELEASE_STATUS.md for final validation and remaining gates. US pricing is settled at $0.99/month or $19.99 lifetime; checkout uses localized Play pricing.
+
 # Play release preparation — 5 October 2026
 
 

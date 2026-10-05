@@ -1,0 +1,1106 @@
+[
+  {
+    "path": "debugger/.git",
+    "status": "excluded metadata pointer"
+  },
+  {
+    "path": "debugger/.nojekyll",
+    "git_blob_sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "repository": "unknownbrackets/ppsspp-debugger",
+    "revision": "9776332f720c854ef26f325a0cf9e32c02115a9c",
+    "source_path": ".nojekyll"
+  },
+  {
+    "path": "debugger/asset-manifest.json",
+    "git_blob_sha1": "d9de043f9fe7a7025c8929020b49886a286c78dd",
+    "sha256": "e38019d11d729442d2ce4dd10c651565a0375be8b19e403b7d3bc595c5ddb6f6",
+    "repository": "unknownbrackets/ppsspp-debugger",
+    "revision": "9776332f720c854ef26f325a0cf9e32c02115a9c",
+    "source_path": "asset-manifest.json"
+  },
+  {
+    "path": "debugger/favicon.ico",
+    "git_blob_sha1": "9071d60c03879c5269227468d9c7c926a15649ed",
+    "sha256": "250707a1d89256f804446fdcfbdd1475cae75540ac3cf985d615c6c723e158fc",
+    "repository": "unknownbrackets/ppsspp-debugger",
+    "revision": "9776332f720c854ef26f325a0cf9e32c02115a9c",
+    "source_path": "favicon.ico"
+  },
+  {
+    "path": "debugger/index.html",
+    "git_blob_sha1": "0ab9989e9d77001994de5be6f91dcb4d68f2b9ab",
+    "sha256": "7be4c8c5a5b1d86543a31fc88cfd070f53178a5e013b4057d9726bfec12c782b",
+    "repository": "unknownbrackets/ppsspp-debugger",
+    "revision": "9776332f720c854ef26f325a0cf9e32c02115a9c",
+    "source_path": "index.html"
+  },
+  {
+    "path": "debugger/manifest.json",
+    "git_blob_sha1": "870b3153cb8d295e1dfcdf1360e1dd013c921791",
+    "sha256": "7f59a7589fee042f649cc724ac16da588e71302baa612490b3dd8fdd86f8aca7",
+    "repository": "unknownbrackets/ppsspp-debugger",
+    "revision": "9776332f720c854ef26f325a0cf9e32c02115a9c",
+    "source_path": "manifest.json"
+  },
+  {
+    "path": "debugger/static/css/main.3eab8a01.css",
+    "git_blob_sha1": "14536770e7d0ff1013f98416ade46413ceb6dbc5",
+    "sha256": "57386a394f3f4a0000515d90b68118032e88255d6c499ea25d9eb334b948483a",
+    "repository": "unknownbrackets/ppsspp-debugger",
+    "revision": "9776332f720c854ef26f325a0cf9e32c02115a9c",
+    "source_path": "static/css/main.3eab8a01.css"
+  },
+  {
+    "path": "debugger/static/css/main.3eab8a01.css.map",
+    "git_blob_sha1": "1a5d29a58a12de77d3ba938f4a722df130dd22f1",
+    "sha256": "3db67c404f66e54fe564d6107f0a11515daa0948bf1d1522b03fc42dbd81c84b",
+    "repository": "unknownbrackets/ppsspp-debugger",
+    "revision": "9776332f720c854ef26f325a0cf9e32c02115a9c",
+    "source_path": "static/css/main.3eab8a01.css.map"
+  },
+  {
+    "path": "debugger/static/js/main.fe87e942.js",
+    "git_blob_sha1": "58032765eb33f674d142273a4d25462b9a672e20",
+    "sha256": "1409c021011ca43fe4567b3af345439da5c2feec2e2c4fe7d373ce80b3fa3b7a",
+    "repository": "unknownbrackets/ppsspp-debugger",
+    "revision": "9776332f720c854ef26f325a0cf9e32c02115a9c",
+    "source_path": "static/js/main.fe87e942.js"
+  },
+  {
+    "path": "debugger/static/js/main.fe87e942.js.LICENSE.txt",
+    "git_blob_sha1": "3818b908feaa21b04c02a3bedc7ba5c02b65aafa",
+    "sha256": "9cc2775972449bbb33c699aed95a492eb54855299be5f698b9917d90c4817ddf",
+    "repository": "unknownbrackets/ppsspp-debugger",
+    "revision": "9776332f720c854ef26f325a0cf9e32c02115a9c",
+    "source_path": "static/js/main.fe87e942.js.LICENSE.txt"
+  },
+  {
+    "path": "debugger/static/js/main.fe87e942.js.map",
+    "git_blob_sha1": "ffded61d7f6743050f0cca35e96fc61f73e0fc80",
+    "sha256": "097ee35ee0ece8d070ec20fdadd00babbb48026513684b105d9b4e5df4203472",
+    "repository": "unknownbrackets/ppsspp-debugger",
+    "revision": "9776332f720c854ef26f325a0cf9e32c02115a9c",
+    "source_path": "static/js/main.fe87e942.js.map"
+  },
+  {
+    "path": "debugger/static/media/logo.94f885ce93dfb6d29a122402a15cccca.svg",
+    "git_blob_sha1": "16958f4bccd410012ac349711cbe64553bb7d521",
+    "sha256": "fde10c716b4c718d36011a9224d9c731a253db5cffd93e41e2d8ac1a3ccbdcba",
+    "repository": "unknownbrackets/ppsspp-debugger",
+    "revision": "9776332f720c854ef26f325a0cf9e32c02115a9c",
+    "source_path": "static/media/logo.94f885ce93dfb6d29a122402a15cccca.svg"
+  },
+  {
+    "path": "flash0/font/jpn0.pgf",
+    "git_blob_sha1": "17304b24f6175f7a221f167425b307e761ccb6bb",
+    "sha256": "d363cec75fecfafd1511e370e48c748c30199c694b83a4026be34d799b192917",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/flash0/font/jpn0.pgf"
+  },
+  {
+    "path": "flash0/font/kr0.pgf",
+    "git_blob_sha1": "9f8cce0390c827fa2195a5dc3e9885a997db6488",
+    "sha256": "6b0b3a8be9e709d6af02223d077675e1530f9879f42656377a9d8d42e2614333",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/flash0/font/kr0.pgf"
+  },
+  {
+    "path": "flash0/font/ltn0.pgf",
+    "git_blob_sha1": "1f3d907ac717270a005c2e8a00e05c385d718d22",
+    "sha256": "1184f16bc89bad1fea49093806784470281af54f279b57ef0378ce33e6603870",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/flash0/font/ltn0.pgf"
+  },
+  {
+    "path": "flash0/font/ltn1.pgf",
+    "git_blob_sha1": "80159ef0a189dbab619e33b371bc41a355efb22f",
+    "sha256": "0cb72bdce33780b78596001fdc6842c244aac06e813fddf28e3437e4db45dd5b",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/flash0/font/ltn1.pgf"
+  },
+  {
+    "path": "flash0/font/ltn10.pgf",
+    "git_blob_sha1": "affcb5dbe1eaed66b6ebae82abee5a2e59c1faa4",
+    "sha256": "ff8fcdebca739eaa81c07caabd78b3e3eafb89cac0e68caf7aaf7a2b25514e85",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/flash0/font/ltn10.pgf"
+  },
+  {
+    "path": "flash0/font/ltn11.pgf",
+    "git_blob_sha1": "7ede4b750b54beb54c340e7b2d0ca893fc23748f",
+    "sha256": "ebb94efd7d18143d6c6d54ae7aa5cc801d8c56dc7ca613c779cc60dc8b640a16",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/flash0/font/ltn11.pgf"
+  },
+  {
+    "path": "flash0/font/ltn12.pgf",
+    "git_blob_sha1": "6f74068c2910b942e18afb3d8499f445cb73d6eb",
+    "sha256": "c71f3dee57b8a105a88791dd041a008adb918b14a3892a1b18ed6a63f721201a",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/flash0/font/ltn12.pgf"
+  },
+  {
+    "path": "flash0/font/ltn13.pgf",
+    "git_blob_sha1": "5396321a6019d63250a1db769039f4b60337a567",
+    "sha256": "25b0efa79cf1b6656b35356483ad2b1191626550d59b5943ed681e82b945bd73",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/flash0/font/ltn13.pgf"
+  },
+  {
+    "path": "flash0/font/ltn14.pgf",
+    "git_blob_sha1": "723feb795cb292fe3debe16b2d3a13bb9b07352a",
+    "sha256": "bc2c9389ac33f120b4be4fd3efc467de12fd886ec147969a4309ea270ccc1da3",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/flash0/font/ltn14.pgf"
+  },
+  {
+    "path": "flash0/font/ltn15.pgf",
+    "git_blob_sha1": "36ca826ab7520da2b625f350ab4d1db0024c2adc",
+    "sha256": "4ab43137ebed97d8bbec829b32d4b343f9895e0b14ec1c884c1b44dfa35d5204",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/flash0/font/ltn15.pgf"
+  },
+  {
+    "path": "flash0/font/ltn2.pgf",
+    "git_blob_sha1": "4cdbd387195240b0f4e2fa86446450c4658fc4ad",
+    "sha256": "ecfdfc8c7f1ee367dda81ff3177af626b5bf64014315ce0c389903c40964b4bf",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/flash0/font/ltn2.pgf"
+  },
+  {
+    "path": "flash0/font/ltn3.pgf",
+    "git_blob_sha1": "3be60de84978e17ce3662c403487c53413e9786f",
+    "sha256": "82bf8f0b60fd7e513560b29c52f6c721ade05910a144704c17f78aba298d9b08",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/flash0/font/ltn3.pgf"
+  },
+  {
+    "path": "flash0/font/ltn4.pgf",
+    "git_blob_sha1": "320555dcc6ac524661cfabe0fbf6bbd8c232da07",
+    "sha256": "250babd8a242d7eaaa84284c78d5e2273b29e61d0d8c01b65414e3248d7c1164",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/flash0/font/ltn4.pgf"
+  },
+  {
+    "path": "flash0/font/ltn5.pgf",
+    "git_blob_sha1": "e65835455aa05ee7020be46fb17e2bf4544c0553",
+    "sha256": "e30b45662d37516c590ca070c831b44a6883587e223abd28082cb017623474f7",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/flash0/font/ltn5.pgf"
+  },
+  {
+    "path": "flash0/font/ltn6.pgf",
+    "git_blob_sha1": "546c190371ddc957df259333d90fd36597ea496f",
+    "sha256": "a0fb14123ceb1ef81cb230cbf0688de594d0725de234a2ad710cd9b89391c7e9",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/flash0/font/ltn6.pgf"
+  },
+  {
+    "path": "flash0/font/ltn7.pgf",
+    "git_blob_sha1": "8a284ce9079580b51b4d11daae22fe8c3fca814b",
+    "sha256": "9a4d35eeeee93fe8b5434e8dff79dabf7bbd914ad0d6461fb60d36eb178bf2c8",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/flash0/font/ltn7.pgf"
+  },
+  {
+    "path": "flash0/font/ltn8.pgf",
+    "git_blob_sha1": "a58450c7675c6f1b4e0840cef5f2dd9787eed68c",
+    "sha256": "c8620bdd244585bbf993a82903168f6ec8464d4cbcad238d4e0ca5623c1ba3c1",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/flash0/font/ltn8.pgf"
+  },
+  {
+    "path": "flash0/font/ltn9.pgf",
+    "git_blob_sha1": "1518008a6707ef51c03d8fd3d4e394a23d326910",
+    "sha256": "e250f2782e0c72707ce16f73331e2604daa84c488c8b9c959e2296867c1710bf",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/flash0/font/ltn9.pgf"
+  },
+  {
+    "path": "lang/ar_AE.ini",
+    "git_blob_sha1": "699e53ef3da1f2f8b65b48fd6aa17ea85d9a04ff",
+    "sha256": "72a1533771a72028f222df2effbec9727fb7ed95ee0a3f989ac028aa6bc2ff3a",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/ar_AE.ini"
+  },
+  {
+    "path": "lang/az_AZ.ini",
+    "git_blob_sha1": "b030b67e94fc19fd66fde576e003e8b11f9ce873",
+    "sha256": "c1b258e13a8415baccafb8d805733b70f23df4c1f3e1b666100de8356be9a0f5",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/az_AZ.ini"
+  },
+  {
+    "path": "lang/.git",
+    "status": "excluded metadata pointer"
+  },
+  {
+    "path": "lang/README.md",
+    "git_blob_sha1": "53e5ad0b64cd37404c71e05441bcd9e466ba9558",
+    "sha256": "5bce8cf4a2bd04da57dddfc2eacd27c9e01173baad2c1f3ed0d3a3859e4843d7",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/README.md"
+  },
+  {
+    "path": "lang/bg_BG.ini",
+    "git_blob_sha1": "8dbf12e5980f1595ff551588d644e891ec4de948",
+    "sha256": "3e5610c2a30b43d82aef94f485b5b20def84d12fdec4bccaf2094f4cb8abd1b0",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/bg_BG.ini"
+  },
+  {
+    "path": "lang/ca_ES.ini",
+    "git_blob_sha1": "64b19aba2616adb41ee4bb020ded08702104bd48",
+    "sha256": "d21e7ffe2f74438c626aeca85c23f6f7718b98bb106d74025ed4dc2b23c5a602",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/ca_ES.ini"
+  },
+  {
+    "path": "lang/cz_CZ.ini",
+    "git_blob_sha1": "da88a9b0859b69ab9dc12233b1cbbc36734d99dc",
+    "sha256": "f9848edc90ef909870210b0048a6381b7930e13a9438ce735319f30c515a2738",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/cz_CZ.ini"
+  },
+  {
+    "path": "lang/da_DK.ini",
+    "git_blob_sha1": "b94cc282b77f81c369ff33bec9610499fbeb064b",
+    "sha256": "8082f450346c645e59b180a726bf0b09c434f37274858c962577fc5c767f6b1f",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/da_DK.ini"
+  },
+  {
+    "path": "lang/de_DE.ini",
+    "git_blob_sha1": "2ac1e3b203445ea7574e9b8a7269d58501f8dadf",
+    "sha256": "fdd187487cb3f94d61ea44050816290a2230312353d1b47e47d9048f1ee26aa4",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/de_DE.ini"
+  },
+  {
+    "path": "lang/dr_ID.ini",
+    "git_blob_sha1": "ed04d0f8aa2da824cf1c78dffe5ec8e6d71245fc",
+    "sha256": "d65a529725fd0551750120f4db9036e3804323182664aff0f9ccf913255c286b",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/dr_ID.ini"
+  },
+  {
+    "path": "lang/en_US.ini",
+    "git_blob_sha1": "a89605314137296203c55e5d370d587bec7c65fc",
+    "sha256": "7ed8b782d961439452bdd31a06145e6e7c3b7052d7816a7c7d29fd82fd7f6197",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/en_US.ini"
+  },
+  {
+    "path": "lang/es_ES.ini",
+    "git_blob_sha1": "93920a9973d5b5e1efc33b8196e7608189884a54",
+    "sha256": "c0fee250933b1fa389677dff226b509c476f5eba5f6348e159153da5c3ea7d66",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/es_ES.ini"
+  },
+  {
+    "path": "lang/es_LA.ini",
+    "git_blob_sha1": "85ff013e98ba568c6642255005c9652984855c1a",
+    "sha256": "3d4bbfc7c7cc256ba9199efb602c354c36e30ca94068d269c2dd64be2a4b1060",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/es_LA.ini"
+  },
+  {
+    "path": "lang/fa_IR.ini",
+    "git_blob_sha1": "1e26d0e635b0f407f5ccd06559577dcb8ba1f58f",
+    "sha256": "08d8b972a1a02e52413897a4ff652b94d16d198796149c82d88292b3984892ff",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/fa_IR.ini"
+  },
+  {
+    "path": "lang/fi_FI.ini",
+    "git_blob_sha1": "cb4a69e71efa06035cf352f764eaa5fae6461ef2",
+    "sha256": "29d4142676496830044d2b747889dbc69b59bf80df993a9a7e02ea2e94e9fb83",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/fi_FI.ini"
+  },
+  {
+    "path": "lang/fr_FR.ini",
+    "git_blob_sha1": "084c9d650d3a80f6907cedceb819d900f1af074d",
+    "sha256": "2cc9cad495a215082a6dd539b2b3c7f8b4104ec28d072c36ef3f9044dc374ec6",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/fr_FR.ini"
+  },
+  {
+    "path": "lang/gl_ES.ini",
+    "git_blob_sha1": "cfc7d3987f67ecb9b024f70a8b26297e3d2737da",
+    "sha256": "90d51a51e6c5549e3694de80dd67398d335fc914539ec0c7b207397b2898fe07",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/gl_ES.ini"
+  },
+  {
+    "path": "lang/gr_EL.ini",
+    "git_blob_sha1": "c4ac45e86b2f9a968c60897717d245ed1603ad9f",
+    "sha256": "bd326866c8ef923a6dbc1e6a2d7c8bd8bf6ba870f01d1641705a64c987f67545",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/gr_EL.ini"
+  },
+  {
+    "path": "lang/he_IL.ini",
+    "git_blob_sha1": "c2f1943fb7a927290bf732fbde597bcb59003065",
+    "sha256": "96788ba5db2de571abb71caf32d6a040d3caf240c228306a4cb88ac82b127502",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/he_IL.ini"
+  },
+  {
+    "path": "lang/he_IL_invert.ini",
+    "git_blob_sha1": "6f50014db9d99987204ddcd3e7f3271fa5f4baae",
+    "sha256": "26e25eda74a3bff4b6553cd22ca3cd9e2d61e6372b3b61345bcd3f92468c641a",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/he_IL_invert.ini"
+  },
+  {
+    "path": "lang/hr_HR.ini",
+    "git_blob_sha1": "6c3cb6a9acbf91f9278801f7d3dc174c3d742791",
+    "sha256": "c196b198ffe3f4e8d800f0ec12e66d5238ce4f9fa0eb2fdeee9d43556259f1e4",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/hr_HR.ini"
+  },
+  {
+    "path": "lang/hu_HU.ini",
+    "git_blob_sha1": "401245991b9ff611baee764d0d290d9a6e1b8f21",
+    "sha256": "db7c3a9a5bbf7a5f4216edacf8bdaa5223fd3f147b6ae3eedb8c1f433eacb246",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/hu_HU.ini"
+  },
+  {
+    "path": "lang/id_ID.ini",
+    "git_blob_sha1": "e93b4b551ee9dd35fc69acedc1fd2f493c5b7894",
+    "sha256": "155ca402d4a1f9f9e3b694621757a67b469c660775512e1c2308eb87eaf5bc76",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/id_ID.ini"
+  },
+  {
+    "path": "lang/it_IT.ini",
+    "git_blob_sha1": "9e01656cce7263b7ebff4d1f9ed7a0ff143dacdc",
+    "sha256": "6d66bce00dfc8f566d8a8e74c922ee6fe8add0029673b84d13bea540d9930593",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/it_IT.ini"
+  },
+  {
+    "path": "lang/ja_JP.ini",
+    "git_blob_sha1": "81910315c64e5ba374a59226b18203c564e22621",
+    "sha256": "bb122958681ed71661dfd117669294d7e7efca1b44ca1c76f7cd9611ba95d390",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/ja_JP.ini"
+  },
+  {
+    "path": "lang/jv_ID.ini",
+    "git_blob_sha1": "90993b2ef82f726f811acb54892462dea649ab3b",
+    "sha256": "8b6c81e40c7f507f79327c8b4272acb234bf82efba8bd05f8214381152e8a759",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/jv_ID.ini"
+  },
+  {
+    "path": "lang/ko_KR.ini",
+    "git_blob_sha1": "ce40dbb90d6fdf764d01419421666e69ca20c12e",
+    "sha256": "8270ba7f13f0025864203a2e3a97c58625ca838817c0e93e01e8f2ccb2aa785f",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/ko_KR.ini"
+  },
+  {
+    "path": "lang/lo_LA.ini",
+    "git_blob_sha1": "e821e31861e3f558b939357aada59cf6da7f2a0c",
+    "sha256": "dee9cff8dbc09082915c3027ca4321ba3d824a08af824b96b0fd0fb722559f9f",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/lo_LA.ini"
+  },
+  {
+    "path": "lang/lt-LT.ini",
+    "git_blob_sha1": "3079809344a3d41e088fb2cdb856daee2bb9c430",
+    "sha256": "97b57b58693c5a6cec8121d4f55cc0e1727041c06fe3aad79dff03ed89765eb8",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/lt-LT.ini"
+  },
+  {
+    "path": "lang/ms_MY.ini",
+    "git_blob_sha1": "932dc4ce79fccefaad154d524ce65bf506a76adc",
+    "sha256": "bc6fda54ca70fb68651cf200722c395d046c5266f77be57493a2808a162ecf36",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/ms_MY.ini"
+  },
+  {
+    "path": "lang/nl_NL.ini",
+    "git_blob_sha1": "17931d0d2b2b365a92f82311b70187acf6ff641a",
+    "sha256": "d3c1fc6399f0a21a9576218906f4ed4d2705c984ed3d8bb65b696a2ef6c6f275",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/nl_NL.ini"
+  },
+  {
+    "path": "lang/no_NO.ini",
+    "git_blob_sha1": "78564c313cb4abc213bc9b2f99a4ef1c840cfaab",
+    "sha256": "49a333a6bc1397d11d6f7505c9d0406c47fadccb76907ac3253ae5450caf66a1",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/no_NO.ini"
+  },
+  {
+    "path": "lang/pl_PL.ini",
+    "git_blob_sha1": "482bea9be33983c56c72bf8ecf138dce27302819",
+    "sha256": "36ecee11a94b8bb91f8d4da3515a78be7052c6929544e005faed2e0d8abe3ef3",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/pl_PL.ini"
+  },
+  {
+    "path": "lang/pt_BR.ini",
+    "git_blob_sha1": "61a97a6d42498c948b2d2b42194304a9030b5508",
+    "sha256": "70e843859993f876149a7af9eab61093863589472568ecef9627e6829d26ac17",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/pt_BR.ini"
+  },
+  {
+    "path": "lang/pt_PT.ini",
+    "git_blob_sha1": "a3f2984a78e6e878d1127291345daba35a9bd719",
+    "sha256": "b5be8275ce3067809bc5f8e8df154556a8c0bd191fc2f67ceabd9265b069e2e1",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/pt_PT.ini"
+  },
+  {
+    "path": "lang/ro_RO.ini",
+    "git_blob_sha1": "a7c1e774f1ff13c6ac1804a1c3e84fbd56169a22",
+    "sha256": "d680ab20895c04879196d4a795c076fcc5e8ecc4db26d4753190d36e4ee39ee5",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/ro_RO.ini"
+  },
+  {
+    "path": "lang/ru_RU.ini",
+    "git_blob_sha1": "a33f26ff7564a46719d136a80ed17e92071c803b",
+    "sha256": "25d681a8148a910e9dcbb1935d422d2295df0000d1c541f26e6f68cd69702174",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/ru_RU.ini"
+  },
+  {
+    "path": "lang/sv_SE.ini",
+    "git_blob_sha1": "b9768f7c4045e371a50d1430f9df197feedd8a58",
+    "sha256": "657bba1c2b1e13b909a96f3fd0d8301f9f9439171b1263af5be1eee1dc3f803e",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/sv_SE.ini"
+  },
+  {
+    "path": "lang/tg_PH.ini",
+    "git_blob_sha1": "472813cd6b397c010a52403a658072f77d70c2ff",
+    "sha256": "77242a817d61570d99266f920af3174c8d823d4998e118bccfa061a2f0f65e03",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/tg_PH.ini"
+  },
+  {
+    "path": "lang/th_TH.ini",
+    "git_blob_sha1": "7f626c743c4303872b2aef98e483f16147ac64b3",
+    "sha256": "8268e209a3656bd1fa2273cfd80529f6cfddedeb8b89491f08f3331bb2141997",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/th_TH.ini"
+  },
+  {
+    "path": "lang/tr_TR.ini",
+    "git_blob_sha1": "ae7edf0cf8994d386076e57fd872e80a200da965",
+    "sha256": "902a103a72babc2eedfbe14088d5d4363b756e926d74b4d45b969f9847ef4583",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/tr_TR.ini"
+  },
+  {
+    "path": "lang/uk_UA.ini",
+    "git_blob_sha1": "c4ec4fc6ca7c423e468b7b5c6cbaac5fa035f586",
+    "sha256": "60443a348974f0184199b53bfabca3f729bb3540cea144b0d8da1116a45b1a45",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/uk_UA.ini"
+  },
+  {
+    "path": "lang/vi_VN.ini",
+    "git_blob_sha1": "e521a0d4be5a9831167c58c4fd76d9cc65f493a9",
+    "sha256": "47f3d5e0c67a1eb38b74adebe45fb04cba9e997e7609a32f5c537f85279e7707",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/vi_VN.ini"
+  },
+  {
+    "path": "lang/zh_CN.ini",
+    "git_blob_sha1": "9bb0c7a32235af113695dc774add21ea9277604b",
+    "sha256": "0a8f3f8f560b29177d7eaa55272de7a6f80ee27aa5137db76830e7ff67e08069",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/zh_CN.ini"
+  },
+  {
+    "path": "lang/zh_TW.ini",
+    "git_blob_sha1": "6915f757ee5913aecfe3442d694171bce2238cd7",
+    "sha256": "890c449c610505421d3eebbf0e2ac28e7fa1cd3e998e94cd8e1bb6317c80a129",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/lang/zh_TW.ini"
+  },
+  {
+    "path": "mime/ppsspp.xml",
+    "git_blob_sha1": "26b62e56e9c6b3c1336307bcf84fd05e08007896",
+    "sha256": "b8d3afe7be6e071229f99e4e063684c4fd1947285ff94316935a5b1b9e73f6db",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/mime/ppsspp.xml"
+  },
+  {
+    "path": "shaders/4xhqglsl.vsh",
+    "git_blob_sha1": "3ed7ccda8ec971d41f186f2684bb1a7bc1cf0b51",
+    "sha256": "c195f001259bcdf9b2be7260c91ae59ae171cc825cb494af8472fae2193d6916",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/4xhqglsl.vsh"
+  },
+  {
+    "path": "shaders/5xBR.vsh",
+    "git_blob_sha1": "01e85aab9883a86e1fae030ee32c13a873028034",
+    "sha256": "2c8161eda12a9d7a28b3bdb9c4375e4eb83d0fcbc11e70276391942339568eee",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/5xBR.vsh"
+  },
+  {
+    "path": "shaders/aacolor.vsh",
+    "git_blob_sha1": "97199877e0ec51d8a3e000916f7f8c2b6cadf198",
+    "sha256": "a3ea2687befd37aadf269d0934fab5c54034a065b88f18d5861281d5fea31264",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/aacolor.vsh"
+  },
+  {
+    "path": "shaders/cartoon.vsh",
+    "git_blob_sha1": "701ce8f74ff75e9c284b52ac53d2624126206f08",
+    "sha256": "f1cc9d0d6c269fc257c53880b093a9de70b2f8f88580039bfa50b1372bf6846d",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/cartoon.vsh"
+  },
+  {
+    "path": "shaders/fxaa.vsh",
+    "git_blob_sha1": "0c93df96f0592fea6a5f0771cf323e9aef1ded4c",
+    "sha256": "05d6207a1b459d131e7cdbce5d8d6aeb35fbac4a60f02d8b072bdb600174c84b",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/fxaa.vsh"
+  },
+  {
+    "path": "shaders/natural.vsh",
+    "git_blob_sha1": "cebb5f7c4358c5698a86ed6f1116ecb7df108290",
+    "sha256": "33752c2162f4f5042d251a4732fa5781d6dbcb0964a419509c471103ab43a96a",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/natural.vsh"
+  },
+  {
+    "path": "shaders/naturalA.vsh",
+    "git_blob_sha1": "8e52bc055f5c22ca769012db94baf57498f8a633",
+    "sha256": "c8049698fa9a637ad9d17857321cff5ae5828ba02249760ee7f7eb7ea99bf1ec",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/naturalA.vsh"
+  },
+  {
+    "path": "shaders/upscale_spline36.vsh",
+    "git_blob_sha1": "77d2f36f1562a4d756c36bff14847d6402875067",
+    "sha256": "8a37557a9b87a4c6d2fb1ad3006cc20b59dfe16b50c183344c47f9e650156626",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/upscale_spline36.vsh"
+  },
+  {
+    "path": "shaders/4xhqglsl.fsh",
+    "git_blob_sha1": "74141664645bb988ebeaee28aff4d8f18b07f2c3",
+    "sha256": "3e656f9b30a1d2a4bfe4dda6696d79cd28d4fd499d1d80c704e30b959e3c6001",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/4xhqglsl.fsh"
+  },
+  {
+    "path": "shaders/5xBR-lv2.fsh",
+    "git_blob_sha1": "7bf44940b7c8797954e9f1b5e0e24b30ee3ded3f",
+    "sha256": "1ccbec50ae113f2ea8088e5535cfc99044e0f5ceb38800e8fcfcf4a8c92522d2",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/5xBR-lv2.fsh"
+  },
+  {
+    "path": "shaders/5xBR.fsh",
+    "git_blob_sha1": "7d1be4a3e11c398490eda6ca300a76c0cc443771",
+    "sha256": "44374186c32bebec095ebf014894401969bdf75b67d45b2a3a5a40ae803953f5",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/5xBR.fsh"
+  },
+  {
+    "path": "shaders/GaussianDownscale.fsh",
+    "git_blob_sha1": "4ddd576b577a68da466a466bcb673aae34c65c4d",
+    "sha256": "eb36c1b654376381922d1a486e5a1a998155e357e96f5c7ff6c94c2d98214a55",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/GaussianDownscale.fsh"
+  },
+  {
+    "path": "shaders/aacolor.fsh",
+    "git_blob_sha1": "a22e86047afd18c37a14ec8aa86bc20ccbc547b0",
+    "sha256": "6d4b8e3478a0397181f4476c3e294af11b88b100c25883a2a5453d357d67f146",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/aacolor.fsh"
+  },
+  {
+    "path": "shaders/bloom.fsh",
+    "git_blob_sha1": "e0636297a24a8ca96fb2aa039737e9b6115bf0be",
+    "sha256": "09a3685bac8c85ae7a6d125eadefe5d84d2809c380a47f3d6df4577e565f4bec",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/bloom.fsh"
+  },
+  {
+    "path": "shaders/cartoon.fsh",
+    "git_blob_sha1": "de8c0a07fde5646d47c781f66cfeb66857d0694c",
+    "sha256": "c61aedf38403939dbd8eb5df239928fbcdd8522573aa6707098f52bcd0f0b5fe",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/cartoon.fsh"
+  },
+  {
+    "path": "shaders/colorcorrection.fsh",
+    "git_blob_sha1": "cf62884f5aa569432d71f8d4392f4f0283a9e79a",
+    "sha256": "e39e2a2dffa0141237351a6be41cd1db645e7f72764f3ceff410adf7ae977283",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/colorcorrection.fsh"
+  },
+  {
+    "path": "shaders/crt.fsh",
+    "git_blob_sha1": "9b8ec76f7477077d01333e5d1a1c710eca6a4c69",
+    "sha256": "dcf1f35df91366b78cd708dacf8140f9b305da8ac69c0461690a623de03e1d24",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/crt.fsh"
+  },
+  {
+    "path": "shaders/defaultshaders.ini",
+    "git_blob_sha1": "b0e48dabb8a89cb81440f2210f02047fb2355172",
+    "sha256": "732c166e1055ff7484a80c5f34659baaa8ae4dce8555bdf82b34d0bf38dd68af",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/defaultshaders.ini"
+  },
+  {
+    "path": "shaders/fxaa.fsh",
+    "git_blob_sha1": "5a2469d70f10620df2be46e94fc0984200ac13b8",
+    "sha256": "b0d5bd19ac6658dfa21eeb3a4f2b7a91e19ea09de3499c360a67fdb53487d19d",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/fxaa.fsh"
+  },
+  {
+    "path": "shaders/natural.fsh",
+    "git_blob_sha1": "f8559e0edcb8e111b5925459e3e06730d82be92c",
+    "sha256": "31e11f048a9421a3566dc59254d9f24cedca1ca7b7cb7f796c8da6a6d665411b",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/natural.fsh"
+  },
+  {
+    "path": "shaders/naturalA.fsh",
+    "git_blob_sha1": "201f8e7ea9c80e920deb31df37b698dfd4e4d8b2",
+    "sha256": "dc28e8ea863823bf5d2de3dc81babc99856983507b67d5bc9051df7d1969f1b1",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/naturalA.fsh"
+  },
+  {
+    "path": "shaders/psp_color.fsh",
+    "git_blob_sha1": "2e597b3e39de27bfacf8ed9fe35af42bac0c7e93",
+    "sha256": "2e6cda41b9ad36ee0c33b92155e7069cf9c295770dec8e31675f92ac8425e14f",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/psp_color.fsh"
+  },
+  {
+    "path": "shaders/scanlines.fsh",
+    "git_blob_sha1": "ac568b14a98fa7dd876bd2c6eae9ebc4101dfeb0",
+    "sha256": "130ea313492c185fd30baf42bbd45de0815697f9dd5b4e61d263efd6c7bc8995",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/scanlines.fsh"
+  },
+  {
+    "path": "shaders/sharpen.fsh",
+    "git_blob_sha1": "3c528c760215ba1ff9cb345fa21f3d021fa10998",
+    "sha256": "33e2b9a4797cd722c5963eafb2668a1111b4b54e62c1025c7c36cc46e0b0586c",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/sharpen.fsh"
+  },
+  {
+    "path": "shaders/tex_4xbrz.csh",
+    "git_blob_sha1": "bd22097ef8de3b3b59edc39b51ea958d54d74c39",
+    "sha256": "d9797ae8f4a7335730132fd79406c731da340ad79e7db6cda0391a9e831c2a06",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/tex_4xbrz.csh"
+  },
+  {
+    "path": "shaders/tex_mmpx.csh",
+    "git_blob_sha1": "72851f6564105b1ebae0ccdbf0f82f8ee5e62560",
+    "sha256": "9940b233526ba7e1fece0e792fddde62e7fb55b7e7b4db4c7815969a32c2c658",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/tex_mmpx.csh"
+  },
+  {
+    "path": "shaders/upscale_spline36.fsh",
+    "git_blob_sha1": "e5c01330fcedd2cd61a4fc5849e3d2140b543906",
+    "sha256": "43295e897c1d608cfe6128906a85ed04b071943fe08753e652b13eb63a437767",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/upscale_spline36.fsh"
+  },
+  {
+    "path": "shaders/videoAA.fsh",
+    "git_blob_sha1": "979e5672bfd861c8b31195c1aa18ef2550bda6af",
+    "sha256": "40b100fd3734cb00c2ce26ff8599bf1686b469a2c7596b5d651bc2ee7e1ac2db",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/videoAA.fsh"
+  },
+  {
+    "path": "shaders/vignette.fsh",
+    "git_blob_sha1": "b4dc2b41c99a2254075d990418b6b40f4371781b",
+    "sha256": "332c37880e715b5538553c11d88f32a818bdf74bdf4d6e35141913c2062b7efd",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/vignette.fsh"
+  },
+  {
+    "path": "shaders/persistence.fsh",
+    "git_blob_sha1": "9be51d8225f964a60d1f0c482f61e8276a4c592b",
+    "sha256": "2bdd958789e33dd9e973227e62f1b36f3bc77b048c34e82aef39b2bfceb5b11f",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/persistence.fsh"
+  },
+  {
+    "path": "shaders/stereo_red_blue.fsh",
+    "git_blob_sha1": "1ad875b6b3c5f8b56e5593fca3314296ca1bf230",
+    "sha256": "5ab5bed9dce6d17a0fd840be30c7bc1e34485f6b49555b650e926404173b68c5",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/stereo_red_blue.fsh"
+  },
+  {
+    "path": "shaders/stereo_sbs.fsh",
+    "git_blob_sha1": "c308f3aa0d4c30a55a718768152b3315daaae796",
+    "sha256": "acb4f6149070bcb83953947680ac96519bd3f37219b3e39705d40fab049b3f62",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/stereo_sbs.fsh"
+  },
+  {
+    "path": "shaders/tex_2xbrz.csh",
+    "git_blob_sha1": "639efb582e6a70435b07ae623f992f7620601d9a",
+    "sha256": "43824c306a4b1cb8d7a6d430f5dfa15be3bfe7e9caff350bd5913b34d0914ea4",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/tex_2xbrz.csh"
+  },
+  {
+    "path": "shaders/upscale_catmull_rom.fsh",
+    "git_blob_sha1": "1c9837c211a491d94fe53469657c236b26286cdd",
+    "sha256": "1c83cb967a89e2f5b88fb468034d710c9cea6b0318c8cd2f9aeb80c9f8b7168a",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/upscale_catmull_rom.fsh"
+  },
+  {
+    "path": "shaders/upscale_catmull_rom.vsh",
+    "git_blob_sha1": "cc0c41732609676def1d2415871fc90db20cf0d2",
+    "sha256": "1f6954bd0113f37759d7e411b916147a0393795002c335c2db524ea87533f19c",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/upscale_catmull_rom.vsh"
+  },
+  {
+    "path": "shaders/upscale_mitchell_netravali.fsh",
+    "git_blob_sha1": "4e4b95f15182c03126d2252c49d0de9243c499dc",
+    "sha256": "779157377c6cb5c02e2f42703e1b7bb8e43165a9162c216087c5ed36ffd3b941",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/upscale_mitchell_netravali.fsh"
+  },
+  {
+    "path": "shaders/upscale_mitchell_netravali.vsh",
+    "git_blob_sha1": "cc0c41732609676def1d2415871fc90db20cf0d2",
+    "sha256": "1f6954bd0113f37759d7e411b916147a0393795002c335c2db524ea87533f19c",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/shaders/upscale_mitchell_netravali.vsh"
+  },
+  {
+    "path": "themes/defaultthemes.ini",
+    "git_blob_sha1": "ff36fb804722e8fc6bdca60e1c9ec3f09b89c03a",
+    "sha256": "72aedb2bf0861fba88a0346e9c55e8b2400a0b369d8dee9348e9c3b5d24314d9",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/themes/defaultthemes.ini"
+  },
+  {
+    "path": "7z.png",
+    "git_blob_sha1": "bbcf04cfdde4bb5006bebb620e9a15026a6ea0eb",
+    "sha256": "f6b885ce1ec15c73dd044027164598aa9a78be22c7a9f5f1325ae618434c177a",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/7z.png"
+  },
+  {
+    "path": "asciifont_atlas.meta",
+    "git_blob_sha1": "2fa23b4f97918e476c3095e03c60a099fb51c4fb",
+    "sha256": "92ab3d61d17e6fa2111a80bd75d89cc241f2a85461d0f3e58198f84adcf35c9c",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/asciifont_atlas.meta"
+  },
+  {
+    "path": "asciifont_atlas.zim",
+    "git_blob_sha1": "1fca5ed1dd93b8aba8efdb704716c86ea835709f",
+    "sha256": "1020b3cc03eced719dceec715b547f849b5594c4b7085143eab50ed3e3d87afc",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/asciifont_atlas.zim"
+  },
+  {
+    "path": "compat.ini",
+    "git_blob_sha1": "58dff15e54a05a243360712a3c4616daddafea7f",
+    "sha256": "75fca8a10d875132fb2db4e899005f2660402fc72cae76956b13d3c1b376f66a",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/compat.ini"
+  },
+  {
+    "path": "compatvr.ini",
+    "git_blob_sha1": "7159a0b650d3f24456d16f82ef6b3d4d265eaf02",
+    "sha256": "94e4cbf62a96293fc676e280416e7e154f67259fb8b0a5a5931da26a9cd50bfb",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/compatvr.ini"
+  },
+  {
+    "path": "font_atlas.meta",
+    "git_blob_sha1": "3f7252095dee0b1b204444e57256b99887f7a95a",
+    "sha256": "26a173366b420596279d69894384387e4867e66be73cedd1ee5cda5ec96a31fa",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/font_atlas.meta"
+  },
+  {
+    "path": "font_atlas.zim",
+    "git_blob_sha1": "5026d7489235c5f964c61f9f437fa1fa1a472467",
+    "sha256": "5929677cbfb28fd9040f6c16cf479d5ac54b205f5df180d100d3b1a210df0353",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/font_atlas.zim"
+  },
+  {
+    "path": "gamecontrollerdb.txt",
+    "git_blob_sha1": "1c45e96ff028a7f50d625b4f7ae1206317f1cc5f",
+    "sha256": "6b789bea0562a3477fd6d536a87f7000a8382b73e0c2ed699a204a1b693e8065",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/gamecontrollerdb.txt"
+  },
+  {
+    "path": "icon_regular_72.png",
+    "git_blob_sha1": "5f52b44ea6d672f194297991da3e3075a19c4fe2",
+    "sha256": "a7c8fd7f99c116dc954ab4b6d3d35a1b9a587c8e69f78c868c49f64af74ca0e9",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "source_assets/image/icon_regular_72.png"
+  },
+  {
+    "path": "knownfuncs.ini",
+    "git_blob_sha1": "0635f466373953b847dc3766254a2946ecf48857",
+    "sha256": "ff43156b31b8d9f48fa5748a651c3fc3adec4f73d21c81af17e9735bbae8cd66",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/knownfuncs.ini"
+  },
+  {
+    "path": "langregion.ini",
+    "git_blob_sha1": "6c9d8b10166dea179ae5d3a9b0449bc388cbd7b0",
+    "sha256": "c37994f475b9119bb7fd00ea5cee4fe1b693cb7339f7d0a2267e18d07bb3f26a",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/langregion.ini"
+  },
+  {
+    "path": "logo.png",
+    "git_blob_sha1": "0017039d95348108809012880e60c4754ea47e48",
+    "sha256": "9f986d0fc639cd6fa3720013802da47479360659c5d27549ba67dc7451a0d1fb",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "source_assets/image/logo.png"
+  },
+  {
+    "path": "ppge_atlas.meta",
+    "git_blob_sha1": "eb80c3f668d4d8453ccf47ec6446ba193200d72f",
+    "sha256": "2eadb18c05d8f492b46c23bcbad4f4811c98cf717145536ccfe136787845f2ed",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/ppge_atlas.meta"
+  },
+  {
+    "path": "ppge_atlas.zim",
+    "git_blob_sha1": "9ee0af22ababc2850c130042b01beae7d70f819a",
+    "sha256": "3ab7fcf6956d0281ada94d501fc6d1cfa8fc034f139e25fed6c829f723d92a95",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/ppge_atlas.zim"
+  },
+  {
+    "path": "rargray.png",
+    "git_blob_sha1": "a1ae9d0b5bec9606cafcb036817f5d8daf8c3145",
+    "sha256": "61266b34412befcfcb2124b0106ec6e3be6b20bbb62358461aadea329cfe0118",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/rargray.png"
+  },
+  {
+    "path": "Roboto-Condensed.ttf",
+    "git_blob_sha1": "ec7d1e016c1ae5386666ea53f3bb2ec8b2cd3ec8",
+    "sha256": "970370587f57f5fc54ea830d71b0d1dad31cdd0d9db35c68e099e45f39f28bee",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/Roboto-Condensed.ttf"
+  },
+  {
+    "path": "sfx_back.wav",
+    "git_blob_sha1": "85ae898c11a48b1770b9bff5a93d3d109bd0b3b5",
+    "sha256": "8e6550b975a34511788dbeaacae47c9be6c89c967052c12342c6cc32f5650e4c",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/sfx_back.wav"
+  },
+  {
+    "path": "sfx_confirm.wav",
+    "git_blob_sha1": "87d7b4eb2baef4a9639e0198178b3f63f02c23c6",
+    "sha256": "c2fdb1d1e6e677883f13eb866a1d83b8f67cc94f00aec21163612f61afefb693",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/sfx_confirm.wav"
+  },
+  {
+    "path": "sfx_select.wav",
+    "git_blob_sha1": "3e65be69a521273baffd3e749dbe8253ef9204ef",
+    "sha256": "6d108dcae03c5a4ea04136b972c7c202b8b5013f4771791f0cb7348db0051dc1",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/sfx_select.wav"
+  },
+  {
+    "path": "sfx_toggle_off.wav",
+    "git_blob_sha1": "bab33853f83ab2a14e424fc1e7123f6286bcb376",
+    "sha256": "5d3c60e5fd12658ffc562f14331b7d0c962b818bee4a38aa9c928d2f08fb4f6b",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/sfx_toggle_off.wav"
+  },
+  {
+    "path": "sfx_toggle_on.wav",
+    "git_blob_sha1": "74f9ff22205796feac7043682e0765a8100727b5",
+    "sha256": "f56b389dde4da2ad6f65f3ac136c3d9c1a681aa76c3ca531e984410b261b4810",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/sfx_toggle_on.wav"
+  },
+  {
+    "path": "ui_atlas.meta",
+    "git_blob_sha1": "88c386e49193d5c77ed88392508cb5a494771029",
+    "sha256": "38b30f59395cf35d9be7d9a26b536a4cf24290f9c084c1856120321511477a19",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/ui_atlas.meta"
+  },
+  {
+    "path": "ui_atlas.zim",
+    "git_blob_sha1": "465d54e6f0a413267f9fe947899151ae11d2a0e9",
+    "sha256": "da9d9c35bb786eaf0bd71d1e31266eda4ba5d28a627fb47137e7bfe64fb6d15c",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/ui_atlas.zim"
+  },
+  {
+    "path": "unknown.png",
+    "git_blob_sha1": "703da1ab7004151e9418bbeeab3dc088ac7fe402",
+    "sha256": "e6ab63db006a438781222ab8c5b1d287877d07c17ae9f48f57046fe770421704",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/unknown.png"
+  },
+  {
+    "path": "zip.png",
+    "git_blob_sha1": "1ea89442fceb06b84a36496effe20dd8d11a17e7",
+    "sha256": "61abad4c2d06dfe23e601421246f04897417f508ebabdf30c71a29654c1f68f6",
+    "repository": "hrydgard/ppsspp",
+    "revision": "c6352a262d272468e867138f3d3310234302210b",
+    "source_path": "assets/zip.png"
+  }
+]

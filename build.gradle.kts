@@ -1,3 +1,4 @@
+import java.security.MessageDigest
 import com.android.build.gradle.BaseExtension
 
 buildscript {
@@ -58,6 +59,49 @@ subprojects {
         if (hasProperty("android")) {
             // BaseExtension is common parent for application, library and test modules
             apply(plugin = "org.jlleitschuh.gradle.ktlint")
+
+            // Source-built replacements are staged separately from the pinned upstream checkout.
+            val replacementNames = mapOf(
+                "lemuroid_core_mednafen_wswan" to "libmednafen_wswan_libretro_android.so",
+                "lemuroid_core_ppsspp" to "libppsspp_libretro_android.so",
+                "lemuroid_core_citra" to "libcitra_libretro_android.so",
+            )
+            val selectedReplacements = if (project.name == "bundled-cores") {
+                replacementNames.values.toSet()
+            } else {
+                setOfNotNull(replacementNames[project.name])
+            }
+            if (selectedReplacements.isNotEmpty()) {
+                val nativeInput = rootProject.file(".release-native/arm64-v8a")
+                val lockFile = rootProject.file("qa/source-core-binaries.json")
+                val lockedHashes = groovy.json.JsonSlurper().parse(lockFile) as Map<*, *>
+                val originalInput = file("src/main/jniLibs")
+                val stagedOutput = layout.buildDirectory.dir("generated/sourceCoreJniLibs")
+                val stageSourceCores = tasks.register<Sync>("stageSourceCores") {
+                    inputs.file(lockFile)
+                    from(originalInput) {
+                        selectedReplacements.forEach { exclude("**/$it") }
+                    }
+                    from(nativeInput) {
+                        include(selectedReplacements)
+                        into("arm64-v8a")
+                    }
+                    into(stagedOutput)
+                    doFirst {
+                        selectedReplacements.forEach { name ->
+                            val binary = nativeInput.resolve(name)
+                            check(binary.isFile) { "Missing source-built core $name. See docs/SOURCE_CORE_INTEGRATION.md." }
+                            val actual = MessageDigest.getInstance("SHA-256")
+                                .digest(binary.readBytes()).joinToString("") { "%02x".format(it) }
+                            check(actual == lockedHashes[name]) { "Source-built core hash mismatch: $name" }
+                        }
+                    }
+                }
+                extensions.configure(BaseExtension::class.java) {
+                    sourceSets.getByName("main").jniLibs.setSrcDirs(listOf(stagedOutput))
+                }
+                tasks.matching { it.name == "preBuild" }.configureEach { dependsOn(stageSourceCores) }
+            }
 
             extensions.configure(BaseExtension::class.java) {
                 // Apply to the bundled QA flavor as well as the Play feature-module list.
