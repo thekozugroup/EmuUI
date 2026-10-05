@@ -16,6 +16,7 @@ import dagger.Binds
 import dagger.android.AndroidInjector
 import dagger.multibindings.IntoMap
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import timber.log.Timber
@@ -49,6 +50,7 @@ class CoreUpdateWork(context: Context, workerParams: WorkerParameters) :
                 val cores =
                     retrogradeDatabase.gameDao().selectSystems()
                         .asFlow()
+                        .filter { GameSystem.isAvailable(it) }
                         .map { GameSystem.findById(it) }
                         .map { coresSelection.getCoreConfigForSystem(it) }
                         .map { it.coreID }

@@ -1,5 +1,7 @@
 # Local handoff — 2026-10-05
 
+UPDATE: The user has now authorized replacement assessment or omission of the restricted SNES/Sega/arcade cores. See FIRST_PAID_RELEASE_SCOPE.md for the implemented scope and current validation; earlier approval-pending statements below are historical. ABI narrowing remains unapproved.
+
 Release preparation branch: `release/play-preparation-20261005`; original source commit `e46ef62f2801556912cdf6d86caf0d5282483f6e`. No main promotion, public push, Play write or signing-key creation occurred.
 
 Latest review artifact: `EmuUI-0.2.1-notices-unsigned-REVIEW-BLOCKED.aab`, 191301795 bytes, SHA256 `1aa02fa8d043618257d7c49fa809d59710717566b1e1ded776db0c4853f25cd7`. Package `com.kozudigital.emuui`, target36, versionCode4. Unsigned, not launch-ready.

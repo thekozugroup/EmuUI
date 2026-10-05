@@ -1,5 +1,7 @@
 # Core license inventory — preliminary, not clearance
 
+UPDATE: The user has now authorized replacement assessment or omission of the restricted SNES/Sega/arcade cores. See FIRST_PAID_RELEASE_SCOPE.md for the implemented scope and current validation; earlier approval-pending statements below are historical. ABI narrowing remains unapproved.
+
 Binary repository: Swordfish90/LemuroidCores, exact pin
 `fee2e824525daa22bcf318f96127fe43fa8a15ad`. All twenty Play modules are listed below.
 The pin contains binaries, manifests, Gradle scripts and an update script; no root/core

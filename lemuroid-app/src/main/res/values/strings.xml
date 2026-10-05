@@ -246,4 +246,5 @@
     <string name="settings_title_dynamic_color">Wallpaper colors</string>
     <string name="settings_description_dynamic_color">Use Material You colors from your wallpaper. Turn off for neutral colors.</string>
 
+    <string name="system_unavailable_this_release">This system is unavailable in this release. Your save files have not been changed.</string>
 </resources>

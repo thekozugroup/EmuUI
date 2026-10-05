@@ -1300,10 +1300,20 @@ data class GameSystem(
                 ),
             )
 
+        // Retain historical descriptors for existing library rows and save-sync names.
+        // They are not offered for scanning, core installation, or gameplay.
+        private val omittedSystems = setOf(
+            SystemID.SNES, SystemID.SMS, SystemID.GENESIS, SystemID.SEGACD,
+            SystemID.GG, SystemID.FBNEO, SystemID.MAME2003PLUS,
+        )
+        private val availableSystems by lazy { SYSTEMS.filter { it.id !in omittedSystems } }
+
+        fun isAvailable(id: String): Boolean = availableSystems.any { it.id.dbname == id }
+
         private val byIdCache by lazy { mapOf(*SYSTEMS.map { it.id.dbname to it }.toTypedArray()) }
         private val byExtensionCache by lazy {
             val mutableMap = mutableMapOf<String, GameSystem>()
-            for (system in SYSTEMS) {
+            for (system in availableSystems) {
                 for (extension in system.uniqueExtensions) {
                     mutableMap[extension.toLowerCase(Locale.US)] = system
                 }
@@ -1313,14 +1323,14 @@ data class GameSystem(
 
         fun findById(id: String): GameSystem = byIdCache.getValue(id)
 
-        fun all() = SYSTEMS
+        fun all() = availableSystems
 
         fun getSupportedExtensions(): List<String> {
-            return SYSTEMS.flatMap { it.supportedExtensions }
+            return availableSystems.flatMap { it.supportedExtensions }
         }
 
         fun findSystemForCore(coreID: CoreID): List<GameSystem> {
-            return all().filter { system -> system.systemCoreConfigs.any { it.coreID == coreID } }
+            return SYSTEMS.filter { system -> system.systemCoreConfigs.any { it.coreID == coreID } }
         }
 
         fun findByUniqueFileExtension(fileExtension: String): GameSystem? =

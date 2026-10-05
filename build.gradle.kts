@@ -50,12 +50,25 @@ allprojects {
 }
 
 subprojects {
+    // Native feature modules still run kapt; keep Kotlin aligned with Java on JDK 21.
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
     afterEvaluate {
         if (hasProperty("android")) {
             // BaseExtension is common parent for application, library and test modules
             apply(plugin = "org.jlleitschuh.gradle.ktlint")
 
             extensions.configure(BaseExtension::class.java) {
+                // Apply to the bundled QA flavor as well as the Play feature-module list.
+                // Keep pinned upstream sources intact; omit restricted executable cores.
+                if (project.name == "bundled-cores") {
+                    packagingOptions {
+                        listOf("fbneo", "genesis_plus_gx", "mame2003_plus", "snes9x").forEach {
+                            exclude("lib/*/lib${it}_libretro_android.so")
+                        }
+                    }
+                }
                 compileSdkVersion(deps.android.compileSdkVersion)
                 buildToolsVersion(deps.android.buildToolsVersion)
                 defaultConfig {

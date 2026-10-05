@@ -72,6 +72,9 @@ class GameLoader(
             try {
                 emit(LoadingState.LoadingCore)
 
+                if (!GameSystem.isAvailable(game.systemId)) {
+                    throw GameLoaderException(GameLoaderError.LoadCore)
+                }
                 val system = GameSystem.findById(game.systemId)
 
                 if (!isArchitectureSupported(systemCoreConfig)) {

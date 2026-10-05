@@ -29,6 +29,10 @@ class GameLauncher(
         loadSave: Boolean,
         leanback: Boolean,
     ): Boolean {
+        if (!GameSystem.isAvailable(game.systemId)) {
+            Toast.makeText(activity, R.string.system_unavailable_this_release, Toast.LENGTH_LONG).show()
+            return false
+        }
         // Block before starting the native core, including external shortcuts and context actions.
         if (game.systemId == SystemID.NINTENDO_3DS.dbname) {
             Toast.makeText(
