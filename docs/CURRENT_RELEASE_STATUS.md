@@ -1,3 +1,5 @@
+> Source-publication clarification: [NEXT_OWNER_APPROVALS.md](NEXT_OWNER_APPROVALS.md) records thirteen unchanged core binary/source mappings still requiring closure. Only the three integrated replacement mappings are resolved. Use the cleaned publication-source copies; original upstream archives contain test keys/ROM fixtures and must not be uploaded unchanged.
+
 # Current checkpoint — integrated source cores and local Play assets
 
 This section supersedes earlier candidate-only, asset-gap and pending-price entries below. See SOURCE_CORE_INTEGRATION.md for staging/rebuild and obligations.

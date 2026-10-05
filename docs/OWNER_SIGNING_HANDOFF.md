@@ -1,3 +1,5 @@
+> Current actionable plan: [NEXT_OWNER_APPROVALS.md](NEXT_OWNER_APPROVALS.md) supersedes approval sequencing here. One scoped key-creation/use approval covers routine signing substeps; existing agreements and ordinary launch settings do not need redundant approvals.
+
 > Billing update: [PLAY_ONLY_BILLING.md](PLAY_ONLY_BILLING.md) supersedes earlier mandatory backend/app-account proposals and gift-only lifetime scope. The current choice is Play-only monthly plus purchasable lifetime. Signing ownership restrictions still apply.
 
 # Owner signing handoff — 2026-10-05
