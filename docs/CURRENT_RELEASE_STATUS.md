@@ -4,17 +4,27 @@ This supersedes earlier four-ABI and pricing checkpoints. Branch remains `releas
 
 Approved first-release scope: arm64-v8a only. Omit Snes9x, Genesis Plus GX, FBNeo and MAME2003+ after bounded replacement assessment. DS and all other retained arm64 cores remain. Preserve save files; no conversion/deletion. See FIRST_PAID_RELEASE_SCOPE.md for the exact unavailable systems and listing corrections.
 
-Billing preparation implements official Play SDK client, pure entitlement reconciliation, monthly offer/renewal disclosure, lifetime precedence, restore, pending/revoked states, subscription management after gifts and save export independent of entitlement. Products remain unconfirmed, identity absent, verifier unconfigured and real checkout disabled. Gameplay paywall is not activated or wired across processes. See BILLING_CLIENT_PREPARATION.md; do not claim subscription launch is complete.
+Billing now uses the Play account only, signed local receipt verification, client acknowledgment, monthly/lifetime checkout, restore, pending handling, subscription management and save export. Production Play game launches require verified ownership; running games and saves are not interrupted. Public Console configuration remains absent, so checkout is disabled and release launches fail closed. Debug native QA remains accessible. Current validation results are recorded below after the new build; prior checkpoint is historical.
 
-Next owner/backend decision: identify an existing approved backend/auth project or authorize a specific service's setup, terms/costs and secure credentials. Then implement authenticated Play verification/acknowledgment, production entitlement transport, reviewer identity and account/data lifecycle. Confirm actual Console product/base-plan IDs and choose the lifetime product price. Do not share publisher credentials or create a universal bypass.
+Current billing decision: Google Play only, US$0.99/month plus a normally purchasable lifetime product (price pending). No backend or EmuUI login required. See PLAY_ONLY_BILLING.md for local signature verification, acknowledgment, production launch gate, configuration and test limits. Actual Console product/base-plan/purchase-option IDs and the public licensing key remain needed. Do not share publisher credentials or create a universal bypass.
 
-Source/license blockers remain for other retained cores: Citra dirty-source delta, WonderSwan revision, exact binary/source provenance and PPSSPP assets/static dependency obligations. Additional system removal is not authorized. New Billing SDK POM declares Android SDK License; final notices/license compatibility and privacy review remain necessary. Public privacy/Data safety must describe covers, optional Drive, billing/backend and user-selected save-export providers accurately.
+Source/license blockers remain for other retained cores: Citra dirty-source delta, WonderSwan revision, exact binary/source provenance and PPSSPP assets/static dependency obligations. Additional system removal is not authorized. New Billing SDK POM declares Android SDK License; final notices/license compatibility and privacy review remain necessary. Public privacy/Data safety must describe covers, optional Drive, Play Billing and user-selected save-export providers accurately.
 
 Signing remains an owner-controlled handoff as described in OWNER_SIGNING_HANDOFF.md. Full DS gameplay/disk-save restoration, physical foldable, Play split delivery, production OAuth and live purchases/refunds/gifts remain unverified. Prior actual16KB native and NES/UI evidence is retained, with scope explicitly distinguished from this frontend revision.
 
 Library upload is still blocked by `Library prepare_uploads is not available`; no output Library IDs/versions were created or alternate transfer routes attempted.
 
-## Final validation checkpoint
+## Current Play-only validation
+
+- PASS: production bundle, release lint (0 errors, 45 warnings, 4 hints), 227 app unit tests (0 failures/errors/skips).
+- PASS: two billing UI instrumentation tests on API36 with actual 16384-byte pages: both unconfigured checkout buttons disabled, restore available, save export opens real DocumentsUI. Screenshot inspected. These do not perform real purchases.
+- PASS: bundletool validation and PAGE_ALIGNMENT_16K. Exactly 18 nonempty arm64 native entries, including both DS cores; 16-core bundled QA AAR. All retained native bytes exactly match the previously runtime-tested baseline. AAB remains unsigned.
+- Current AAB: 43795576 bytes, SHA256 `465019d8029745bdd53108ce44d5b27d9f07e457c526366402d38832d9d78259`.
+- FIXED/RECOVERED: initial nullable offer-token compilation error. Two subsequent builds stalled in native file reads of numbered duplicate generated XML/class files. Affected files/directories were moved to preserved workspace backups and regenerated; final build passed in 1m35s. No source/user-data deletion. A first native-scope command used an incorrect QA AAR path; corrected path passed.
+- UNRUN: live Play purchase/acknowledgment/restore/gift/refund/lifecycle, multi-account/offline tests, minified production launch gate, Play-delivered splits, production OAuth, independent DS gameplay/disk-save and physical-device QA. Prior native/NES evidence is unchanged; no new gameplay pass is claimed for this frontend revision.
+- Emulator stopped after screenshot capture. Debug packages updated with `install -r`; no uninstall, new keys, accounts, agreements or services.
+
+## Previous validation checkpoint (ff32e4e; before Play-only revision)
 
 - PASS: final production bundle and release lint, 0 errors, 45 warnings and 4 hints.
 - PASS: 220 app unit tests, no failures/errors/skips (19 billing/export tests added).

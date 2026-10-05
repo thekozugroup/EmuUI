@@ -1,6 +1,10 @@
 package com.swordfish.lemuroid.app.shared.game
 
 import android.app.Activity
+import android.content.Intent
+import android.os.SystemClock
+import com.swordfish.lemuroid.app.shared.billing.*
+import com.swordfish.lemuroid.app.mobile.feature.billing.BillingActivity
 import android.widget.Toast
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.shared.main.GameLaunchTaskHandler
@@ -49,6 +53,26 @@ class GameLauncher(
 
         GlobalScope.launch {
             try {
+                if (PlayBillingConfiguration.enforceGameAccess) {
+                    val allowed = withContext(Dispatchers.Main) {
+                        val products = PlayBillingConfiguration.products
+                        val store = PlayBillingStore(activity.applicationContext, products) { }
+                        try {
+                            val controller = EntitlementController(store, PlayBillingConfiguration.verifier(), products, SystemClock::elapsedRealtime)
+                            controller.refresh()
+                            controller.state.value.allows(AccessAction.START_GAME, SystemClock.elapsedRealtime())
+                        } finally { store.close() }
+                    }
+                    if (!allowed) {
+                        withContext(Dispatchers.Main) {
+                            if (!activity.isFinishing && !activity.isDestroyed) {
+                                activity.startActivity(Intent(activity, BillingActivity::class.java))
+                                if (activity is ExternalGameLauncherActivity) activity.finish()
+                            }
+                        }
+                        return@launch
+                    }
+                }
                 val system = GameSystem.findById(game.systemId)
                 val coreConfig = coresSelection.getCoreConfigForSystem(system)
                 launchWithBackgroundRecovery(

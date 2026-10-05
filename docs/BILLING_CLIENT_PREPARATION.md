@@ -1,3 +1,5 @@
+> Billing update: [PLAY_ONLY_BILLING.md](PLAY_ONLY_BILLING.md) supersedes earlier mandatory backend/app-account proposals and gift-only lifetime scope. The current choice is Play-only monthly plus purchasable lifetime. Signing ownership restrictions still apply.
+
 # Billing client preparation — not activated
 
 Settled model: US$0.99/month, ad-free, with permanent full-access gifts. The client uses official `com.android.billingclient:billing:9.1.0`, the current release listed at https://developer.android.com/google/play/billing/release-notes . No Console product, account, price, credentials or paid service was created. Product identifiers `emuui_monthly` and `emuui_lifetime` remain tentative. The monthly base-plan identifier is deliberately unset and products remain unconfirmed.

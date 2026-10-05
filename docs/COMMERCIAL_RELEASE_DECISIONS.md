@@ -1,3 +1,5 @@
+> Billing update: [PLAY_ONLY_BILLING.md](PLAY_ONLY_BILLING.md) supersedes earlier mandatory backend/app-account proposals and gift-only lifetime scope. The current choice is Play-only monthly plus purchasable lifetime. Signing ownership restrictions still apply.
+
 # Commercial release decisions — 2026-10-05
 
 UPDATE: The user has now authorized replacement assessment or omission of the restricted SNES/Sega/arcade cores. See FIRST_PAID_RELEASE_SCOPE.md for the implemented scope and current validation; earlier approval-pending statements below are historical. The user subsequently approved arm64-only; see FIRST_PAID_RELEASE_SCOPE.md and BILLING_CLIENT_PREPARATION.md for the latest work.

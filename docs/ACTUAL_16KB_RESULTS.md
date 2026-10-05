@@ -1,3 +1,5 @@
+> Historical native/runtime checkpoint. Current approved packaging is arm64-only with four restricted cores omitted; all retained native bytes are checked against this tested baseline. See CURRENT_RELEASE_STATUS.md and PLAY_ONLY_BILLING.md for the latest billing/build scope.
+
 # Actual Android 16 / 16 KB verification
 
 

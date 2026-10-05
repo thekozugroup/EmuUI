@@ -1,3 +1,5 @@
+> Billing update: [PLAY_ONLY_BILLING.md](PLAY_ONLY_BILLING.md) supersedes earlier mandatory backend/app-account proposals and gift-only lifetime scope. The current choice is Play-only monthly plus purchasable lifetime. Signing ownership restrictions still apply.
+
 # Owner signing handoff — 2026-10-05
 
 Target: Kōzu Digital developer 6549433501192319912, package `com.kozudigital.emuui`. Release remains unsigned. Scoped repository inspection found no release signing configuration or keystore; this does not establish whether the owner has an existing key elsewhere or an existing Console enrollment. Only existing debug-keystore metadata was inspected. No private key was read, created, exported or uploaded for this handoff.

@@ -27,14 +27,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/** Client preparation only: no production identity/verifier has been configured. */
+/** Play-account-only purchases; Console product/key configuration is still pending. */
 class BillingActivity : ComponentActivity() {
-    private val products = BillingProducts()
-    private val verifier = UnconfiguredPurchaseVerifier
-    private val identity: BillingIdentity? = null
+    private val products = PlayBillingConfiguration.products
+    private val verifier = PlayBillingConfiguration.verifier()
     private lateinit var store: PlayBillingStore
     private lateinit var controller: EntitlementController
-    private var offer by mutableStateOf<MonthlyOffer?>(null)
+    private var offer by mutableStateOf<PlayOffer?>(null)
+    private var lifetimeOffer by mutableStateOf<PlayOffer?>(null)
     private var message by mutableStateOf<String?>(null)
     private var exporting by mutableStateOf(false)
     private var buying by mutableStateOf(false)
@@ -54,8 +54,6 @@ class BillingActivity : ComponentActivity() {
             }
         }
         controller = EntitlementController(store, verifier, products, SystemClock::elapsedRealtime)
-        // No identity is invented. bindOwner must be connected to approved authentication.
-        controller.bindOwner(identity?.ownerId)
         setContent {
             val state by controller.state.collectAsState()
             val now by produceState(SystemClock.elapsedRealtime()) {
@@ -80,11 +78,17 @@ class BillingActivity : ComponentActivity() {
                             Text(stringResource(R.string.billing_monthly_price, monthly.formattedPrice))
                             Text(stringResource(R.string.billing_renewal, monthly.formattedPrice))
                         }
-                        Button(onClick = { buyMonthly() }, enabled = offer != null && products.confirmed && verifier.configured && identity != null &&
+                        Button(onClick = { buy(ProductKind.SUBSCRIPTION) }, enabled = offer != null && products.confirmed && verifier.configured &&
                             state.status == BillingStatus.READY && !state.pending && !buying &&
                             !state.allows(AccessAction.START_GAME, SystemClock.elapsedRealtime())) {
                             Text(stringResource(R.string.billing_subscribe))
                         }
+                        lifetimeOffer?.let { Text(stringResource(R.string.billing_lifetime_price, it.formattedPrice)) }
+                        Button(onClick = { buy(ProductKind.LIFETIME) }, enabled = lifetimeOffer != null && products.confirmed && verifier.configured &&
+                            state.status == BillingStatus.READY && !state.pending && !buying && state.lease?.access?.lifetime != true) {
+                            Text(stringResource(R.string.billing_buy_lifetime))
+                        }
+                        Text(stringResource(R.string.billing_play_account))
                         OutlinedButton(onClick = { refresh() }, enabled = state.status != BillingStatus.CHECKING) {
                             Text(stringResource(R.string.billing_restore))
                         }
@@ -117,25 +121,27 @@ class BillingActivity : ComponentActivity() {
         lifecycleScope.launch {
             controller.refresh()
             offer = if (verifier.configured) store.monthlyOffer() else null
+            lifetimeOffer = if (verifier.configured) store.lifetimeOffer() else null
         }
     }
 
-    private fun buyMonthly() {
+    private fun buy(kind: ProductKind) {
         if (!products.confirmed || !verifier.configured || buying) return
-        val displayed = offer ?: return
+        val displayed = (if (kind == ProductKind.SUBSCRIPTION) offer else lifetimeOffer) ?: return
         buying = true
         lifecycleScope.launch {
             try {
                 controller.refresh()
                 val state = controller.state.value
-                if (state.status != BillingStatus.READY || state.pending || state.allows(AccessAction.START_GAME, SystemClock.elapsedRealtime())) return@launch
-                val current = store.monthlyOffer()
-                offer = current
+                if (state.status != BillingStatus.READY || state.pending || state.lease?.access?.lifetime == true ||
+                    (kind == ProductKind.SUBSCRIPTION && state.allows(AccessAction.START_GAME, SystemClock.elapsedRealtime()))) return@launch
+                val current = if (kind == ProductKind.SUBSCRIPTION) store.monthlyOffer() else store.lifetimeOffer()
+                if (kind == ProductKind.SUBSCRIPTION) offer = current else lifetimeOffer = current
                 if (current == null) {
                     message = getString(R.string.billing_not_available)
                 } else if (!displayed.sameTerms(current)) {
                     message = getString(R.string.billing_price_changed)
-                } else if (!store.launchMonthly(this@BillingActivity, current, verifier.configured, identity)) {
+                } else if (!store.launchPurchase(this@BillingActivity, current, verifier.configured)) {
                     controller.purchaseUnavailable()
                 }
             } finally { buying = false }

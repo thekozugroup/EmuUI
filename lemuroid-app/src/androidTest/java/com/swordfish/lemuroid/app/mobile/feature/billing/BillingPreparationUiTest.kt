@@ -23,6 +23,7 @@ class BillingPreparationUiTest {
 
     @Test fun unconfiguredCheckoutIsDisabledAndRestoreRemainsAvailable() {
         compose.onNodeWithText("Subscribe monthly").assertIsNotEnabled()
+        compose.onNodeWithText("Buy lifetime access").assertIsNotEnabled()
         compose.onNodeWithText("Restore purchases").assertIsEnabled().performClick()
         compose.onNodeWithText("Purchases are not available yet.").assertExists()
         compose.onNodeWithText("Subscribe monthly").assertIsNotEnabled()

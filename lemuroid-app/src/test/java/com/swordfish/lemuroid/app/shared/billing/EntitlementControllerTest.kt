@@ -1,7 +1,5 @@
 package com.swordfish.lemuroid.app.shared.billing
 
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Test
@@ -9,6 +7,8 @@ import org.junit.Test
 class EntitlementControllerTest {
     private class FakeStore : PurchaseStore {
         val queries = mutableListOf<ProductKind>()
+        val acknowledgments = mutableListOf<String>()
+        var acknowledgmentWorks = true
         var fail: ProductKind? = null
         var subscriptions = emptyList<StorePurchase>()
         var lifetime = emptyList<StorePurchase>()
@@ -17,152 +17,98 @@ class EntitlementControllerTest {
             return if (kind == fail) StoreResult.Unavailable else StoreResult.Success(
                 if (kind == ProductKind.SUBSCRIPTION) subscriptions else lifetime)
         }
+        override suspend fun acknowledge(purchase: StorePurchase): Boolean {
+            acknowledgments += purchase.token
+            return acknowledgmentWorks
+        }
     }
     private class FakeVerifier : PurchaseVerifier {
         override val configured = true
-        var received = emptyList<StorePurchase>()
-        var calls = 0
-        var response: VerificationResult = VerificationResult.Rejected
-        var gate: CompletableDeferred<Unit>? = null
-        override suspend fun reconcile(ownerId: String, purchased: List<StorePurchase>): VerificationResult {
-            calls++
-            received = purchased
-            gate?.await()
-            return response
-        }
+        var valid = true
+        val received = mutableListOf<StorePurchase>()
+        override fun verifies(purchase: StorePurchase): Boolean { received += purchase; return valid }
     }
     private val store = FakeStore()
     private val verifier = FakeVerifier()
     private var now = 100L
     private val products = BillingProducts(monthlyBasePlan = "test-monthly", confirmed = true)
-    private val controller = EntitlementController(store, verifier, products) { now }.also { it.bindOwner("owner-A") }
-    private fun access(lifetime: Boolean = false, status: SubscriptionStatus = SubscriptionStatus.ACTIVE,
-        remaining: Long = 500, renews: Boolean = true, owner: String = "owner-A", revision: Long = 1) =
-        VerificationResult.Verified(VerifiedAccountAccess(owner, revision, lifetime, status, remaining, renews, 1000))
+    private val controller = EntitlementController(store, verifier, products) { now }
     private fun canPlay() = controller.state.value.allows(AccessAction.START_GAME, now)
-    private fun purchased(product: String, token: String = "test-token") = StorePurchase(product, token, PurchaseState.PURCHASED)
+    private fun purchased(product: String, token: String = product, acknowledged: Boolean = false, renews: Boolean = false) =
+        StorePurchase(product, token, PurchaseState.PURCHASED, acknowledged = acknowledged, autoRenewing = renews)
 
-    @Test fun purchasedClientRecordNeverGrantsAccessWithoutVerification() = runBlocking {
-        store.subscriptions = listOf(purchased(products.monthly))
-        verifier.response = VerificationResult.Unavailable
-        controller.refresh()
-        assertFalse(canPlay())
+    @Test fun clientRecordDoesNotGrantWithoutSignatureVerification() = runBlocking {
+        store.subscriptions = listOf(purchased(products.monthly)); verifier.valid = false
+        controller.refresh(); assertFalse(canPlay()); assertTrue(store.acknowledgments.isEmpty())
     }
-    @Test fun pendingAndSuspendedRecordsAreNeverSubmittedAsPaid() = runBlocking {
+    @Test fun pendingAndSuspendedNeverGrantOrAcknowledge() = runBlocking {
         store.subscriptions = listOf(StorePurchase(products.monthly, "pending", PurchaseState.PENDING),
             StorePurchase(products.monthly, "suspended", PurchaseState.PURCHASED, true))
-        controller.refresh()
-        assertTrue(verifier.received.isEmpty())
-        assertTrue(controller.state.value.pending)
-        assertFalse(canPlay())
+        controller.refresh(); assertTrue(verifier.received.isEmpty()); assertTrue(controller.state.value.pending)
+        assertFalse(canPlay()); assertTrue(store.acknowledgments.isEmpty())
     }
-    @Test fun restoreQueriesBothKindsAndIncludesOutOfAppLifetimePurchase() = runBlocking {
+    @Test fun restoreBothTypesIncludesOutOfAppLifetimeGiftWithoutOrderId() = runBlocking {
         store.lifetime = listOf(purchased(products.lifetime))
-        verifier.response = access(lifetime = true, status = SubscriptionStatus.EXPIRED, remaining = 0, renews = false)
-        controller.refresh()
-        assertEquals(listOf(ProductKind.SUBSCRIPTION, ProductKind.LIFETIME), store.queries)
-        assertEquals(products.lifetime, verifier.received.single().productId)
-        assertTrue(canPlay())
+        controller.refresh(); assertEquals(listOf(ProductKind.SUBSCRIPTION, ProductKind.LIFETIME), store.queries)
+        assertTrue(canPlay()); assertEquals(listOf(products.lifetime), store.acknowledgments)
     }
-    @Test fun lifetimeWinsAndExistingRenewalNeedsExplicitManagement() = runBlocking {
-        verifier.response = access(lifetime = true, remaining = 0)
-        controller.refresh()
-        assertTrue(canPlay())
-        assertTrue(controller.state.value.shouldManageSubscriptionAfterGift)
+    @Test fun lifetimePlusRenewingSubscriptionShowsManagementWarning() = runBlocking {
+        store.lifetime = listOf(purchased(products.lifetime))
+        store.subscriptions = listOf(purchased(products.monthly, renews = true))
+        controller.refresh(); assertTrue(canPlay()); assertTrue(controller.state.value.shouldManageSubscriptionAfterGift)
     }
-    @Test fun canceledSubscriptionRetainsOnlyThePaidPeriod() = runBlocking {
-        verifier.response = access(status = SubscriptionStatus.CANCELED, renews = false)
-        controller.refresh()
-        assertTrue(canPlay())
-        now += 500
-        assertFalse(canPlay())
+    @Test fun canceledButStillOwnedSubscriptionRetainsAccess() = runBlocking {
+        store.subscriptions = listOf(purchased(products.monthly, renews = false))
+        controller.refresh(); assertTrue(canPlay())
     }
-    @Test fun graceGrantsAccessButHoldPauseExpiredAndRevokedDoNot() = runBlocking {
-        for (status in SubscriptionStatus.values()) {
-            verifier.response = access(status = status)
-            controller.refresh()
-            assertEquals(status in setOf(SubscriptionStatus.ACTIVE, SubscriptionStatus.GRACE_PERIOD, SubscriptionStatus.CANCELED), canPlay())
-        }
+    @Test fun expiredOrRefundedMissingPurchaseClearsAccess() = runBlocking {
+        store.lifetime = listOf(purchased(products.lifetime)); controller.refresh(); assertTrue(canPlay())
+        store.lifetime = emptyList(); controller.refresh(); assertFalse(canPlay())
     }
-    @Test fun refundReconciliationRemovesPreviouslyVerifiedLifetime() = runBlocking {
-        verifier.response = access(lifetime = true)
-        controller.refresh()
-        assertTrue(canPlay())
-        verifier.response = access(status = SubscriptionStatus.REVOKED, remaining = 0, renews = false, revision = 2)
-        controller.refresh()
-        assertFalse(canPlay())
+    @Test fun partialQueryFailurePreservesOnlyUnexpiredSnapshot() = runBlocking {
+        store.lifetime = listOf(purchased(products.lifetime)); controller.refresh()
+        store.fail = ProductKind.LIFETIME; controller.refresh(); assertTrue(canPlay())
+        now += AccessLease.MAX_LEASE_MILLIS; assertFalse(canPlay())
     }
-    @Test fun emptyStoreStillReconcilesPreviouslyOwnedPurchases() = runBlocking {
-        verifier.response = access(lifetime = true)
-        controller.refresh()
-        verifier.response = VerificationResult.Rejected
-        controller.refresh()
-        assertEquals(2, verifier.calls)
-        assertFalse(canPlay())
+    @Test fun pendingCompletesOnLaterRestore() = runBlocking {
+        store.lifetime = listOf(StorePurchase(products.lifetime, "gift", PurchaseState.PENDING))
+        controller.refresh(); assertFalse(canPlay())
+        store.lifetime = listOf(purchased(products.lifetime, "gift")); controller.refresh()
+        assertTrue(canPlay()); assertFalse(controller.state.value.pending); assertEquals(listOf("gift"), store.acknowledgments)
     }
-    @Test fun partialStoreFailureCannotReplaceAnAuthoritativeSnapshot() = runBlocking {
-        verifier.response = access(lifetime = true)
-        controller.refresh()
-        store.fail = ProductKind.LIFETIME
-        controller.refresh()
-        assertEquals(1, verifier.calls)
-        assertTrue(canPlay())
-        now += 1000
-        assertFalse(canPlay())
+    @Test fun acknowledgmentFailureRetriesAndDoesNotDeleteGrantedAccess() = runBlocking {
+        store.lifetime = listOf(purchased(products.lifetime)); store.acknowledgmentWorks = false
+        controller.refresh(); assertTrue(canPlay()); assertEquals(BillingStatus.UNAVAILABLE, controller.state.value.status)
+        store.acknowledgmentWorks = true; controller.refresh()
+        assertEquals(2, store.acknowledgments.size); assertEquals(BillingStatus.READY, controller.state.value.status)
     }
-    @Test fun accountChangeRejectsLateVerification() = runBlocking {
-        verifier.response = access(lifetime = true)
-        verifier.gate = CompletableDeferred()
-        val job = launch { controller.refresh() }
-        while (verifier.calls == 0) kotlinx.coroutines.yield()
-        controller.bindOwner("owner-B")
-        verifier.gate!!.complete(Unit)
-        job.join()
-        assertFalse(canPlay())
-        assertNull(controller.state.value.lease)
+    @Test fun acknowledgedPurchaseIsNotAcknowledgedAgain() = runBlocking {
+        store.lifetime = listOf(purchased(products.lifetime, acknowledged = true)); controller.refresh()
+        assertTrue(canPlay()); assertTrue(store.acknowledgments.isEmpty())
     }
-    @Test fun mismatchedOwnerAndRegressedRevisionAreRejected() = runBlocking {
-        verifier.response = access(owner = "owner-B")
-        controller.refresh()
-        assertFalse(canPlay())
-        verifier.response = access(revision = 4)
-        controller.refresh()
-        assertTrue(canPlay())
-        verifier.response = access(revision = 3)
-        controller.refresh()
-        assertFalse(canPlay())
+    @Test fun canceledCheckoutKeepsExistingAccess() = runBlocking {
+        store.lifetime = listOf(purchased(products.lifetime)); controller.refresh(); controller.purchaseCanceled()
+        assertTrue(canPlay()); assertEquals(BillingStatus.CANCELED, controller.state.value.status)
     }
-    @Test fun canceledCheckoutDoesNotRevokeExistingEntitlement() = runBlocking {
-        verifier.response = access()
-        controller.refresh()
-        controller.purchaseCanceled()
-        assertTrue(canPlay())
-        assertEquals(BillingStatus.CANCELED, controller.state.value.status)
+    @Test fun expiryNeverBlocksLibrarySaveExportOrManagement() {
+        AccessAction.values().filter { it != AccessAction.START_GAME }.forEach { assertTrue(BillingState().allows(it, now)) }
     }
-    @Test fun expiryNeverBlocksLibrarySaveAccessExportOrManagement() {
-        AccessAction.values().filter { it != AccessAction.START_GAME }.forEach {
-            assertTrue(BillingState().allows(it, now))
-        }
-    }
-    @Test fun unconfiguredProductionVerifierNeverGrantsOrQueriesPurchases() = runBlocking {
+    @Test fun unconfiguredVerifierCannotQueryOrGrant() = runBlocking {
         val blocked = EntitlementController(store, UnconfiguredPurchaseVerifier, products) { now }
-        blocked.bindOwner("owner-A")
-        blocked.refresh()
-        assertFalse(blocked.state.value.allows(AccessAction.START_GAME, now))
-        assertTrue(store.queries.isEmpty())
+        blocked.refresh(); assertFalse(blocked.state.value.allows(AccessAction.START_GAME, now)); assertTrue(store.queries.isEmpty())
     }
-    @Test fun changingClockBackwardsDoesNotExtendAccess() = runBlocking {
-        verifier.response = access(lifetime = true)
-        controller.refresh()
-        now--
-        assertFalse(canPlay())
+    @Test fun backwardsMonotonicClockDoesNotExtendAccess() = runBlocking {
+        store.lifetime = listOf(purchased(products.lifetime)); controller.refresh(); now--; assertFalse(canPlay())
     }
-    @Test fun unknownProductsAndEmptyTokensAreNotSubmitted() = runBlocking {
-        store.lifetime = listOf(purchased("unknown"), purchased(products.lifetime, ""))
-        controller.refresh()
+    @Test fun unknownProductsAndEmptyTokensAreNotVerified() = runBlocking {
+        store.lifetime = listOf(purchased("unknown"), purchased(products.lifetime, "")); controller.refresh()
         assertTrue(verifier.received.isEmpty())
     }
-    @Test fun onlyPlainAutoRenewingMonthlyBasePlanIsOffered() {
+    @Test fun newControllerDoesNotTrustPersistedBooleanOrPreviousAccount() {
+        val fresh = EntitlementController(store, verifier, products) { now }
+        assertFalse(fresh.state.value.allows(AccessAction.START_GAME, now))
+    }
+    @Test fun onlyPlainAutoRenewingMonthlyPlanIsOffered() {
         assertTrue(isStandardMonthlyPlan(null, listOf("P1M"), listOf(1)))
         assertFalse(isStandardMonthlyPlan("trial", listOf("P1M"), listOf(1)))
         assertFalse(isStandardMonthlyPlan(null, listOf("P1Y"), listOf(1)))
