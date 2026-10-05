@@ -4,7 +4,7 @@ This is an optional, seeded, debug-only instrumentation test. It changes no prod
 
 ## Why a separate test APK
 
-`GameActivity` is declared in the actual `com.thekozugroup.emuui.debug:game` process. An `ActivityScenario` in the normal application process cannot obtain or recreate that Activity. Android's supported `instrumentation android:targetProcesses` manifest attribute selects the process in which the instrumentation runs.
+`GameActivity` is declared in the actual `com.kozudigital.emuui.debug:game` process. An `ActivityScenario` in the normal application process cannot obtain or recreate that Activity. Android's supported `instrumentation android:targetProcesses` manifest attribute selects the process in which the instrumentation runs.
 
 The `-PemuuiGameTests=true` build property selects `com.swordfish.lemuroid.app.mobile.feature.game.GameProcessTestRunner` and the exact `:game` target process in a dedicated AndroidTest APK. Without that property, the ordinary test APK selects `androidx.test.runner.AndroidJUnitRunner` and the default app process for library/MainActivity tests. AGP rewrites the instrumentation name during manifest processing, so adding a second source-manifest entry is not reliable here. Build and verify the two test APKs separately; they share a package name and installing one replaces the other. Selecting `*` alone would make the application's default process primary and would not make ActivityScenario cross-process.
 
@@ -17,7 +17,7 @@ References: [Android instrumentation manifest](https://developer.android.com/gui
 1. Build `:lemuroid-app:assembleFreeDynamicDebugAndroidTest -PemuuiGameTests=true` and preserve its output with a distinct filename. Build ordinary MainActivity tests without the property. Install the matching application APK and selected game AndroidTest APK on the QA emulator. The explicit target is the `.debug` application ID; this is intentionally not a release-APK test configuration.
 2. Import `EmuUI_DS_Legacy_QA.nds` normally, download its melonDS core through the app, and verify it boots. The title or filename must be unique in Room. No synthetic database row is inserted.
 3. Optionally prepare a distinctive frozen fixture state and leave the app normally so its existing autosave can be loaded. The test requests load-save without changing the user's autosave preference.
-4. Verify the packaged game test manifest has exactly the custom game runner with targetProcesses `com.thekozugroup.emuui.debug:game`. Separately verify the ordinary build has the default runner with targetProcesses `com.thekozugroup.emuui.debug`. Do not run an APK whose runner and process do not match its purpose. `adb shell pm list instrumentation` confirms the installed runner component.
+4. Verify the packaged game test manifest has exactly the custom game runner with targetProcesses `com.kozudigital.emuui.debug:game`. Separately verify the ordinary build has the default runner with targetProcesses `com.kozudigital.emuui.debug`. Do not run an APK whose runner and process do not match its purpose. `adb shell pm list instrumentation` confirms the installed runner component.
 5. Select the game runner and class explicitly:
 
 ```sh
@@ -25,7 +25,7 @@ adb shell am instrument -w -r \
   -e class com.swordfish.lemuroid.app.mobile.feature.game.GameActivityRecreationTest \
   -e gameTitle EmuUI_DS_Legacy_QA \
   -e coreName MELONDS \
-  com.thekozugroup.emuui.debug.test/com.swordfish.lemuroid.app.mobile.feature.game.GameProcessTestRunner
+  com.kozudigital.emuui.debug.test/com.swordfish.lemuroid.app.mobile.feature.game.GameProcessTestRunner
 ```
 
 The test deliberately skips under the default runner, so ordinary all-tests runs do not execute a local ActivityScenario against the remote game Activity. Under the game runner, the actual hosting process is asserted, not assumed. Missing/ambiguous fixture rows and unusable cores fail with diagnostics rather than silently skipping.

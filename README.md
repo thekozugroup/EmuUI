@@ -14,7 +14,7 @@ This is an early, independently branded GPL-3.0 fork. Device support is subject 
 
 ## Build
 
-Install JDK 17 or a compatible Gradle-supported JDK, Android SDK Platform 35, build-tools 34.0.0, NDK 27.3.13750724, and CMake 3.31.5. Review and accept the Android SDK terms yourself. The pinned renderer is built from the included source rather than a downloaded renderer AAR. Then:
+Install JDK 17 or a compatible Gradle-supported JDK, Android SDK Platform 36, build-tools 35.0.0, NDK 27.3.13750724, and CMake 3.31.5. Review and accept the Android SDK terms yourself. The pinned renderer is built from the included source rather than a downloaded renderer AAR. Then:
 
 ```sh
 git clone --recurse-submodules https://github.com/thekozugroup/EmuUI.git
@@ -40,7 +40,7 @@ git -C lemuroid-cores checkout --detach FETCH_HEAD
 
 This downloads upstream emulator binaries and their notices separately. See the component provenance and source links before redistributing them.
 
-The dynamic debug APK downloads the selected upstream emulator core on demand. It uses a locally generated debug key; no signing keys are stored here. The package ID is `com.thekozugroup.emuui.debug`, so it can coexist with Lemuroid. Release signing is intentionally left to the distributor.
+The dynamic debug APK downloads the selected upstream emulator core on demand. It uses a locally generated debug key; no signing keys are stored here. The package ID is `com.kozudigital.emuui.debug`, so it can coexist with Lemuroid. Release signing is intentionally left to the distributor.
 
 The unchanged library metadata is stored losslessly as small gzip pieces. Gradle reconstructs and hash-checks the ordinary SQLite asset automatically, offline. See [metadata packaging](lemuroid-metadata-libretro-db/README.md).
 

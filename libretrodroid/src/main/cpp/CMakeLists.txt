@@ -97,7 +97,10 @@ add_library(libretrodroid SHARED
 target_compile_options(libretrodroid PRIVATE "$<$<CONFIG:Debug>:-O2>")
 
 # Support 16k pages for Android 15
-target_link_options(libretrodroid PRIVATE "-Wl,-z,max-page-size=16384")
+target_link_options(libretrodroid PRIVATE
+    "-Wl,-z,max-page-size=16384"
+    "-Wl,-z,common-page-size=16384"
+)
 
 # add lib dependencies
 target_link_libraries(libretrodroid

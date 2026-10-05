@@ -1,6 +1,5 @@
 package com.swordfish.lemuroid.app.mobile.feature.main
 
-import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.SystemClock
@@ -26,7 +25,6 @@ import androidx.window.testing.layout.WindowLayoutInfoPublisherRule
 import com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotSame
-import org.junit.Assume.assumeNotNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -80,8 +78,15 @@ class MainActivitySmokeTest {
     fun cancellingFolderPickerTwicePreservesDirectoryAndReadGrants() {
         waitForLibrary()
         val context = instrumentation.targetContext
-        val picker = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).resolveActivity(context.packageManager)
-        assumeNotNull("This image has no Storage Access Framework picker", picker)
+        // Package visibility can hide a handler from the instrumented app even
+        // though startActivity works. Resolve via the disposable emulator's shell;
+        // still open/cancel the real picker through the app's normal UI below.
+        val pickerPackage =
+            device.executeShellCommand("cmd package resolve-activity --brief -a android.intent.action.OPEN_DOCUMENT_TREE")
+                .lineSequence().map(String::trim)
+                .lastOrNull { it.matches(Regex("[A-Za-z0-9_.]+/[A-Za-z0-9_.$]+")) }
+                ?.substringBefore('/')
+        checkNotNull(pickerPackage) { "The emulator must have a real Storage Access Framework picker" }
         val preferences = SharedPreferencesHelper.getLegacySharedPreferences(context)
         val key = context.getString(com.swordfish.lemuroid.lib.R.string.pref_key_extenral_folder)
         val originalFolder = preferences.getString(key, null)
@@ -97,10 +102,10 @@ class MainActivitySmokeTest {
                 }.getOrDefault(false)
             }
             compose.onNodeWithContentDescription("Import games folder").performClick()
-            check(device.wait(Until.hasObject(By.pkg(picker!!.packageName).depth(0)), TIMEOUT)) {
+            check(device.wait(Until.hasObject(By.pkg(pickerPackage).depth(0)), TIMEOUT)) {
                 "Folder picker did not appear; inspect the captured hierarchy and logcat"
             }
-            cancelPicker(picker!!.packageName)
+            cancelPicker(pickerPackage)
             waitForLibrary()
             assertEquals("Cancel must preserve the selected folder", originalFolder, preferences.getString(key, null))
             assertEquals(
@@ -116,9 +121,18 @@ class MainActivitySmokeTest {
     fun portraitGuidanceReturnsToLandscapeWithoutLosingFilter() {
         waitForLibrary()
         compose.onNodeWithText("Favorites").performClick()
+        val originalRotation = device.displayRotation
+        val systemRotationRequired = android.os.Build.VERSION.SDK_INT >= 36 &&
+            compose.activity.resources.configuration.smallestScreenWidthDp >= 600
         try {
-            compose.activityRule.scenario.onActivity {
-                it.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            if (systemRotationRequired) {
+                // API 36 ignores Activity orientation requests on large screens.
+                // Rotate the disposable emulator itself to exercise the real configuration path.
+                instrumentation.uiAutomation.setRotation((originalRotation + 1) % 4)
+            } else {
+                compose.activityRule.scenario.onActivity {
+                    it.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                }
             }
             compose.waitUntil(TIMEOUT) {
                 runCatching {
@@ -141,8 +155,13 @@ class MainActivitySmokeTest {
                 assertEquals("Portrait guidance must not leave hidden import controls interactive", 0, it.size)
             }
         } finally {
-            compose.activityRule.scenario.onActivity {
-                it.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+            if (systemRotationRequired) {
+                instrumentation.uiAutomation.setRotation(originalRotation)
+                instrumentation.uiAutomation.setRotation(android.app.UiAutomation.ROTATION_UNFREEZE)
+            } else {
+                compose.activityRule.scenario.onActivity {
+                    it.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+                }
             }
         }
         compose.waitUntil(TIMEOUT) {

@@ -5,8 +5,9 @@ Lemuroid source: https://github.com/Swordfish90/Lemuroid/tree/53752bf29bc3f95c50
 License: GNU General Public License version 3; original file notices are retained.
 Full license included in GPL-3.0.txt.
 
-LibretroDroid 0.13.2, by Filippo Scognamiglio / Swordfish90
-License: GNU General Public License version 3
+Modified in-tree LibretroDroid based on 0.13.2, by Filippo Scognamiglio / Swordfish90
+EmuUI independent-screen rendering, input and lifecycle changes are included.
+License: GNU General Public License version 3 or later
 Corresponding source: https://github.com/Swordfish90/LibretroDroid/tree/0ebd299624bfd51a0a1336dd0a2c56fe7ddbc0e3
 
 PadKit 1.0.0-beta1, by Filippo Scognamiglio / Swordfish90
@@ -17,8 +18,11 @@ AndroidX libraries, including Jetpack Compose and Material 3, are provided by
 The Android Open Source Project under the Apache License 2.0. Existing embedded
 component license and notice resources are retained.
 
-This dynamic-core APK does not bundle console emulator cores. When obtained
-separately, every core retains its own license and source obligations.
+Core delivery depends on the build variant: Play dynamic builds deliver native
+cores through Google Play feature modules; bundled builds include cores; free
+dynamic builds download them separately. Every core retains its own license
+and corresponding-source obligations. The frontend license does not override
+noncommercial restrictions in individual cores.
 Dynamic download tag 1.17.0: https://github.com/Swordfish90/LemuroidCores/tree/1194b7dcc6208f8dd62b55b66753fde7838dbc91
 Optional bundled-core source pin: https://github.com/Swordfish90/LemuroidCores/tree/fee2e824525daa22bcf318f96127fe43fa8a15ad
 No game ROMs or BIOS files are provided by EmuUI.

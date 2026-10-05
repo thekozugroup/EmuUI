@@ -30,6 +30,7 @@ import com.swordfish.lemuroid.app.mobile.feature.input.GamePadShortcutBindingAct
 import com.swordfish.lemuroid.app.mobile.feature.main.MainActivity
 import com.swordfish.lemuroid.app.mobile.feature.settings.SettingsManager
 import com.swordfish.lemuroid.app.mobile.feature.shortcuts.ShortcutsGenerator
+import com.swordfish.lemuroid.app.shared.covers.SecureThumbnailInterceptor
 import com.swordfish.lemuroid.app.shared.game.ExternalGameLauncherActivity
 import com.swordfish.lemuroid.app.shared.game.GameLauncher
 import com.swordfish.lemuroid.app.shared.input.InputDeviceManager
@@ -184,6 +185,7 @@ abstract class LemuroidApplicationModule {
         @JvmStatic
         fun okHttpClient(): OkHttpClient =
             OkHttpClient.Builder()
+                .addInterceptor(SecureThumbnailInterceptor)
                 .connectTimeout(1, TimeUnit.MINUTES)
                 .readTimeout(1, TimeUnit.MINUTES)
                 .build()
@@ -191,8 +193,9 @@ abstract class LemuroidApplicationModule {
         @Provides
         @PerApp
         @JvmStatic
-        fun retrofit(): Retrofit =
+        fun retrofit(okHttpClient: OkHttpClient): Retrofit =
             Retrofit.Builder()
+                .client(okHttpClient)
                 .baseUrl("https://example.com")
                 .addConverterFactory(
                     object : Converter.Factory() {

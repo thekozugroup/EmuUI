@@ -16,7 +16,7 @@ android {
     defaultConfig {
         versionCode = 4
         versionName = "0.2.1" // Core download tag remains independently pinned upstream.
-        applicationId = "com.thekozugroup.emuui"
+        applicationId = "com.kozudigital.emuui"
         testInstrumentationRunner =
             if (gameProcessTests) {
                 "com.swordfish.lemuroid.app.mobile.feature.game.GameProcessTestRunner"
@@ -24,7 +24,7 @@ android {
                 "androidx.test.runner.AndroidJUnitRunner"
             }
         manifestPlaceholders["emuuiTestTargetProcesses"] =
-            if (gameProcessTests) "com.thekozugroup.emuui.debug:game" else "com.thekozugroup.emuui.debug"
+            if (gameProcessTests) "com.kozudigital.emuui.debug:game" else "com.kozudigital.emuui.debug"
     }
     flavorDimensions += listOf("opensource", "cores")
 

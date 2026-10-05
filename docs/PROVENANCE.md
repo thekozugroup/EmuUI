@@ -14,7 +14,7 @@ The first EmuUI commit uses a clean source snapshot. Upstream history, its share
 
 `lemuroid-cores` remains an upstream Git submodule pinned at `fee2e824525daa22bcf318f96127fe43fa8a15ad` from https://github.com/Swordfish90/LemuroidCores. It contains separately licensed emulator cores and build metadata. This pin must not be represented as transferring ownership or changing those component licenses. Core names, download tag `1.17.0`, and source references are retained. The dynamic download tag `1.17.0` resolves to commit `1194b7dcc6208f8dd62b55b66753fde7838dbc91`. The x86_64 FCEUmm, melonDS and DeSmuME binaries in that tag were downloaded independently and SHA-256 matched byte-for-byte to the pinned submodule binaries used for local QA. Consult each linked core's license and complete corresponding-source requirements before distributing a binary containing it. Some cores have noncommercial or other additional restrictions; the GPL label for the frontend must not be read as a single license covering every core.
 
-LibretroDroid is maintained separately at https://github.com/Swordfish90/LibretroDroid. The app retains its upstream dependency `0.13.2` (tag commit `0ebd299624bfd51a0a1336dd0a2c56fe7ddbc0e3`) and attribution.
+LibretroDroid is maintained separately at https://github.com/Swordfish90/LibretroDroid. The app builds a modified in-tree source module based on `0.13.2` (tag commit `0ebd299624bfd51a0a1336dd0a2c56fe7ddbc0e3`), with independent-screen rendering and lifecycle fixes. See `libretrodroid/UPSTREAM.md` and `UPSTREAM.lock.json` for the renderer, Oboe and libretro-common source pins and retained notices.
 
 ## Distribution
 

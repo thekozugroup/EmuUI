@@ -3,6 +3,6 @@
     <!-- AGP supplies the runner name. -PemuuiGameTests=true selects the isolated game test APK. -->
     <instrumentation
         android:name="androidx.test.runner.AndroidJUnitRunner"
-        android:targetPackage="com.thekozugroup.emuui.debug"
+        android:targetPackage="com.kozudigital.emuui.debug"
         android:targetProcesses="${emuuiTestTargetProcesses}" />
 </manifest>
