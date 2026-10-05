@@ -8,7 +8,9 @@ Full license included in GPL-3.0.txt.
 Modified in-tree LibretroDroid based on 0.13.2, by Filippo Scognamiglio / Swordfish90
 EmuUI independent-screen rendering, input and lifecycle changes are included.
 License: GNU General Public License version 3 or later
-Corresponding source: https://github.com/Swordfish90/LibretroDroid/tree/0ebd299624bfd51a0a1336dd0a2c56fe7ddbc0e3
+Original upstream baseline: https://github.com/Swordfish90/LibretroDroid/tree/0ebd299624bfd51a0a1336dd0a2c56fe7ddbc0e3
+Modified renderer source: libretrodroid/ in the EmuUI corresponding-source release.
+Release preparation must publish that exact modified source with the distributed build.
 
 PadKit 1.0.0-beta1, by Filippo Scognamiglio / Swordfish90
 License: Apache License 2.0 (included in Apache-2.0.txt)

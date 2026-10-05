@@ -1,5 +1,8 @@
 # Play release preparation — 5 October 2026
 
+
+Current commercial direction (2026-10-05): US$0.99/month, ad-free, with permanent full-access gifts through unique codes. See COMMERCIAL_RELEASE_DECISIONS.md and OWNER_SIGNING_HANDOFF.md. Earlier free-launch proposals are superseded.
+
 **Latest update:** see `ACTUAL_16KB_RESULTS.md`. The approved image is installed;
 actual arm64 loading, scoped UI/NES tests and release startup now pass on 16,384-byte pages.
 Earlier pending/unrun statements below describe the prior checkpoint.
@@ -90,8 +93,9 @@ android, libc, dl, log, m, stdc++, z). This does not inventory statically linked
 
 ## Monetization design, deferred
 
-Latest direction is ad-free first; possible subscription is exploratory. No payments,
-entitlement gate, advertising or gift-code implementation is authorized for this candidate.
+The settled direction is US$0.99/month, ad-free, with permanent gift entitlements.
+Billing and backend configuration are not implemented in this candidate; commercial core
+rights and product configuration remain unresolved. See COMMERCIAL_RELEASE_DECISIONS.md.
 
 If a future non-consumable is approved: use Play Billing product details for localized
 price, verify PURCHASED tokens before entitlement, acknowledge without consuming, query
@@ -108,7 +112,7 @@ limit across one-time products. Gifts are free entitlements, not paid revenue. S
 promo codes grant trials, not permanent free subscriptions, and auto-renewal/payment terms
 apply. No codes issued. See [Billing integration](https://developer.android.com/google/play/billing/integrate).
 
-## Verified local results
+## Earlier build checkpoint (superseded by ACTUAL_16KB_RESULTS.md)
 
 Final unsigned `playDynamicRelease` AAB: **191,301,721 bytes**,
 SHA256 `431ad0ec8cfbf556aa42b9d34932265997508dc3c53eaae97f6c37e07fd825a7`.
@@ -136,9 +140,9 @@ The existing debug key was reused. No release keys, OAuth configuration, billing
 were created. NDK 27.3.13750724 and CMake 3.31.5 were installed only after explicit approval.
 Tests use a separate workspace AVD; no physical device or existing app data was modified.
 
-## Launch gates
+## Earlier launch checklist (current gates: COMMERCIAL_RELEASE_DECISIONS.md)
 
-- [ ] Final free/ad-free/no-payments commercial model and core license/source clearance.
+- [ ] Commercial core license/source clearance for the agreed subscription/gift model.
 - [ ] Final supported core/ABI set and empty-placeholder handling; corresponding-source bundle.
 - [x] Unsigned release AAB and final manifest produced and bundletool validated.
 - [ ] Resolve packaged native placeholders/alignment and complete release APK + 16 KB runtime validation.

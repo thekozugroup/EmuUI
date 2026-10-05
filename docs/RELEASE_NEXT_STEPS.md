@@ -1,5 +1,8 @@
 # Shortest compliant submission path — follow-up
 
+
+Current commercial direction (2026-10-05): US$0.99/month, ad-free, with permanent full-access gifts through unique codes. See COMMERCIAL_RELEASE_DECISIONS.md and OWNER_SIGNING_HANDOFF.md. Earlier free-launch proposals are superseded.
+
 **Latest update:** see `ACTUAL_16KB_RESULTS.md`. The approved image is installed;
 actual arm64 loading, scoped UI/NES tests and release startup now pass on 16,384-byte pages.
 Earlier pending/unrun statements below describe the prior checkpoint.
@@ -106,7 +109,7 @@ set/size is not yet verified, and no URL guess or access bypass was attempted.
 
 ## Final account gates remain
 
-Confirm free/ad-free/no-subscription launch model, accurate privacy/Data safety/Drive choices,
+Implement the agreed subscription/gift model after commercial clearance; finalize privacy/Data safety/Drive choices,
 owner signing and Play App Signing handoff, then signed Play test delivery. No fabricated
 attestations or publication while these are unresolved. Library upload remains blocked;
 do not switch the already attempted upload to another route.

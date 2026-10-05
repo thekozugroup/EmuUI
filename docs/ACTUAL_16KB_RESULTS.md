@@ -1,5 +1,8 @@
 # Actual Android 16 / 16 KB verification
 
+
+Current commercial direction (2026-10-05): US$0.99/month, ad-free, with permanent full-access gifts through unique codes. See COMMERCIAL_RELEASE_DECISIONS.md and OWNER_SIGNING_HANDOFF.md. Earlier free-launch proposals are superseded.
+
 The approved official image is installed and tested. **No current arm64 load or tested
 NES runtime failure was reproduced.** Do not treat the earlier RELRO endpoint flags as
 observed crashes. This report supersedes the earlier statements that 16 KB runtime was
@@ -55,7 +58,7 @@ was dropped or silently filtered.
 2. Resolve the four empty placeholder files through valid source-built binaries or an
    explicitly approved support/delivery design. Do not fabricate a library or silently
    drop a supported ABI/system. Re-test any replacement's state compatibility.
-3. Confirm pricing/use model and accurate privacy/Data safety/Drive configuration.
+3. Implement the agreed subscription/gift model after commercial clearance and finalize privacy/Data safety/Drive configuration.
 4. Owner signing/Play App Signing handoff, then a signed Play-track delivery check.
 
 DS saves remain user-reported working on an unspecified device/build. Additional DS compiler
