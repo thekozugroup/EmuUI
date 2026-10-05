@@ -23,7 +23,7 @@ def save(data, relative, expected):
         path.write_bytes(data)
     print(f'PASS {relative}')
 
-with ZipFile(args.deliverables / 'Source-built-release-native-inputs.zip') as source:
+with ZipFile(args.deliverables / 'Source-built-release-native-inputs-v2.zip') as source:
     for filename, expected in cores.items():
         relative = Path('arm64-v8a') / filename
         save(source.read(str(relative)), relative, expected)

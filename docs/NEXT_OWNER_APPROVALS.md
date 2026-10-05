@@ -1,3 +1,5 @@
+> Native mapping update: all sixteen cores now use source-built replacements; see [FULL_SOURCE_CORE_CHECKPOINT.md](FULL_SOURCE_CORE_CHECKPOINT.md). Earlier thirteen-core mapping gap below is historical. Signing/account decisions remain with the coordinating owner/cloud worker.
+
 > Account check update: the available browser reaches Google sign-in; existing app/signing/payments/agreement status is **unknown**. Do not request new-key or payment-setup approval before the authenticated read. See [EXISTING_ACCOUNT_AND_CORE_CLOSURE.md](EXISTING_ACCOUNT_AND_CORE_CLOSURE.md) for the direct-login handoff and scoped local findings.
 
 # Next owner actions — signing, Play setup and source publication

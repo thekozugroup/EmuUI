@@ -1,3 +1,5 @@
+> Superseded for the latest native candidate by [FULL_SOURCE_CORE_CHECKPOINT.md](FULL_SOURCE_CORE_CHECKPOINT.md). Earlier counts and byte-identity claims below are historical.
+
 # Integrated source cores and Play assets
 
 This supersedes the candidate-only state in SOURCE_CANDIDATES_AND_GATE_QA.md. Three exact source-built arm64/API23 cores now replace WonderSwan, PPSSPP and Citra in both Play feature modules and bundled QA. The upstream core submodule remains unmodified. All other native files, including both DS cores, must match the previous validated baseline. Citra remains subject to the existing 3DS UI limitation; no system was additionally removed or enabled.

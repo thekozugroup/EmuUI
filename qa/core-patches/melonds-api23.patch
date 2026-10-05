@@ -1,0 +1,26 @@
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -202,3 +202,9 @@
+ #  )
+ #endif()
+ 
++
++# EmuUI API23 compatibility: preserve interface enumeration without raising minSdk.
++if(ANDROID AND ANDROID_PLATFORM_LEVEL LESS 24)
++    target_sources(core PRIVATE android-ifaddrs/ifaddrs.c)
++    target_include_directories(core BEFORE PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/android-ifaddrs")
++endif()
+--- a/src/net/Net_PCap.cpp
++++ b/src/net/Net_PCap.cpp
+@@ -26,7 +26,11 @@
+ 	#include <iphlpapi.h>
+ #else
+ 	#include <sys/types.h>
++	#if defined(__ANDROID__) && __ANDROID_API__ < 24
++	#include "../android-ifaddrs/ifaddrs.h"
++	#else
+ 	#include <ifaddrs.h>
++	#endif
+ 	#include <netinet/in.h>
+         #ifdef __linux__
+             #include <linux/if_packet.h>

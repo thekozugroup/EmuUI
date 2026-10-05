@@ -1,0 +1,189 @@
+[
+  {
+    "core": "fceumm",
+    "revision": "5cd4a43e16a7f3cd35628d481c347a0a98cfdfa2",
+    "binary": "libfceumm_libretro_android.so",
+    "sha256": "4cb0123c140e2b58fdc7502bcef32f06fc67fd5f9636bc08200e5cdea1098941",
+    "bytes": 2821288,
+    "source": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/fceumm",
+    "build": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/remaining-closure/fceumm-api23-final",
+    "min_api": 23
+  },
+  {
+    "core": "gambatte",
+    "revision": "b75225203ffea8b65124bb31acb598e91e7f22d9",
+    "binary": "libgambatte_libretro_android.so",
+    "sha256": "4b4133d6a5dab57157c21483498a1ffe0478f9baf0f293bf270a8e3419c2de07",
+    "bytes": 3234520,
+    "source": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/remaining-closure/gambatte",
+    "build": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/remaining-closure/gambatte-api23-final",
+    "min_api": 23
+  },
+  {
+    "core": "handy",
+    "revision": "fca239207e9c111da3e85d2faf0b1b9d7524e498",
+    "binary": "libhandy_libretro_android.so",
+    "sha256": "40a37a64dddb68ca38171fce5f39970115a9dc07bcd9175594cb9df341723c05",
+    "bytes": 734528,
+    "source": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/remaining-closure/handy",
+    "build": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/remaining-closure/handy-build",
+    "min_api": 23
+  },
+  {
+    "core": "mednafen_ngp",
+    "revision": "139fe34c8dfc5585d6ee1793a7902bca79d544de",
+    "binary": "libmednafen_ngp_libretro_android.so",
+    "sha256": "e0cf92bfdef4722b299ec2600bf852c425d04dbccf89e0a78558fdfbf9d71f1e",
+    "bytes": 506856,
+    "source": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/remaining-closure/mednafen_ngp",
+    "build": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/remaining-closure/mednafen_ngp-build",
+    "min_api": 23
+  },
+  {
+    "core": "prosystem",
+    "revision": "acae250da8d98b8b9707cd499e2a0bf6d8500652",
+    "binary": "libprosystem_libretro_android.so",
+    "sha256": "b0b886101bedc53ccd70f37464afadb1808cc8a684f7446fc93320f299c6e915",
+    "bytes": 160288,
+    "source": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/remaining-closure/prosystem",
+    "build": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/remaining-closure/prosystem-build",
+    "min_api": 23
+  },
+  {
+    "core": "stella",
+    "revision": "749a21f653cf85fcedf4fe514ac8df1ad308be8e",
+    "binary": "libstella_libretro_android.so",
+    "sha256": "28c2381c5eaa993751e5efe845821c3767c3adb7af92b24655e972db5a7e984d",
+    "bytes": 5807448,
+    "source": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/remaining-closure/stella",
+    "build": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/remaining-closure/stella-build",
+    "min_api": 23
+  },
+  {
+    "core": "desmume",
+    "revision": "7f05a8d447b00acd9e0798aee97b4f72eb505ef9",
+    "binary": "libdesmume_libretro_android.so",
+    "sha256": "e208a518e1f7e91482a74eaf0808dae483a2de9812ee1f9f4e5cb454632caab1",
+    "bytes": 3403056,
+    "source": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/remaining-closure/desmume",
+    "build": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/remaining-closure/desmume-build",
+    "min_api": 23
+  },
+  {
+    "core": "dosbox_pure",
+    "revision": "d743cfd9342c083ef6d3cecfc08c9af28a1481c8",
+    "binary": "libdosbox_pure_libretro_android.so",
+    "sha256": "97006f0addafe54690e07271a45d094eb9ec474227513050a6403c57db87fdd7",
+    "bytes": 3525200,
+    "source": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/remaining-closure/dosbox_pure",
+    "build": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/remaining-closure/dosbox_pure-build",
+    "min_api": 23
+  },
+  {
+    "core": "mednafen_pce_fast",
+    "revision": "d5c2b28ee6931ae43a4a79455937693ae8ccc8a1",
+    "binary": "libmednafen_pce_fast_libretro_android.so",
+    "sha256": "b9727248c7ae5f421df947c5d1995e33af376f8a716ddd5667c48e9225db29cb",
+    "bytes": 3280976,
+    "source": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/remaining-closure/mednafen_pce_fast",
+    "build": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/remaining-closure/mednafen_pce_fast-build",
+    "min_api": 23
+  },
+  {
+    "core": "mgba",
+    "revision": "c758314a639aa0066e7b65a8341448181b73c804",
+    "binary": "libmgba_libretro_android.so",
+    "sha256": "96f3307ae9cd6225454721e222c20f2f0be14592eb458e5633598a3fe8545c1b",
+    "bytes": 2454200,
+    "source": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/remaining-closure/mgba",
+    "build": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/remaining-closure/mgba-build",
+    "min_api": 23
+  },
+  {
+    "core": "mupen64plus_next_gles3",
+    "revision": "222acbd3f98391458a047874d0372fe78e14fe94",
+    "binary": "libmupen64plus_next_gles3_libretro_android.so",
+    "sha256": "ab2d99dd6339b7e0493aa6981f602fa25b5c3d9434c1e25addd6aa858721f092",
+    "bytes": 6253528,
+    "source": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/remaining-closure/mupen64plus_next_gles3",
+    "build": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/remaining-closure/mupen64plus_next_gles3-build",
+    "min_api": 23
+  },
+  {
+    "core": "pcsx_rearmed",
+    "revision": "228c14e10e9a8fae0ead8adf30daad2cdd8655b9",
+    "binary": "libpcsx_rearmed_libretro_android.so",
+    "sha256": "598f3263a45d037b4fdd40f17b3cb879f83e3b9504b670da1799293c004c18ca",
+    "bytes": 1488216,
+    "source": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/remaining-closure/pcsx_rearmed",
+    "build": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/remaining-closure/pcsx_rearmed-build",
+    "min_api": 23
+  },
+  {
+    "core": "melondsds",
+    "revision": "33c48260402865ef77667487528efd5ca7ce1233",
+    "binary": "libmelonds_libretro_android.so",
+    "sha256": "b6f657f2a57b18fc2bd02e8852e3f6c169bf79106479ad2573f0366ed6c1b979",
+    "bytes": 5727520,
+    "source": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/melonds-ds",
+    "build": "/Users/michaelwong/Documents/Codex/2026-10-04/task-3/core-rebuild/remaining-closure/melonds-api23-build",
+    "min_api": 23,
+    "dependencies": [
+      {
+        "name": "date-src",
+        "revision": "1ead6715dec030d340a316c927c877a3c4e5a00c",
+        "origin": "https://github.com/HowardHinnant/date"
+      },
+      {
+        "name": "embed-binaries-src",
+        "revision": "21f28cabbba02cd657578c70b7aedd0f141467ff",
+        "origin": "https://github.com/andoalon/embed-binaries.git"
+      },
+      {
+        "name": "fmt-src",
+        "revision": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+        "origin": "https://github.com/fmtlib/fmt"
+      },
+      {
+        "name": "glm-src",
+        "revision": "33b4a621a697a305bc3a7610d290677b96beb181",
+        "origin": "https://github.com/g-truc/glm"
+      },
+      {
+        "name": "libretro-common-src",
+        "revision": "8e2b884db16711a999a0e46a02a3dc0be294b048",
+        "origin": "https://github.com/JesseTG/libretro-common"
+      },
+      {
+        "name": "libslirp-src",
+        "revision": "e61dbd459c8c06607b3a84694489427e8ec60f17",
+        "origin": "https://github.com/JesseTG/libslirp-mirror"
+      },
+      {
+        "name": "melonds-src",
+        "revision": "f6692dff8c0c53f77639a08e5e746a286312bb41",
+        "origin": "https://github.com/JesseTG/melonDS"
+      },
+      {
+        "name": "pntr-src",
+        "revision": "650237a524ea4fc953de7223a1587c83f2696794",
+        "origin": "https://github.com/robloach/pntr"
+      },
+      {
+        "name": "span-lite-src",
+        "revision": "00afc281a8c3c7657bb9c5b000d6e7082c1bbc7f",
+        "origin": "https://github.com/martinmoene/span-lite"
+      },
+      {
+        "name": "yamc-src",
+        "revision": "4e015a7e8eb0d61c34e6928676c8c78881a72d73",
+        "origin": "https://github.com/yohhoy/yamc"
+      },
+      {
+        "name": "zlib-src",
+        "revision": "51b7f2abdade71cd9bb0e7a373ef2610ec6f9daf",
+        "origin": "https://github.com/madler/zlib"
+      }
+    ]
+  }
+]

@@ -1,3 +1,5 @@
+> Superseded for the latest native candidate by [FULL_SOURCE_CORE_CHECKPOINT.md](FULL_SOURCE_CORE_CHECKPOINT.md). Earlier counts and byte-identity claims below are historical.
+
 # Existing account check and thirteen-core closure plan
 
 ## Account/signing check — 2026-10-05

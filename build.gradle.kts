@@ -65,6 +65,19 @@ subprojects {
                 "lemuroid_core_mednafen_wswan" to "libmednafen_wswan_libretro_android.so",
                 "lemuroid_core_ppsspp" to "libppsspp_libretro_android.so",
                 "lemuroid_core_citra" to "libcitra_libretro_android.so",
+                "lemuroid_core_fceumm" to "libfceumm_libretro_android.so",
+                "lemuroid_core_gambatte" to "libgambatte_libretro_android.so",
+                "lemuroid_core_handy" to "libhandy_libretro_android.so",
+                "lemuroid_core_mednafen_ngp" to "libmednafen_ngp_libretro_android.so",
+                "lemuroid_core_prosystem" to "libprosystem_libretro_android.so",
+                "lemuroid_core_stella" to "libstella_libretro_android.so",
+                "lemuroid_core_desmume" to "libdesmume_libretro_android.so",
+                "lemuroid_core_dosbox_pure" to "libdosbox_pure_libretro_android.so",
+                "lemuroid_core_mednafen_pce_fast" to "libmednafen_pce_fast_libretro_android.so",
+                "lemuroid_core_mgba" to "libmgba_libretro_android.so",
+                "lemuroid_core_mupen64plus_next_gles3" to "libmupen64plus_next_gles3_libretro_android.so",
+                "lemuroid_core_pcsx_rearmed" to "libpcsx_rearmed_libretro_android.so",
+                "lemuroid_core_melonds" to "libmelonds_libretro_android.so",
             )
             val selectedReplacements = if (project.name == "bundled-cores") {
                 replacementNames.values.toSet()

@@ -1,0 +1,447 @@
+[
+  {
+    "core": "fceumm",
+    "source": "fceumm/Authors",
+    "sha256": "6c49fa126452c952c5569eb857dba83cded95ed6596862c9bb1d77945824c4d1"
+  },
+  {
+    "core": "fceumm",
+    "source": "fceumm/Copying",
+    "sha256": "a6996dcf0c334281f734560926e079b2dbbd5b78e81c0ca00a413ec01e1cd2fb"
+  },
+  {
+    "core": "fceumm",
+    "source": "fceumm/src/ntsc/license.txt",
+    "sha256": "319daefe38ebeead3df178e5937898a52d67c0c795f54f1c0bb10ac3b9cffb63"
+  },
+  {
+    "core": "gambatte",
+    "source": "gambatte/COPYING",
+    "sha256": "ab15fd526bd8dd18a9e77ebc139656bf4d33e97fc7238cd11bf60e2b9b8666c6"
+  },
+  {
+    "core": "handy",
+    "source": "handy/lynx/license.txt",
+    "sha256": "c75a7fed8afe9d6a5a70a48c0b52bf37207e8dee49dfa664b0b73819248db671"
+  },
+  {
+    "core": "mednafen_ngp",
+    "source": "mednafen_ngp/COPYING",
+    "sha256": "a6996dcf0c334281f734560926e079b2dbbd5b78e81c0ca00a413ec01e1cd2fb"
+  },
+  {
+    "core": "prosystem",
+    "source": "prosystem/License.txt",
+    "sha256": "9fae8c2ae211ea4b3515621484bb0a558a0ca62d05c9534265c7e223bdf981b0"
+  },
+  {
+    "core": "prosystem",
+    "source": "prosystem/bupboop/License.txt",
+    "sha256": "38bc0e4b9ce70a398cfb4dde8fed87fcb469eeafd4de5c0699c81c7630ea7aed"
+  },
+  {
+    "core": "stella",
+    "source": "stella/Copyright.txt",
+    "sha256": "6ae35e039a6b2e2e540978bdad110b658eb09254f34f6b07c478119a281f66db"
+  },
+  {
+    "core": "stella",
+    "source": "stella/License.txt",
+    "sha256": "58530d09b6fcb91ae27071be0081af90e6c2d7fdf991d34a29e234a2a5e75455"
+  },
+  {
+    "core": "stella",
+    "source": "stella/debian/copyright",
+    "sha256": "8ba8416ed3e095ce9d50cc942c0aa14d381c071bfaa20a2464d522005f7a04ac"
+  },
+  {
+    "core": "stella",
+    "source": "stella/src/tools/evdev-joystick/License.txt",
+    "sha256": "58530d09b6fcb91ae27071be0081af90e6c2d7fdf991d34a29e234a2a5e75455"
+  },
+  {
+    "core": "stella",
+    "source": "stella/src/lib/httplib/LICENSE",
+    "sha256": "4b45cbe16d7b71b89ae6127e26e0d90a029198ca5e958ad8e3d0b8bbed364d8b"
+  },
+  {
+    "core": "stella",
+    "source": "stella/src/lib/json/LICENSE.MIT",
+    "sha256": "50be9457e5c9faaba5e60d9c73f8eabe9e0737a2d9c3e58357d856661862c18e"
+  },
+  {
+    "core": "desmume",
+    "source": "desmume/license.txt",
+    "sha256": "9f2e250993c6206fac643824e05e5a0d7d3e0895d9e09a5ce4b12bc2610afc11"
+  },
+  {
+    "core": "desmume",
+    "source": "desmume/desmume/AUTHORS",
+    "sha256": "27f40305a0e75bb190326df9f873833753377fd771dcd7b959a108e77bee5002"
+  },
+  {
+    "core": "desmume",
+    "source": "desmume/desmume/COPYING",
+    "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643"
+  },
+  {
+    "core": "desmume",
+    "source": "desmume/desmume/src/frontend/windows/agg/src/authors",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "core": "desmume",
+    "source": "desmume/desmume/src/frontend/windows/agg/src/copying",
+    "sha256": "bf7e9d2fc32d0c568dbc66a0c93ce701751b89b1de765360db328d8e3de42544"
+  },
+  {
+    "core": "desmume",
+    "source": "desmume/desmume/src/frontend/windows/File_Extractor/unrar/license.txt",
+    "sha256": "6ecc1687808b7d66b24f874755abfed7464d9751ed0001cd4e8e5d9bf397ff8a"
+  },
+  {
+    "core": "desmume",
+    "source": "desmume/desmume/src/utils/AsmJit/COPYING.txt",
+    "sha256": "b3e2d68c9c8c48e16f3e55e1d9a99882956e8c9a813ce2aca52b8cb031e2ccea"
+  },
+  {
+    "core": "dosbox_pure",
+    "source": "dosbox_pure/LICENSE",
+    "sha256": "61e0922747762a12e88a47ab66ef4ed026148361900440086b4863145973a374"
+  },
+  {
+    "core": "mednafen_pce_fast",
+    "source": "mednafen_pce_fast/COPYING",
+    "sha256": "a6996dcf0c334281f734560926e079b2dbbd5b78e81c0ca00a413ec01e1cd2fb"
+  },
+  {
+    "core": "mednafen_pce_fast",
+    "source": "mednafen_pce_fast/deps/libchdr/LICENSE.txt",
+    "sha256": "e3989a7aee74a91b8cdbdfe204a6b8d03288863ec7533a21c51f1a987ba73539"
+  },
+  {
+    "core": "mednafen_pce_fast",
+    "source": "mednafen_pce_fast/deps/zstd/LICENSE",
+    "sha256": "7055266497633c9025b777c78eb7235af13922117480ed5c674677adc381c9d8"
+  },
+  {
+    "core": "mednafen_pce_fast",
+    "source": "mednafen_pce_fast/deps/zstd/COPYING",
+    "sha256": "f9c375a1be4a41f7b70301dd83c91cb89e41567478859b77eef375a52d782505"
+  },
+  {
+    "core": "mednafen_pce_fast",
+    "source": "mednafen_pce_fast/deps/lzma-19.00/LICENSE",
+    "sha256": "06721414a6decad6d6677feb470f01f47126e154d895d85bc1e17628697715e5"
+  },
+  {
+    "core": "mednafen_pce_fast",
+    "source": "mednafen_pce_fast/mednafen/tremor/COPYING",
+    "sha256": "d2ab5758336489da61c12cc5bb757da5339c4ae9001f9bb0562b4370249af814"
+  },
+  {
+    "core": "mgba",
+    "source": "mgba/LICENSE",
+    "sha256": "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85"
+  },
+  {
+    "core": "mgba",
+    "source": "mgba/res/shaders/gbc-lcd.shader/license.txt",
+    "sha256": "7e12e5df4bae12cb21581ba157ced20e1986a0508dd10d0e8a4ab9a4cf94e85c"
+  },
+  {
+    "core": "mgba",
+    "source": "mgba/tools/debian/copyright",
+    "sha256": "8d7d5231c3a39495f8bf543629915664f3127d48b52f7e68502c22e01f4f5819"
+  },
+  {
+    "core": "mgba",
+    "source": "mgba/src/third-party/inih/LICENSE.txt",
+    "sha256": "9ae3b39e83e9158e44b67733baa3bb2d84e80efdcfb14a5820210a42c7abdf7f"
+  },
+  {
+    "core": "mgba",
+    "source": "mgba/src/third-party/libpng/LICENSE",
+    "sha256": "bf5e22b9dce8464064ae17a48ea1133c3369ac9e1d80ef9e320e5219aa14ea9b"
+  },
+  {
+    "core": "mgba",
+    "source": "mgba/src/third-party/libpng/AUTHORS",
+    "sha256": "e00d9011379c516a6fa5e21b1d9119c7b5fe91177c9ec0f1f362c886e45771ab"
+  },
+  {
+    "core": "mgba",
+    "source": "mgba/src/third-party/libpng/contrib/gregbook/LICENSE",
+    "sha256": "b6a03c1803eb58ffb1f1278d5c7d4096c4c116e66dce8a7553e8c77d163c3438"
+  },
+  {
+    "core": "mgba",
+    "source": "mgba/src/third-party/libpng/contrib/gregbook/COPYING",
+    "sha256": "d6cb0e9e560f51085556949a84af12b79a00f10ab8b66c752537faf7cd665572"
+  },
+  {
+    "core": "mgba",
+    "source": "mgba/src/third-party/libpng/contrib/pngminus/LICENSE.txt",
+    "sha256": "71778de2e263e60e18d6e0112e65fc7229e90e4dc0d2b8e06640e442125a6dbe"
+  },
+  {
+    "core": "mgba",
+    "source": "mgba/src/third-party/zlib/contrib/dotzlib/LICENSE_1_0.txt",
+    "sha256": "36266a8fd073568394cb81cdb2b124f7fdae2c64c1a7ed09db34b4d22efa2951"
+  },
+  {
+    "core": "mgba",
+    "source": "mgba/src/third-party/discord-rpc/LICENSE",
+    "sha256": "12054cc15e274c9a10966fd7d8740c12dbd679dec2468e370818d899f9a3a634"
+  },
+  {
+    "core": "mgba",
+    "source": "mgba/src/third-party/discord-rpc/include/mingw-std-threads/LICENSE",
+    "sha256": "86c148320eb0acc26607ed347e0fde9f49a236d0ec5291d36dc6a7e0e1d26b9f"
+  },
+  {
+    "core": "mgba",
+    "source": "mgba/src/third-party/discord-rpc/include/rapidjson/license.txt",
+    "sha256": "a140e5d46fe734a1c78f1a3c3ef207871dd75648be71fdda8e309b23ab8b1f32"
+  },
+  {
+    "core": "mupen64plus_next_gles3",
+    "source": "mupen64plus_next_gles3/LICENSE",
+    "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643"
+  },
+  {
+    "core": "mupen64plus_next_gles3",
+    "source": "mupen64plus_next_gles3/GLideN64/LICENSE",
+    "sha256": "7cbdf16d66376d39046abb11a26e5f5823fb631bfc48d4309f5c227957e66d45"
+  },
+  {
+    "core": "mupen64plus_next_gles3",
+    "source": "mupen64plus_next_gles3/GLideN64/licenses/gles2n64/LICENSE",
+    "sha256": "9ccf26cfe845e0eb8bb58053e47366e7ab6b697ae010f7650978d4b71b7d1fc1"
+  },
+  {
+    "core": "mupen64plus_next_gles3",
+    "source": "mupen64plus_next_gles3/GLideN64/licenses/GLSL-FXAA/LICENSE.md",
+    "sha256": "91515553fda3d86e82454bab0eb876a2cb9a31c0dcb8be640870fed624e53697"
+  },
+  {
+    "core": "mupen64plus_next_gles3",
+    "source": "mupen64plus_next_gles3/GLideN64/licenses/readerwriterqueue/LICENSE.md",
+    "sha256": "74aeda891b7216355084e184f4b908fc166862c12a80d20cda72c2d2a34f8ea8"
+  },
+  {
+    "core": "mupen64plus_next_gles3",
+    "source": "mupen64plus_next_gles3/GLideN64/licenses/Glow/LICENSE",
+    "sha256": "13a3b6d268be629a2a3f7078639e688c9bbc564c7f0c99063db3ad4952512f98"
+  },
+  {
+    "core": "mupen64plus_next_gles3",
+    "source": "mupen64plus_next_gles3/mupen64plus-video-paraLLEl/parallel-rdp/LICENSE",
+    "sha256": "29e3d9c8af52aa066b05be4ed348b2184052e99b793779c38baca2c6e00240c5"
+  },
+  {
+    "core": "mupen64plus_next_gles3",
+    "source": "mupen64plus_next_gles3/mupen64plus-rsp-paraLLEl/LICENSE.MIT",
+    "sha256": "98295fe4fb291c433b705d40710cd44aaa09e7944943afb8a4ec02e9a4f59289"
+  },
+  {
+    "core": "mupen64plus_next_gles3",
+    "source": "mupen64plus_next_gles3/mupen64plus-rsp-paraLLEl/LICENSE",
+    "sha256": "3dcbbf07bd9ebb0b6fd117826d5c3fd35bdbfd4b31bb9ebebb4e74aef6959b32"
+  },
+  {
+    "core": "mupen64plus_next_gles3",
+    "source": "mupen64plus_next_gles3/mupen64plus-rsp-paraLLEl/LICENSE.LESSER",
+    "sha256": "a853c2ffec17057872340eee242ae4d96cbf2b520ae27d903e1b2fef1a5f9d1c"
+  },
+  {
+    "core": "mupen64plus_next_gles3",
+    "source": "mupen64plus_next_gles3/mupen64plus-rsp-paraLLEl/lightning/AUTHORS",
+    "sha256": "f2261cf1d4549c0a97b1e5ef3a170379279163a747d650920c070e9759fcec9c"
+  },
+  {
+    "core": "mupen64plus_next_gles3",
+    "source": "mupen64plus_next_gles3/mupen64plus-rsp-paraLLEl/lightning/COPYING.LESSER",
+    "sha256": "a853c2ffec17057872340eee242ae4d96cbf2b520ae27d903e1b2fef1a5f9d1c"
+  },
+  {
+    "core": "mupen64plus_next_gles3",
+    "source": "mupen64plus_next_gles3/mupen64plus-rsp-paraLLEl/lightning/COPYING.DOC",
+    "sha256": "5ae033045108dac293940c2292d311ce8b58de976dff2269c22280b8df6cfd27"
+  },
+  {
+    "core": "mupen64plus_next_gles3",
+    "source": "mupen64plus_next_gles3/mupen64plus-rsp-paraLLEl/lightning/COPYING",
+    "sha256": "fc82ca8b6fdb18d4e3e85cfd8ab58d1bcd3f1b29abe782895abd91d64763f8e7"
+  },
+  {
+    "core": "mupen64plus_next_gles3",
+    "source": "mupen64plus_next_gles3/mupen64plus-rsp-cxd4/COPYING",
+    "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+  },
+  {
+    "core": "pcsx_rearmed",
+    "source": "pcsx_rearmed/AUTHORS",
+    "sha256": "48d866645e4083ca01e935aca899c01f988ba0aaead81a98db3e8ba22a62cb3e"
+  },
+  {
+    "core": "pcsx_rearmed",
+    "source": "pcsx_rearmed/COPYING",
+    "sha256": "0efb4db8000c609bd2f06e61fcbc59af05519d122f5b3597b7c493224946c61d"
+  },
+  {
+    "core": "pcsx_rearmed",
+    "source": "pcsx_rearmed/deps/lightning/AUTHORS",
+    "sha256": "f2261cf1d4549c0a97b1e5ef3a170379279163a747d650920c070e9759fcec9c"
+  },
+  {
+    "core": "pcsx_rearmed",
+    "source": "pcsx_rearmed/deps/lightning/COPYING.LESSER",
+    "sha256": "a853c2ffec17057872340eee242ae4d96cbf2b520ae27d903e1b2fef1a5f9d1c"
+  },
+  {
+    "core": "pcsx_rearmed",
+    "source": "pcsx_rearmed/deps/lightning/COPYING.DOC",
+    "sha256": "5ae033045108dac293940c2292d311ce8b58de976dff2269c22280b8df6cfd27"
+  },
+  {
+    "core": "pcsx_rearmed",
+    "source": "pcsx_rearmed/deps/lightning/COPYING",
+    "sha256": "fc82ca8b6fdb18d4e3e85cfd8ab58d1bcd3f1b29abe782895abd91d64763f8e7"
+  },
+  {
+    "core": "pcsx_rearmed",
+    "source": "pcsx_rearmed/deps/libchdr/LICENSE.txt",
+    "sha256": "e3989a7aee74a91b8cdbdfe204a6b8d03288863ec7533a21c51f1a987ba73539"
+  },
+  {
+    "core": "pcsx_rearmed",
+    "source": "pcsx_rearmed/deps/libchdr/deps/zstd-1.5.6/LICENSE",
+    "sha256": "7055266497633c9025b777c78eb7235af13922117480ed5c674677adc381c9d8"
+  },
+  {
+    "core": "pcsx_rearmed",
+    "source": "pcsx_rearmed/deps/libchdr/deps/zstd-1.5.6/COPYING",
+    "sha256": "f9c375a1be4a41f7b70301dd83c91cb89e41567478859b77eef375a52d782505"
+  },
+  {
+    "core": "pcsx_rearmed",
+    "source": "pcsx_rearmed/deps/libchdr/deps/zstd-1.5.6/build/LICENSE",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "core": "pcsx_rearmed",
+    "source": "pcsx_rearmed/deps/libchdr/deps/zlib-1.3.1/LICENSE",
+    "sha256": "845efc77857d485d91fb3e0b884aaa929368c717ae8186b66fe1ed2495753243"
+  },
+  {
+    "core": "pcsx_rearmed",
+    "source": "pcsx_rearmed/deps/libchdr/deps/zlib-1.3.1/contrib/dotzlib/LICENSE_1_0.txt",
+    "sha256": "36266a8fd073568394cb81cdb2b124f7fdae2c64c1a7ed09db34b4d22efa2951"
+  },
+  {
+    "core": "pcsx_rearmed",
+    "source": "pcsx_rearmed/deps/libchdr/deps/lzma-24.05/LICENSE",
+    "sha256": "06721414a6decad6d6677feb470f01f47126e154d895d85bc1e17628697715e5"
+  },
+  {
+    "core": "pcsx_rearmed",
+    "source": "pcsx_rearmed/deps/lightrec/COPYING",
+    "sha256": "d7bf9d064ac3e5840f9dd02422b7eeec4f1fd03f37fadbd043602be5e882304f"
+  },
+  {
+    "core": "melondsds",
+    "source": "melondsds/LICENSE",
+    "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+  },
+  {
+    "core": "melondsds",
+    "source": "glm-src/copying.txt",
+    "sha256": "62d2d642c7d054d4fb4c9b42faad617d6c88fcd91e317f8035aa9f277cc159c3"
+  },
+  {
+    "core": "melondsds",
+    "source": "libslirp-src/COPYRIGHT",
+    "sha256": "b28aecf4796a6a22054167f0a976de13d9db335669d37afd2dc7ea4c335e1e13"
+  },
+  {
+    "core": "melondsds",
+    "source": "yamc-src/LICENSE",
+    "sha256": "df70b74967209c811812d4305f666ab6cabf5d4c21bb96ad2046642145544b66"
+  },
+  {
+    "core": "melondsds",
+    "source": "pntr-src/LICENSE.md",
+    "sha256": "972d7d0be2a980b6e24b3f15f510efbd082fa9d105fa488778f851de7ca0dc06"
+  },
+  {
+    "core": "melondsds",
+    "source": "embed-binaries-src/LICENSE",
+    "sha256": "12680bd1abee94f7f06279d5a1021b4b98e2e4bca22b77163efdababde965c65"
+  },
+  {
+    "core": "melondsds",
+    "source": "fmt-src/LICENSE",
+    "sha256": "07580f2a3b35709ce703d523f447b242f6dfec7582a8c0df102c7fa2849375f8"
+  },
+  {
+    "core": "melondsds",
+    "source": "zlib-src/LICENSE",
+    "sha256": "845efc77857d485d91fb3e0b884aaa929368c717ae8186b66fe1ed2495753243"
+  },
+  {
+    "core": "melondsds",
+    "source": "zlib-src/contrib/dotzlib/LICENSE_1_0.txt",
+    "sha256": "36266a8fd073568394cb81cdb2b124f7fdae2c64c1a7ed09db34b4d22efa2951"
+  },
+  {
+    "core": "melondsds",
+    "source": "span-lite-src/LICENSE.txt",
+    "sha256": "c9bff75738922193e67fa726fa225535870d2aa1059f91452c411736284ad566"
+  },
+  {
+    "core": "melondsds",
+    "source": "date-src/LICENSE.txt",
+    "sha256": "c90f6c00fb961170560299cbda28ca2d45804913aa8b2a9f36dbb8e0028d6930"
+  },
+  {
+    "core": "melondsds",
+    "source": "melonds-engine/LICENSE",
+    "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+  },
+  {
+    "core": "melondsds",
+    "source": "melonds-engine/src/fatfs/LICENSE.txt",
+    "sha256": "b896e32fb2cdb3fc8b3b6fd854706fca4ac55619fbb6d5eb2429cb05ee338966"
+  },
+  {
+    "core": "melondsds",
+    "source": "melonds-engine/src/net/libslirp/COPYRIGHT",
+    "sha256": "b28aecf4796a6a22054167f0a976de13d9db335669d37afd2dc7ea4c335e1e13"
+  },
+  {
+    "core": "melondsds",
+    "source": "melonds-engine/src/teakra/LICENSE",
+    "sha256": "84ac887a2ae105eacfb5aeb1921502ef91e0bd230bb2e6de3e8507f79177adf5"
+  },
+  {
+    "core": "melondsds",
+    "source": "melonds-engine/src/frontend/qt_sdl/InputConfig/resources/LICENSE.md",
+    "sha256": "1edd93c649f2ed5edb5a6afe9a616d8aa508dcf156f9cfbea6dc40e806488ece"
+  },
+  {
+    "core": "melondsds",
+    "source": "melonds-engine/src/dolphin/license_dolphin.txt",
+    "sha256": "ab15fd526bd8dd18a9e77ebc139656bf4d33e97fc7238cd11bf60e2b9b8666c6"
+  },
+  {
+    "core": "melondsds",
+    "source": "melonds-engine/android-ifaddrs/ifaddrs.c",
+    "sha256": "4ce20403ba9e34a04e261222dfc99b9fce39b62b2811926fd28b0f14025667de"
+  },
+  {
+    "core": "melondsds",
+    "source": "melonds-engine/android-ifaddrs/ifaddrs.h",
+    "sha256": "f8040b42cbb9405a1e9fe202ff1cbbb79bee4082d11d2143b98aa5ccb1d97279"
+  }
+]
