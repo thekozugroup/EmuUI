@@ -1,6 +1,6 @@
 # Local handoff — 2026-10-05
 
-UPDATE: The user has now authorized replacement assessment or omission of the restricted SNES/Sega/arcade cores. See FIRST_PAID_RELEASE_SCOPE.md for the implemented scope and current validation; earlier approval-pending statements below are historical. ABI narrowing remains unapproved.
+UPDATE: The user has now authorized replacement assessment or omission of the restricted SNES/Sega/arcade cores. See FIRST_PAID_RELEASE_SCOPE.md for the implemented scope and current validation; earlier approval-pending statements below are historical. The user subsequently approved arm64-only; see FIRST_PAID_RELEASE_SCOPE.md and BILLING_CLIENT_PREPARATION.md for the latest work.
 
 Release preparation branch: `release/play-preparation-20261005`; original source commit `e46ef62f2801556912cdf6d86caf0d5282483f6e`. No main promotion, public push, Play write or signing-key creation occurred.
 

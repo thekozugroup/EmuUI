@@ -64,6 +64,10 @@ subprojects {
                 // Keep pinned upstream sources intact; omit restricted executable cores.
                 if (project.name == "bundled-cores") {
                     packagingOptions {
+                        // Library AAR packaging does not apply application ndk.abiFilters.
+                        listOf("armeabi-v7a", "x86", "x86_64").forEach { abi ->
+                            exclude("lib/$abi/**")
+                        }
                         listOf("fbneo", "genesis_plus_gx", "mame2003_plus", "snes9x").forEach {
                             exclude("lib/*/lib${it}_libretro_android.so")
                         }
@@ -72,6 +76,11 @@ subprojects {
                 compileSdkVersion(deps.android.compileSdkVersion)
                 buildToolsVersion(deps.android.buildToolsVersion)
                 defaultConfig {
+                    // Approved first-release device scope; identical across base/features/QA.
+                    ndk {
+                        abiFilters.clear()
+                        abiFilters.add("arm64-v8a")
+                    }
                     minSdkVersion(deps.android.minSdkVersion)
                     targetSdkVersion(deps.android.targetSdkVersion)
                     multiDexEnabled = true

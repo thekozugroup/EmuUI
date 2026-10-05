@@ -37,6 +37,7 @@
         android:roundIcon="@mipmap/emuui_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/LemuroidMaterialTheme">
+        <activity android:name="com.swordfish.lemuroid.app.mobile.feature.billing.BillingActivity" android:exported="false" />
         <activity
             android:name="com.swordfish.lemuroid.app.mobile.feature.main.MainActivity"
             android:screenOrientation="sensorLandscape"

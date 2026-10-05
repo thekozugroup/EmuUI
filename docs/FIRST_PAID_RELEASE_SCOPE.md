@@ -35,3 +35,7 @@ PASS: production AAB, release lint (0 errors, 49 warnings and 4 hints), 201 app 
 Archive-level check `qa/check_release_core_scope.py` passed: exactly16 native entries removed (four restricted cores across four ABIs), 72 remaining AAB entries, all retained native bytes identical to the previous candidate, all four ABIs retained, both DS cores retained on all four ABIs. Bundled QA AAR contains64 core entries with none of the restricted cores. No release signature.
 
 New unsigned review AAB: 94192496 bytes, SHA256 `fc774473cff672ed26a3c9c9a1c011b5efa33c6f2b065c4b83695d6140bd1972`. Still blocked by the four empty Citra/PPSSPP files and remaining gates. Earlier native16KB/NES/UI results refer to retained identical native binaries and prior frontend revision; no fresh instrumented/UI gameplay run or replacement-core gameplay is claimed for this scope change.
+
+## Device scope approval update
+
+The user subsequently approved arm64-only for the first release. Root Android configuration now sets `arm64-v8a` consistently for the base, all retained feature modules, renderer and bundled QA library. This removes only other device ABIs, not additional systems. 32-bit ARM-only and x86/x86_64-only devices are outside this release's support. All sixteen retained arm64 cores, including both DS cores, remain. The earlier four-ABI validation above is historical; current archive checks are recorded in the new build evidence.

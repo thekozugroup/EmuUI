@@ -1,5 +1,6 @@
 package com.swordfish.lemuroid.app.mobile.feature.settings.general
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import androidx.compose.material3.Text
@@ -13,6 +14,7 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.navigation.NavController
 import com.alorma.compose.settings.storage.base.SettingValueState
 import com.swordfish.lemuroid.R
+import com.swordfish.lemuroid.app.mobile.feature.billing.BillingActivity
 import com.swordfish.lemuroid.app.mobile.feature.main.MainRoute
 import com.swordfish.lemuroid.app.mobile.feature.main.navigateToRoute
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LocalThemePreferences
@@ -59,6 +61,14 @@ fun SettingsScreen(
             indexingInProgress = indexingInProgress,
             scanInProgress = scanInProgress,
         )
+        val context = LocalContext.current
+        LemuroidCardSettingsGroup(title = { Text(stringResource(R.string.billing_title)) }) {
+            LemuroidSettingsMenuLink(
+                title = { Text(stringResource(R.string.billing_settings_link)) },
+                subtitle = { Text(stringResource(R.string.billing_settings_description)) },
+                onClick = { context.startActivity(Intent(context, BillingActivity::class.java)) },
+            )
+        }
         AppearanceSettings()
         GeneralSettings()
         InputSettings(navController = navController)

@@ -1,6 +1,6 @@
 # Commercial release decisions — 2026-10-05
 
-UPDATE: The user has now authorized replacement assessment or omission of the restricted SNES/Sega/arcade cores. See FIRST_PAID_RELEASE_SCOPE.md for the implemented scope and current validation; earlier approval-pending statements below are historical. ABI narrowing remains unapproved.
+UPDATE: The user has now authorized replacement assessment or omission of the restricted SNES/Sega/arcade cores. See FIRST_PAID_RELEASE_SCOPE.md for the implemented scope and current validation; earlier approval-pending statements below are historical. The user subsequently approved arm64-only; see FIRST_PAID_RELEASE_SCOPE.md and BILLING_CLIENT_PREPARATION.md for the latest work.
 
 Settled user direction: US$0.99/month, ad-free, unique gift codes granting permanent full access. A free-to-download listing does not make paid access noncommercial. No products, prices, codes, billing credentials or agreements have been activated locally.
 
