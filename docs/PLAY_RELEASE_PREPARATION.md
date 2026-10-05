@@ -1,5 +1,9 @@
 # Play release preparation — 5 October 2026
 
+**Latest update:** see `ACTUAL_16KB_RESULTS.md`. The approved image is installed;
+actual arm64 loading, scoped UI/NES tests and release startup now pass on 16,384-byte pages.
+Earlier pending/unrun statements below describe the prior checkpoint.
+
 Status: **not release ready**. This record concerns the isolated MacBookPro checkout,
 not the prior Helios QA checkpoint. Base: `e46ef62f2801556912cdf6d86caf0d5282483f6e`;
 branch: `release/play-preparation-20261005`. No Console writes or signing keys were created.

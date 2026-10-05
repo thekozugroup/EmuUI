@@ -1,5 +1,9 @@
 # Shortest compliant submission path — follow-up
 
+**Latest update:** see `ACTUAL_16KB_RESULTS.md`. The approved image is installed;
+actual arm64 loading, scoped UI/NES tests and release startup now pass on 16,384-byte pages.
+Earlier pending/unrun statements below describe the prior checkpoint.
+
 The owner reports that DS saves worked on their device. Record this as user-reported
 PASS with build/device unspecified; do not present it as independent testing of this
 release candidate. Additional DS fixture compiler installation and physical QA are

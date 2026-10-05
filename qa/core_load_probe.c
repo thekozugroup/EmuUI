@@ -2,6 +2,7 @@
 #include <dlfcn.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 
 struct retro_system_info {
     const char *library_name;
@@ -12,11 +13,15 @@ struct retro_system_info {
 };
 
 int main(int argc, char **argv) {
-    if (argc != 2) return 2;
+    if (argc != 2 && !(argc == 3 && strcmp(argv[2], "--load-only") == 0)) return 2;
     void *core = dlopen(argv[1], RTLD_NOW | RTLD_LOCAL);
     if (!core) {
         fprintf(stderr, "LOAD FAILED: %s\n", dlerror());
         return 1;
+    }
+    if (argc == 3) {
+        puts("LOAD PASS (dlopen only; no JNI initialization or gameplay)");
+        return 0;
     }
     void (*info_fn)(struct retro_system_info *) = dlsym(core, "retro_get_system_info");
     unsigned (*api_fn)(void) = dlsym(core, "retro_api_version");
