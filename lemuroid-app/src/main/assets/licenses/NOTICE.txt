@@ -31,3 +31,13 @@ No game ROMs or BIOS files are provided by EmuUI.
 
 Third-party software is not relicensed by the EmuUI name. See the corresponding
 source dependency metadata and original notices for additional components.
+
+PPSSPP replacement font assets
+Upstream PGF history identifies ltn0..ltn15 as Ume Hy Gothic / Ume P Mincho
+and jpn0 / kr0 as Source Han Sans, before compatibility font-name changes.
+Ume fonts: permissive license included in UmeFont.txt.
+Source Han Sans: Adobe copyright and SIL Open Font License 1.1 included in
+Source-Han-Sans-OFL.txt. These font assets retain their own licenses.
+Provenance: https://github.com/hrydgard/ppsspp/commit/dc34bea8d4de
+Adobe historical license: https://github.com/adobe-fonts/source-han-sans/blob/dbe6e6eca603ff6ddf96b027ad1337cb5a06da8c/LICENSE.txt
+Ume upstream license mirror: https://sources.debian.org/src/fonts-horai-umefont/670-5/license.html/

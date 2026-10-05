@@ -18,6 +18,7 @@ import com.swordfish.lemuroid.common.coroutines.safeLaunch
 import com.swordfish.lemuroid.common.longAnimationDuration
 import com.swordfish.lemuroid.lib.core.CoresSelection
 import com.swordfish.lemuroid.lib.library.db.RetrogradeDatabase
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -61,8 +62,10 @@ class ExternalGameLauncherActivity : ImmersiveActivity() {
                 loadingState.value = true
                 try {
                     loadGame(gameId)
+                } catch (canceled: CancellationException) {
+                    throw canceled
                 } catch (e: Throwable) {
-                    displayErrorMessage()
+                    if (!isFinishing && !isDestroyed) displayErrorMessage()
                 }
                 loadingState.value = false
             }

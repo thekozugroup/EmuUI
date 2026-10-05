@@ -1,3 +1,18 @@
+# Latest checkpoint — source candidates and production gate
+
+This section supersedes the older checkpoints below. See SOURCE_CANDIDATES_AND_GATE_QA.md for exact source pins, probe limits, asset gaps and failed attempts.
+
+- PASS: final production bundle, lint (0 errors, 45 warnings, 4 hints), 227 unit tests (0 failures/errors/skips); bundletool validation, 16 KB APK alignment, exactly 18 arm64 native entries unchanged from the previously tested baseline. Both new font license files verified inside the unsigned bundle.
+- PASS: final minified billing UI and directly invoked real GameLauncher entitlement gate on actual API36/16384-byte pages. Found and fixed a lifecycle cancellation/dialog crash. Full ExternalGameLauncherActivity startup was not passed because startup work remained pending. No purchase was simulated as a real Play transaction.
+- PASS: separate source-built WonderSwan, PPSSPP plus all five FFmpeg static dependencies, and Citra candidates. All three pass ELF/RELRO alignment and actual 16 KB dlopen/metadata probes. They are not in this AAB. Exact old source gaps remain until candidate adoption or old-builder evidence.
+- Font notices now cover Ume and Source Han Sans based on upstream history. Remaining runtime PSP asset provenance is specifically 52 files plus two .git pointer artifacts; source/notices for adopted dependencies still need final closure.
+- Current unsigned AAB: 43801677 bytes, SHA256 `78b711c2205d2959b9732b0a643fee5e78f5fef04d3d2b684e401546a680a643`. Filename `EmuUI-0.2.1-source-audit-gate-fix-unsigned-REVIEW-BLOCKED.aab`.
+- UNRUN: replacement-core gameplay/save interoperability, clean extracted-source rebuild, full external launch startup, live Play billing/refunds/restore, Play splits, production OAuth and independent current DS/physical foldable QA. User-reported DS save success is preserved and is not relabeled as independently tested here.
+- Remaining decisions/configuration: lifetime price; Console product/base-plan/purchase-option IDs and public licensing key; owner signing/agreements; privacy/Drive choices and listing approval. No additional systems removed. No public upload/push, Console writes, new credentials, software installation or agreement acceptance.
+- Final emulator stopped after screenshots. Library upload remains unavailable; no output IDs/versions and no alternate transfer.
+
+## Historical checkpoints
+
 # Current release status — arm64 and billing preparation
 
 This supersedes earlier four-ABI and pricing checkpoints. Branch remains `release/play-preparation-20261005`; original source e46ef62f2801556912cdf6d86caf0d5282483f6e. No public push, main promotion, Play write, account creation, new key or agreement acceptance.
