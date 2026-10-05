@@ -1,7 +1,6 @@
 package com.swordfish.lemuroid.app.mobile.feature.billing
 
 import androidx.compose.ui.test.assertIsEnabled
-import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -21,15 +20,12 @@ import org.junit.runner.RunWith
 class BillingPreparationUiTest {
     @get:Rule val compose = createAndroidComposeRule<BillingActivity>()
 
-    @Test fun unconfiguredCheckoutIsDisabledAndRestoreRemainsAvailable() {
-        compose.onNodeWithText("Subscribe monthly").assertIsNotEnabled()
-        compose.onNodeWithText("Buy lifetime access").assertIsNotEnabled()
-        compose.onNodeWithText("Restore purchases").assertIsEnabled().performClick()
-        compose.onNodeWithText("Purchases are not available yet.").assertExists()
-        compose.onNodeWithText("Subscribe monthly").assertIsNotEnabled()
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        val screenshot = File(instrumentation.targetContext.getExternalFilesDir(null), "billing-preparation.png")
-        assertTrue(UiDevice.getInstance(instrumentation).takeScreenshot(screenshot))
+    @Test fun freeAccessHasNoCheckoutOrLogin() {
+        compose.onNodeWithText("All supported games are free and ad-free. No purchase or login is required.").assertExists()
+        compose.onNodeWithText("Subscribe monthly").assertDoesNotExist()
+        compose.onNodeWithText("Buy lifetime access").assertDoesNotExist()
+        compose.onNodeWithText("Restore purchases").assertDoesNotExist()
+        compose.onNodeWithText("Export saves and previews").assertIsEnabled()
     }
 
     @Test fun saveExportIsAvailableWithoutEntitlementAndOpensRealDocumentPicker() {

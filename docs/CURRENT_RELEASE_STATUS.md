@@ -1,3 +1,5 @@
+> FREE RELEASE UPDATE: [FREE_RELEASE_CHECKPOINT.md](FREE_RELEASE_CHECKPOINT.md) supersedes all earlier monetization, purchase-gate and payment-profile requirements below.
+
 > Superseded for the latest native candidate by [FULL_SOURCE_CORE_CHECKPOINT.md](FULL_SOURCE_CORE_CHECKPOINT.md). Earlier counts and byte-identity claims below are historical.
 
 > Source-publication clarification: [NEXT_OWNER_APPROVALS.md](NEXT_OWNER_APPROVALS.md) records thirteen unchanged core binary/source mappings still requiring closure. Only the three integrated replacement mappings are resolved. Use the cleaned publication-source copies; original upstream archives contain test keys/ROM fixtures and must not be uploaded unchanged.

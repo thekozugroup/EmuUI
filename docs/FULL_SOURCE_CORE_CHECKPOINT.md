@@ -1,3 +1,5 @@
+> FREE RELEASE UPDATE: [FREE_RELEASE_CHECKPOINT.md](FREE_RELEASE_CHECKPOINT.md) supersedes all earlier monetization, purchase-gate and payment-profile requirements below.
+
 # Full source-core candidate
 
 This supersedes the earlier three-core checkpoint. All sixteen retained emulator cores are now source-built, hash-locked replacements in Play modules and bundled QA. The pinned upstream submodule remains untouched. Only the four previously approved restricted cores are omitted; no further system, save format or minimum-Android change is intended. Package remains com.kozudigital.emuui, arm64/API23 minimum, target36.

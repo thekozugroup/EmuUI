@@ -443,5 +443,10 @@
     "core": "melondsds",
     "source": "melonds-engine/android-ifaddrs/ifaddrs.h",
     "sha256": "f8040b42cbb9405a1e9fe202ff1cbbb79bee4082d11d2143b98aa5ccb1d97279"
+  },
+  {
+    "core": "melondsds",
+    "source": "melondsds/combined-attributions.txt",
+    "sha256": "010020d4576837fb676c649fcbc8ee3c72ff102e2f91fa2ca1c6b0ff926aebcd"
   }
 ]

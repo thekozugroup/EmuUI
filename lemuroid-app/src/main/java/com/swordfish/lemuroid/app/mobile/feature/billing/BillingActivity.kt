@@ -1,9 +1,7 @@
 package com.swordfish.lemuroid.app.mobile.feature.billing
 
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.os.SystemClock
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,82 +20,27 @@ import com.swordfish.lemuroid.app.shared.billing.*
 import com.swordfish.lemuroid.app.shared.game.GameProcessLock
 import java.io.File
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/** Play-account-only purchases; Console product/key configuration is still pending. */
+/** Independent save export. All supported games are free, without an account. */
 class BillingActivity : ComponentActivity() {
-    private val products = PlayBillingConfiguration.products
-    private val verifier = PlayBillingConfiguration.verifier()
-    private lateinit var store: PlayBillingStore
-    private lateinit var controller: EntitlementController
-    private var offer by mutableStateOf<PlayOffer?>(null)
-    private var lifetimeOffer by mutableStateOf<PlayOffer?>(null)
     private var message by mutableStateOf<String?>(null)
     private var exporting by mutableStateOf(false)
-    private var buying by mutableStateOf(false)
     private val exportDocument = registerForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
         if (uri != null) exportSaves(uri)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        store = PlayBillingStore(this, products) { update ->
-            lifecycleScope.launch {
-                when (update) {
-                    PurchaseUpdate.Reconcile -> controller.refresh()
-                    PurchaseUpdate.Canceled -> controller.purchaseCanceled()
-                    PurchaseUpdate.Unavailable -> controller.purchaseUnavailable()
-                }
-            }
-        }
-        controller = EntitlementController(store, verifier, products, SystemClock::elapsedRealtime)
         setContent {
-            val state by controller.state.collectAsState()
-            val now by produceState(SystemClock.elapsedRealtime()) {
-                while (true) { delay(1000); value = SystemClock.elapsedRealtime() }
-            }
             AppTheme(updateSystemBarIcons = true) {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     Column(Modifier.safeDrawingPadding().padding(24.dp).verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         Text(stringResource(R.string.billing_title), style = MaterialTheme.typography.headlineMedium)
                         Text(stringResource(R.string.billing_description))
-                        Text(stringResource(when (state.status) {
-                            BillingStatus.NOT_CONFIGURED -> R.string.billing_not_available
-                            BillingStatus.CHECKING -> R.string.billing_checking
-                            BillingStatus.PENDING -> R.string.billing_pending
-                            BillingStatus.UNAVAILABLE -> R.string.billing_verification_unavailable
-                            BillingStatus.CANCELED -> R.string.billing_canceled
-                            BillingStatus.READY -> if (state.lease?.access?.lifetime == true && state.allows(AccessAction.START_GAME, now)) R.string.billing_lifetime_owned else
-                                if (state.allows(AccessAction.START_GAME, now)) R.string.billing_subscribed else R.string.billing_no_access
-                        }))
-                        offer?.let { monthly ->
-                            Text(stringResource(R.string.billing_monthly_price, monthly.formattedPrice))
-                            Text(stringResource(R.string.billing_renewal, monthly.formattedPrice))
-                        }
-                        Button(onClick = { buy(ProductKind.SUBSCRIPTION) }, enabled = offer != null && products.confirmed && verifier.configured &&
-                            state.status == BillingStatus.READY && !state.pending && !buying &&
-                            !state.allows(AccessAction.START_GAME, SystemClock.elapsedRealtime())) {
-                            Text(stringResource(R.string.billing_subscribe))
-                        }
-                        lifetimeOffer?.let { Text(stringResource(R.string.billing_lifetime_price, it.formattedPrice)) }
-                        Button(onClick = { buy(ProductKind.LIFETIME) }, enabled = lifetimeOffer != null && products.confirmed && verifier.configured &&
-                            state.status == BillingStatus.READY && !state.pending && !buying && state.lease?.access?.lifetime != true) {
-                            Text(stringResource(R.string.billing_buy_lifetime))
-                        }
-                        Text(stringResource(R.string.billing_play_account))
-                        OutlinedButton(onClick = { refresh() }, enabled = state.status != BillingStatus.CHECKING) {
-                            Text(stringResource(R.string.billing_restore))
-                        }
-                        Text(stringResource(R.string.billing_gifts))
-                        if (state.shouldManageSubscriptionAfterGift) Text(stringResource(R.string.billing_gift_manage_warning))
-                        TextButton(onClick = { openSubscriptionManagement() }) {
-                            Text(stringResource(R.string.billing_manage))
-                        }
-                        HorizontalDivider()
                         Text(stringResource(R.string.billing_saves_retained))
                         OutlinedButton(onClick = {
                             if (GameProcessLock.isHeldByAnotherProcess(applicationContext)) {
@@ -110,48 +53,6 @@ class BillingActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (::controller.isInitialized) refresh()
-    }
-
-    private fun refresh() {
-        lifecycleScope.launch {
-            controller.refresh()
-            offer = if (verifier.configured) store.monthlyOffer() else null
-            lifetimeOffer = if (verifier.configured) store.lifetimeOffer() else null
-        }
-    }
-
-    private fun buy(kind: ProductKind) {
-        if (!products.confirmed || !verifier.configured || buying) return
-        val displayed = (if (kind == ProductKind.SUBSCRIPTION) offer else lifetimeOffer) ?: return
-        buying = true
-        lifecycleScope.launch {
-            try {
-                controller.refresh()
-                val state = controller.state.value
-                if (state.status != BillingStatus.READY || state.pending || state.lease?.access?.lifetime == true ||
-                    (kind == ProductKind.SUBSCRIPTION && state.allows(AccessAction.START_GAME, SystemClock.elapsedRealtime()))) return@launch
-                val current = if (kind == ProductKind.SUBSCRIPTION) store.monthlyOffer() else store.lifetimeOffer()
-                if (kind == ProductKind.SUBSCRIPTION) offer = current else lifetimeOffer = current
-                if (current == null) {
-                    message = getString(R.string.billing_not_available)
-                } else if (!displayed.sameTerms(current)) {
-                    message = getString(R.string.billing_price_changed)
-                } else if (!store.launchPurchase(this@BillingActivity, current, verifier.configured)) {
-                    controller.purchaseUnavailable()
-                }
-            } finally { buying = false }
-        }
-    }
-
-    private fun openSubscriptionManagement() {
-        // General center works before the tentative product IDs/package are published too.
-        runCatching { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/account/subscriptions"))) }
-            .onFailure { message = getString(R.string.billing_manage_unavailable) }
     }
 
     private fun exportSaves(uri: Uri) {
@@ -186,8 +87,4 @@ class BillingActivity : ComponentActivity() {
         }
     }
 
-    override fun onDestroy() {
-        if (::store.isInitialized) store.close()
-        super.onDestroy()
-    }
 }

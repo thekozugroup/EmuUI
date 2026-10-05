@@ -1,0 +1,13 @@
+# Bounded draft-creation assessment
+
+No known technical policy violation found in the reviewed free candidate requires blocking creation of an unpublished draft app. This is a scoped engineering assessment, not an assertion that every Developer Program Policy is satisfied or that Google has approved the app. Draft creation does not itself publish this unsigned artifact.
+
+Established: free/ad-free; no Billing client or BILLING/AD_ID permission; no purchase/login gate for supported gameplay; target36; arm64 libraries verified on actual16KB pages; restricted cores remain omitted; Play core delivery uses packaged Play modules, and PSP assets are bundled locally. No commercial ROM/art or Nintendo BIOS is supplied. melonDS's independently authored BSD replacement BIOS source and notice are included. Newly built core provenance/notices replace the old thirteen binary/source gaps.
+
+Genuine publication work remaining: publish exact corresponding GPL/LGPL sources and applicable build/installation/relinking materials; use accurate privacy and Data safety disclosures for HTTPS artwork-title requests and optional Google Drive account/save synchronization, plus microphone use if applicable; complete relevant foreground data-sync declarations in Console. Do not carry forward obsolete paid-product claims, claim no network/account features at all, claim unavailable excluded systems or 3DS gameplay, or describe QA-only screenshots as Play-delivery evidence. The local worker has not reviewed the cloud worker's final submitted listing/privacy forms, so their correctness is not certified here.
+
+No separately identified source-notice gap remains in the implemented native replacements after adding melonDS's generated combined attribution. This does not replace exhaustive dependency legal review. The source exports pass hash/path/private-key and prohibited-asset checks; clean export rebuilds remain unrun.
+
+Ordinary unrun release checks—DS/physical foldable/game/save interoperability and Play-delivered split testing—are not themselves proof of a policy violation. Signing and applicable agreements remain owner/cloud handoff tasks. Payments-profile/product/reviewer-paywall requirements are superseded by the free-release decision.
+
+Official policies reviewed: [Device and Network Abuse](https://support.google.com/googleplay/android-developer/answer/16559646) prohibits external executable-code downloads and specifies foreground-service requirements; [User Data](https://support.google.com/googleplay/android-developer/answer/10144311) governs privacy and data disclosures. These requirements remain applicable before distribution.

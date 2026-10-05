@@ -1,3 +1,5 @@
+> FREE RELEASE UPDATE: [FREE_RELEASE_CHECKPOINT.md](FREE_RELEASE_CHECKPOINT.md) supersedes all earlier monetization, purchase-gate and payment-profile requirements below.
+
 # Settled price decision
 
 US$0.99/month plus US$19.99 one-time lifetime access. The user delegated a reasonable lifetime price and the coordinating parent selected/communicated US$19.99. Official lifetime gift codes redeem the same non-consumable entitlement. Show only actual localized Play ProductDetails pricing in checkout; these US reference prices do not enable unconfigured products. Public product/base-plan/purchase-option IDs and licensing key remain pending.
