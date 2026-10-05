@@ -23,7 +23,7 @@ for each exact binary. Every row remains blocked for exact-source/license cleara
 | mednafen_wswan | GPLv2 | Source/dependencies/notices unresolved |
 | melonds | GPLv3 family; updater maps melonDS DS to melonds | Exact implementation varies by ABI; source/dependencies unresolved |
 | mgba | MPLv2 | Source/dependencies/notices unresolved |
-| mupen64plus_next_gles3 | GPLv3 family, plugin dependencies | Source/dependencies/notices unresolved |
+| mupen64plus_next_gles3 | GPLv2 root/core/GLideN64; mixed plugin dependencies | Source/dependencies/notices unresolved |
 | pcsx_rearmed | GPLv2 | Source/dependencies/notices unresolved |
 | ppsspp | GPLv2, third-party assets/components | Source/dependencies/assets/notices unresolved |
 | prosystem | GPLv2 | Source/dependencies/notices unresolved |
@@ -83,3 +83,10 @@ libprosystem_libretro_android.so: exit=0 LOAD PASS api=1 name=ProSystem version=
 libsnes9x_libretro_android.so: exit=0 LOAD PASS api=1 name=Snes9x version=1.63 5a40cd55
 libstella_libretro_android.so: exit=0 LOAD PASS api=1 name=Stella version=8.0_pre 749a21f65
 ```
+
+## Follow-up source research
+
+See `REMAINING_CORE_SOURCE_AUDIT.md` for 17 resolved source candidates, one unresolved
+revision, exact Android recipe locations, dependency/license evidence and per-core actions.
+These candidates do not retroactively certify existing binaries. The pinned N64 source
+corrects the preliminary license-family label to GPLv2 with mixed plugin obligations.
