@@ -312,6 +312,23 @@ object FoldGeometry {
         return best
     }
 
+    /** Leave control wings comfortable; keep the lower image at most 94% of the upper width. */
+    fun balancedDualScreen(
+        upper: DisplayPanelLayout,
+        lower: DisplayPanelLayout,
+        upperOcclusions: List<FoldRect> = emptyList(),
+    ): IndependentDualScreenLayout? {
+        val fitted = independentDualScreen(upper, lower, upperOcclusions) ?: return null
+        val bottom = fitted.lowerScreen
+        val scale = minOf(1f, fitted.upperScreen.width * 0.94f / bottom.width)
+        val cx = (bottom.left + bottom.right) / 2f
+        val cy = (bottom.top + bottom.bottom) / 2f
+        return fitted.copy(lowerScreen = ScreenRect(
+            cx - bottom.width * scale / 2f, cy - bottom.height * scale / 2f,
+            cx + bottom.width * scale / 2f, cy + bottom.height * scale / 2f,
+        ))
+    }
+
     /** Requires a renderer that can place two source screens independently. */
     fun independentDualScreen(
         upper: DisplayPanelLayout,

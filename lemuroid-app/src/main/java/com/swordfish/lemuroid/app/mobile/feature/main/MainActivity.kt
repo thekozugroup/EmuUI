@@ -1,5 +1,6 @@
 package com.swordfish.lemuroid.app.mobile.feature.main
 
+import com.swordfish.lemuroid.app.mobile.feature.emuui.enterImmersiveConsole
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
@@ -133,6 +134,17 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
 
     private val mainViewModel: MainViewModel by viewModels {
         MainViewModel.Factory(applicationContext, saveSyncManager)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        com.swordfish.lemuroid.app.mobile.feature.emuui.ConsoleOrientation.apply(this)
+        enterImmersiveConsole()
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) enterImmersiveConsole()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

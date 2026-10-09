@@ -1,5 +1,6 @@
 package com.swordfish.lemuroid.app.mobile.feature.game
 
+import com.swordfish.lemuroid.app.mobile.feature.emuui.enterImmersiveConsole
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
@@ -28,9 +29,19 @@ class GameActivity : BaseGameActivity() {
     override fun hideSystemUI() {
         WindowCompat.getInsetsController(window, window.decorView).apply {
             systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            show(WindowInsetsCompat.Type.statusBars())
-            hide(WindowInsetsCompat.Type.navigationBars())
+            hide(WindowInsetsCompat.Type.systemBars())
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        com.swordfish.lemuroid.app.mobile.feature.emuui.ConsoleOrientation.apply(this)
+        enterImmersiveConsole()
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) enterImmersiveConsole()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

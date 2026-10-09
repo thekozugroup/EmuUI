@@ -24,9 +24,9 @@ class LauncherSectionNavigationTest {
         direction,
     )
 
-    @Test fun upFromFirstRowEntersTheCurrentFilter() {
+    @Test fun upFromFirstRowStaysOnTheVisibleShelf() {
         assertEquals(
-            LauncherNavigationTarget(LauncherSection.FILTERS, 2),
+            LauncherNavigationTarget(LauncherSection.GAMES, 1),
             move(selected = 1, filter = 2, direction = LauncherDirection.UP),
         )
     }
@@ -97,18 +97,16 @@ class LauncherSectionNavigationTest {
         )
     }
 
-    @Test fun emptyLibraryStillReachesFiltersAndShortcuts() {
-        assertEquals(LauncherSection.FILTERS, move(selected = -1, count = 0, direction = LauncherDirection.UP).section)
+    @Test fun emptyLibraryStillReachesShortcuts() {
+        assertEquals(LauncherSection.GAMES, move(selected = -1, count = 0, direction = LauncherDirection.UP).section)
         assertEquals(
             LauncherSection.SHORTCUTS,
             move(selected = -1, count = 0, direction = LauncherDirection.DOWN).section,
         )
     }
 
-    @Test fun selectCyclesEverySectionWithoutLosingTheGame() {
-        val filters = launcherNextSection(LauncherSection.GAMES, 11, 2)
-        assertEquals(LauncherNavigationTarget(LauncherSection.FILTERS, 2), filters)
-        val shortcuts = launcherNextSection(filters.section, 11, 2)
+    @Test fun selectCyclesVisibleSectionsWithoutLosingTheGame() {
+        val shortcuts = launcherNextSection(LauncherSection.GAMES, 11, 2)
         assertEquals(LauncherNavigationTarget(LauncherSection.SHORTCUTS, 0), shortcuts)
         assertEquals(LauncherNavigationTarget(LauncherSection.GAMES, 11), launcherNextSection(shortcuts.section, 11, 2))
     }

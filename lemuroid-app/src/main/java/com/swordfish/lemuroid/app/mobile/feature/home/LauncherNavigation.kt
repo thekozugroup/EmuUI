@@ -140,7 +140,7 @@ internal fun launcherNavigationTarget(
         LauncherSection.GAMES ->
             when {
                 direction == LauncherDirection.UP && gameIndex < span ->
-                    LauncherNavigationTarget(LauncherSection.FILTERS, filterIndex)
+                    LauncherNavigationTarget(LauncherSection.GAMES, gameIndex)
                 direction == LauncherDirection.DOWN && (gameCount == 0 || gameIndex / span == (gameCount - 1) / span) ->
                     LauncherNavigationTarget(LauncherSection.SHORTCUTS, 0)
                 else ->
@@ -178,7 +178,7 @@ internal fun launcherNextSection(
     filterIndex: Int,
 ): LauncherNavigationTarget =
     when (section) {
-        LauncherSection.GAMES -> LauncherNavigationTarget(LauncherSection.FILTERS, filterIndex)
+        LauncherSection.GAMES -> LauncherNavigationTarget(LauncherSection.SHORTCUTS, 0)
         LauncherSection.FILTERS -> LauncherNavigationTarget(LauncherSection.SHORTCUTS, 0)
         LauncherSection.SHORTCUTS -> LauncherNavigationTarget(LauncherSection.GAMES, selectedIndex.coerceAtLeast(0))
     }

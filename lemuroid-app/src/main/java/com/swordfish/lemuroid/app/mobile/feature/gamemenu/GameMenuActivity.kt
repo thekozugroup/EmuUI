@@ -2,6 +2,7 @@
 
 package com.swordfish.lemuroid.app.mobile.feature.gamemenu
 
+import com.swordfish.lemuroid.app.mobile.feature.emuui.enterImmersiveConsole
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -115,6 +116,17 @@ class GameMenuActivity : RetrogradeComponentActivity() {
         val currentTiltConfiguration: TiltConfiguration,
         val allTiltConfigurations: List<TiltConfiguration>,
     )
+
+    override fun onResume() {
+        super.onResume()
+        com.swordfish.lemuroid.app.mobile.feature.emuui.ConsoleOrientation.apply(this)
+        enterImmersiveConsole()
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) enterImmersiveConsole()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

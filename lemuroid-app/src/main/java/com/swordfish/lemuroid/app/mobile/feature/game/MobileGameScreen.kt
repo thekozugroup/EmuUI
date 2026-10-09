@@ -1,5 +1,8 @@
 package com.swordfish.lemuroid.app.mobile.feature.game
 
+import androidx.compose.foundation.layout.mandatorySystemGestures
+import androidx.compose.ui.graphics.Color
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.consoleFrameColor
 import android.graphics.RectF
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -129,7 +132,7 @@ fun MobileGameScreen(
     val safeInsets = WindowInsets.safeDrawing
     BoxWithConstraints(
         modifier =
-            Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface).onGloballyPositioned {
+            Modifier.fillMaxSize().background(consoleFrameColor()).onGloballyPositioned {
                 val position = it.positionInWindow()
                 rootPosition.value = IntOffset(position.x.roundToInt(), position.y.roundToInt())
             },
@@ -152,7 +155,7 @@ fun MobileGameScreen(
                     safeInsets.getLeft(density, LayoutDirection.Ltr),
                     safeInsets.getTop(density),
                     safeInsets.getRight(density, LayoutDirection.Ltr),
-                    safeInsets.getBottom(density),
+                    maxOf(safeInsets.getBottom(density), WindowInsets.mandatorySystemGestures.getBottom(density)),
                 ),
             )
         val statusBarTop = (WindowInsets.statusBars.getTop(density) - rootPosition.value.y).coerceAtLeast(0)
@@ -214,7 +217,7 @@ fun MobileGameScreen(
                     TouchControllerID.DESMUME,
                 )
         val unsupportedDualScreen = currentControllerConfig?.touchControllerID == TouchControllerID.NINTENDO_3DS
-        val sideWidth = minOf(with(density) { 216.dp.roundToPx() }, foldLayout.lower.width / 3)
+        val sideWidth = minOf(with(density) { 176.dp.roundToPx() }, foldLayout.lower.width / 3)
         val console = FoldGeometry.lowerConsole(foldLayout.lower, sideWidth)
         val cornerRadius = with(density) { 24.dp.roundToPx() }
         // Fit against the rounded backing itself. A full rectangular inset would
@@ -233,7 +236,7 @@ fun MobileGameScreen(
             )
         val dualScreen =
             if (isDualScreen) {
-                FoldGeometry.independentDualScreen(upperPanel, lowerPanel, cutoutOcclusions)
+                FoldGeometry.balancedDualScreen(upperPanel, lowerPanel, cutoutOcclusions)
             } else {
                 null
             }
@@ -427,7 +430,7 @@ fun MobileGameScreen(
                     }
                 }
                 ConsoleRegion(rawLayout.hinge, "emuui_game_hinge") {
-                    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface))
+                    Box(Modifier.fillMaxSize().background(consoleFrameColor()))
                 }
                 if (foldLayout.guidance != null) {
                     FoldGameGuidance(foldLayout.guidance, viewModel::requestFinish, "Return to library")
@@ -580,9 +583,9 @@ private fun GameDisplayPanels(
     lower: DisplayPanelLayout,
     nativeWindows: List<ScreenRect>,
 ) {
-    val shell = MaterialTheme.colorScheme.surface
-    val upperBacking = MaterialTheme.colorScheme.surfaceContainer
-    val lowerBacking = MaterialTheme.colorScheme.surfaceContainerLow
+    val shell = consoleFrameColor()
+    val upperBacking = shell
+    val lowerBacking = shell
     Canvas(Modifier.fillMaxSize()) {
         val nativePixels =
             Path().apply {
@@ -675,7 +678,7 @@ private fun PadContainer(modifier: Modifier = Modifier) {
     GlassSurface(
         modifier = modifier,
         cornerRadius = theme.level0CornerRadius,
-        fillColor = theme.level0Fill,
+        fillColor = consoleFrameColor(),
         shadowColor = theme.level0Shadow,
         shadowWidth = theme.level0ShadowWidth,
     )

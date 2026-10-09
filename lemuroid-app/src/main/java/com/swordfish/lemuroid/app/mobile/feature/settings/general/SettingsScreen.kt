@@ -1,5 +1,7 @@
 package com.swordfish.lemuroid.app.mobile.feature.settings.general
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -18,6 +20,7 @@ import com.swordfish.lemuroid.app.mobile.feature.billing.BillingActivity
 import com.swordfish.lemuroid.app.mobile.feature.main.MainRoute
 import com.swordfish.lemuroid.app.mobile.feature.main.navigateToRoute
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LocalThemePreferences
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.FrameTheme
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ThemeMode
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ThemePreferences
 import com.swordfish.lemuroid.app.shared.library.LibraryIndexScheduler
@@ -70,6 +73,7 @@ fun SettingsScreen(
             )
         }
         AppearanceSettings()
+        ConsolePositionSettings()
         GeneralSettings()
         InputSettings(navController = navController)
         MiscSettings(
@@ -117,7 +121,20 @@ private fun AppearanceSettings() {
                 }
             }
         }
+    val frameState = remember(preferences, theme.frame) {
+        object : SettingValueState<Int> {
+            override var value: Int
+                get() = theme.frame.ordinal
+                set(value) { preferences.edit().putString(ThemePreferences.FRAME_KEY, FrameTheme.entries[value].name).apply() }
+            override fun reset() { value = FrameTheme.OLED.ordinal }
+        }
+    }
     LemuroidCardSettingsGroup(title = { Text(stringResource(R.string.settings_category_appearance)) }) {
+        LemuroidSettingsList(
+            state = frameState,
+            title = { Text("Console frame") },
+            items = FrameTheme.entries.map { it.label },
+        )
         LemuroidSettingsList(
             state = themeState,
             title = { Text(stringResource(R.string.settings_title_theme)) },
@@ -295,5 +312,30 @@ private fun RomsSettings(
                 enabled = !indexingInProgress,
             )
         }
+    }
+}
+
+@Composable
+private fun ConsolePositionSettings() {
+    val context = LocalContext.current
+    val activity = context as? android.app.Activity
+    val posture = com.swordfish.lemuroid.app.mobile.feature.emuui.rememberFoldPosture()
+    val landscape = androidx.compose.ui.platform.LocalConfiguration.current.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+    var message by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf("Turn your foldable so the rear-camera half is below the crease, then save this position.") }
+    LemuroidCardSettingsGroup(title = { Text("Console position") }) {
+        LemuroidSettingsMenuLink(
+            title = { Text("Camera half is at the bottom") },
+            subtitle = { Text(message) },
+            enabled = activity != null && landscape && posture.fold?.axis == com.swordfish.lemuroid.app.mobile.feature.emuui.FoldAxis.HORIZONTAL,
+            onClick = {
+                activity?.let { com.swordfish.lemuroid.app.mobile.feature.emuui.ConsoleOrientation.calibrate(it) }
+                message = "Position saved for this device. Both landscape halves now stay in this order."
+            },
+        )
+        LemuroidSettingsMenuLink(
+            title = { Text("Reset rotation position") },
+            subtitle = { Text("Allow rotation again, then turn the camera half downward and save its position.") },
+            onClick = { activity?.let { com.swordfish.lemuroid.app.mobile.feature.emuui.ConsoleOrientation.clear(it) }; message = "Rotation unlocked. Position your device and save again." },
+        )
     }
 }

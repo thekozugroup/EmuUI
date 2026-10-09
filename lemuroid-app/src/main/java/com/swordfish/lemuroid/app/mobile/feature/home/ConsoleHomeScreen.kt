@@ -1,5 +1,9 @@
 package com.swordfish.lemuroid.app.mobile.feature.home
 
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.consoleFrameColor
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
@@ -58,8 +62,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearWavyProgressIndicator
@@ -216,7 +218,7 @@ internal fun ConsoleHomeScreen(
 
     BoxWithConstraints(
         modifier =
-            modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)
+            modifier.fillMaxSize().background(consoleFrameColor())
                 .onGloballyPositioned { rootPosition = it.positionInWindow() },
     ) {
         val geometry =
@@ -988,41 +990,6 @@ private fun LibraryCenter(
     onFocusShortcut: (Int) -> Unit,
 ) {
     BalancedLibraryLayout {
-        Row(
-            Modifier.horizontalScroll(rememberScrollState())
-                .padding(horizontal = 8.dp).testTag("launcher_filters"),
-            horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            LibraryFilter.values().forEach { section ->
-                FilterChip(
-                    selected = filter == section,
-                    onClick = { onFilter(section) },
-                    label = { Text(section.label) },
-                    shape = RoundedCornerShape(50),
-                    border =
-                        BorderStroke(
-                            1.dp,
-                            if (filter == section) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.outlineVariant
-                            },
-                        ),
-                    colors =
-                        FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                        ),
-                    modifier =
-                        Modifier.heightIn(min = 48.dp)
-                            .testTag("launcher_filter_${section.name.lowercase()}")
-                            .launcherNavigationFocus(
-                                navigation.section == LauncherSection.FILTERS && navigation.index == section.ordinal,
-                            ).onFocusChanged { if (it.isFocused) onFocusFilter(section.ordinal) },
-                )
-            }
-        }
         Box(Modifier.fillMaxSize()) {
             when {
                 state.errorMessage != null ->
@@ -1101,36 +1068,16 @@ private fun LibraryCenter(
     }
 }
 
-/** Matched bands keep the filters and dock equally inset and centered around the game shelf. */
+/** The shelf receives the space previously occupied by the filter pills. */
 @Composable
 private fun BalancedLibraryLayout(content: @Composable () -> Unit) {
-    BoxWithConstraints(Modifier.fillMaxSize()) {
-        val viewportHeight = constraints.maxHeight
-        Layout(content = content, modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
-                measurables,
-                constraints,
-            ->
-            val inset = 20.dp.roundToPx()
-            val bandHeight =
-                maxOf(
-                    48.dp.roundToPx(),
-                    measurables[0].maxIntrinsicHeight(constraints.maxWidth),
-                    measurables[2].maxIntrinsicHeight(constraints.maxWidth),
-                )
-            val contentHeight = launcherLibraryContentHeight(viewportHeight, bandHeight, 80.dp.roundToPx(), inset)
-            val bandConstraints =
-                Constraints(maxWidth = constraints.maxWidth, minHeight = bandHeight, maxHeight = bandHeight)
-            val filters = measurables[0].measure(bandConstraints)
-            val dock = measurables[2].measure(bandConstraints)
-            val shelf =
-                measurables[1].measure(
-                    Constraints.fixed(constraints.maxWidth, contentHeight - inset * 2 - bandHeight * 2),
-                )
-            layout(constraints.maxWidth, contentHeight) {
-                filters.placeRelative((constraints.maxWidth - filters.width) / 2, inset)
-                shelf.placeRelative(0, inset + bandHeight)
-                dock.placeRelative((constraints.maxWidth - dock.width) / 2, contentHeight - inset - bandHeight)
-            }
+    Layout(content = content, modifier = Modifier.fillMaxSize()) { measurables, constraints ->
+        val dockHeight = minOf(56.dp.roundToPx(), constraints.maxHeight)
+        val dock = measurables[1].measure(Constraints(maxWidth = constraints.maxWidth, maxHeight = dockHeight))
+        val shelf = measurables[0].measure(Constraints.fixed(constraints.maxWidth, (constraints.maxHeight - dock.height).coerceAtLeast(0)))
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            shelf.placeRelative(0, 0)
+            dock.placeRelative((constraints.maxWidth - dock.width) / 2, constraints.maxHeight - dock.height)
         }
     }
 }
@@ -1221,10 +1168,16 @@ private fun GameIconCard(
         animationSpec = MaterialTheme.motionScheme.fastEffectsSpec(),
         label = "Cartridge selection",
     )
+    val selectedScale by animateFloatAsState(
+        if (isSelected) 1.04f else 0.96f,
+        animationSpec = spring(dampingRatio = 0.8f, stiffness = 420f),
+        label = "Cartridge growth",
+    )
     val haptic = LocalHapticFeedback.current
     val shape = RoundedCornerShape(12.dp)
     Box(
-        modifier.testTag("launcher_game_${game.id}").clip(shape)
+        modifier.testTag("launcher_game_${game.id}")
+            .graphicsLayer { scaleX = selectedScale; scaleY = selectedScale }.clip(shape)
             .background(containerColor)
             .border(
                 if (isSelected) 3.dp else 1.dp,
@@ -1527,7 +1480,7 @@ private fun GameArtwork(
 @Composable
 private fun ConsoleHinge() {
     // The real hinge remains excluded from layout and touch, with the same finish as the shell.
-    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface))
+    Box(Modifier.fillMaxSize().background(consoleFrameColor()))
 }
 
 @Composable

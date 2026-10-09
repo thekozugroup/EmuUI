@@ -18,15 +18,18 @@ import com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper
 data class ThemePreferences(
     val mode: ThemeMode = ThemeMode.SYSTEM,
     val dynamicColor: Boolean = true,
+    val frame: FrameTheme = FrameTheme.OLED,
 ) {
     companion object {
         const val THEME_MODE_KEY = "emuui_theme_mode"
+        const val FRAME_KEY = "emuui_frame_theme"
         const val DYNAMIC_COLOR_KEY = "emuui_dynamic_color"
 
         internal fun read(preferences: SharedPreferences): ThemePreferences =
             ThemePreferences(
                 mode = ThemeMode.fromPreference(preferences.safeGetString(THEME_MODE_KEY, null)),
                 dynamicColor = preferences.safeGetBoolean(DYNAMIC_COLOR_KEY, true),
+                frame = FrameTheme.entries.firstOrNull { it.name == preferences.safeGetString(FRAME_KEY, null) } ?: FrameTheme.OLED,
             )
     }
 }
@@ -54,7 +57,7 @@ internal fun rememberThemePreferences(): State<ThemeSnapshot> {
         val listener =
             SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
                 if (key == null || key == ThemePreferences.THEME_MODE_KEY ||
-                    key == ThemePreferences.DYNAMIC_COLOR_KEY
+                    key == ThemePreferences.FRAME_KEY || key == ThemePreferences.DYNAMIC_COLOR_KEY
                 ) {
                     state.value = state.value.copy(preferences = ThemePreferences.read(preferences))
                 }
