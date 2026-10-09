@@ -19,7 +19,7 @@ PASS: real original NES homebrew gameplay in FCEUmm on API36 arm64 with actual 1
 
 Initial failures: settings test incorrectly expected the library dock after settings was restored on recreation; corrected test passed. Running both native classes in one invocation let normal game-process shutdown interrupt the second class; each class then passed in its own invocation. A stale generated build directory contained `licenses 2.html`; it was moved aside intact and clean compilation succeeded.
 
-Preview static check: all 19 packaged arm64 native libraries pass 16KB PT_LOAD checks; `libandroidx.graphics.path.so` has a RELRO end-boundary review flag. APK 16KB zip alignment passes. Do not equate static alignment or NES execution with runtime certification of every core.
+Final release build: unsigned, minified PlayDynamicRelease bundle passes Gradle and bundletool validation. All 18 packaged arm64 native libraries are byte-identical to the previous staged release and pass 16KB PT_LOAD checks; `libandroidx.graphics.path.so` has a RELRO end-boundary review flag. Preview APK 16KB zip alignment passes. The first preview included an unused duplicate renderer from stale generated outputs; contaminated module build directories were preserved and the final artifacts regenerated. Do not equate static alignment or NES execution with runtime certification of every core.
 
 UNRUN: DS-native gameplay/touch/save-state interoperability with the new geometry; physical rear-half mapping and reversed posture; actual cutout hardware; cover-display presentation/touch; production Drive sign-in/sync; Play-delivered splits; fresh persistent-save compatibility matrix and all-core gameplay. Prior staging evidence remains separate from this round.
 
@@ -39,3 +39,5 @@ Android distinguishes rear-display transfer (which moves the activity) from dual
 ## Release boundary
 
 Keep EmuUI free/ad-free with retained Drive sync and the previously approved core scope. Network/privacy/license facts from the October 5 staging handoff remain applicable; this UI change does not resolve OAuth, native-network declarations, signing, or account migration. No physical device, user-data removal, new key, new SDK agreement, paid service, account/security action, Play submission, main promotion, or public release was performed.
+
+Final unsigned AAB SHA-256: `7b1a8c89f9c8f0356df8a6955d6e833c3d0a7e3040373a913f9d8c284e4457ef`. No signature entries. Release-native equivalence is byte verification; latest minified gameplay itself was not rerun.
