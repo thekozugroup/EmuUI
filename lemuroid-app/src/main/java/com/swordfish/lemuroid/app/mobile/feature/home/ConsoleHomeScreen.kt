@@ -257,7 +257,7 @@ internal fun ConsoleHomeScreen(
             }
         val dialogWingWidth =
             with(density) {
-                (lowerWindowBounds.width.toDp() * .22f).coerceIn(156.dp, 204.dp).roundToPx()
+                launcherControlWingWidthDp(lowerWindowBounds.width.toDp().value).dp.roundToPx()
             }
         val dialogConsole =
             if (guidance == null) {
@@ -756,7 +756,7 @@ private fun LibraryPane(
             WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal),
         ),
     ) {
-        val wingWidth = with(density) { (maxWidth * .22f).coerceIn(156.dp, 204.dp).roundToPx() }
+        val wingWidth = with(density) { launcherControlWingWidthDp(maxWidth.value).dp.roundToPx() }
         val panes =
             FoldGeometry.lowerConsole(
                 FoldRect(0, 0, constraints.maxWidth, constraints.maxHeight),

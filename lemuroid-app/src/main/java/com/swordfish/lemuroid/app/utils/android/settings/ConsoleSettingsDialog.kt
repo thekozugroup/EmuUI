@@ -1,6 +1,9 @@
 package com.swordfish.lemuroid.app.utils.android.settings
 
 import android.os.Build
+import android.view.ViewTreeObserver
+import com.swordfish.lemuroid.app.mobile.feature.emuui.enterImmersiveConsole
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.consoleFrameColor
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -126,7 +129,14 @@ fun ConsoleSettingsDialog(
                     null
                 }
             dialogWindow?.allowDisplayCutouts()
+            dialogWindow?.enterImmersiveConsole()
+            val observer = dialogWindow?.decorView?.viewTreeObserver
+            val focusListener = ViewTreeObserver.OnWindowFocusChangeListener { focused ->
+                if (focused) dialogWindow?.enterImmersiveConsole()
+            }
+            observer?.addOnWindowFocusChangeListener(focusListener)
             onDispose {
+                if (observer?.isAlive == true) observer.removeOnWindowFocusChangeListener(focusListener)
                 if (dialogWindow != null && previousMode != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     dialogWindow.attributes = dialogWindow.attributes.apply { layoutInDisplayCutoutMode = previousMode }
                 }
@@ -195,7 +205,7 @@ fun ConsoleSettingsDialog(
                             Modifier.fillMaxSize().testTag(
                                 if (left) "console_dialog_left_controls" else "console_dialog_right_controls",
                             ),
-                        color = MaterialTheme.colorScheme.surface,
+                        color = consoleFrameColor(),
                     ) {
                         LauncherControlWing(
                             left = left,

@@ -100,6 +100,11 @@ class ConsoleDialogControlsTest {
             }
         }
         compose.waitForIdle()
+        compose.waitUntil(10000) {
+            val insets = modalWindow.get()?.decorView?.let { androidx.core.view.ViewCompat.getRootWindowInsets(it) }
+            insets != null && !insets.isVisible(androidx.core.view.WindowInsetsCompat.Type.statusBars()) &&
+                !insets.isVisible(androidx.core.view.WindowInsetsCompat.Type.navigationBars())
+        }
         compose.onNodeWithTag("console_dialog_left_controls").assertIsDisplayed()
         compose.onNodeWithTag("console_dialog_right_controls").assertIsDisplayed()
         val center = compose.onNodeWithTag("console_settings_dialog").fetchSemanticsNode().boundsInWindow

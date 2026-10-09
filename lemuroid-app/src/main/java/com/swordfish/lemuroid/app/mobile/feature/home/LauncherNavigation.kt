@@ -32,6 +32,9 @@ internal fun launcherSelectionIndex(
     }
 }
 
+/** Shared by the library and modal region so controls retain the same physical space. */
+internal fun launcherControlWingWidthDp(widthDp: Float): Float = (widthDp * .20f).coerceIn(156f, 176f)
+
 internal const val LAUNCHER_PANEL_INSET_DP = 6f
 internal const val LAUNCHER_GRID_SPACING_DP = 14f
 internal const val LAUNCHER_GRID_INSET_DP = 16f

@@ -13,6 +13,7 @@ import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ThemePreferences
 import com.swordfish.lemuroid.lib.library.db.entity.Game
 import com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.first
 import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
@@ -109,6 +110,50 @@ class ConsolePolishTest {
                 if (oldDevice == null) remove(deviceKey) else putString(deviceKey, oldDevice)
             }.commit()
         }
+    }
+
+    @Test fun enlargedLibraryAndDialogKeepComfortableNonOverlappingControls() {
+        openFold()
+        fun bounds(tag: String) = compose.onNodeWithTag(tag).fetchSemanticsNode().boundsInWindow
+        val center = bounds("launcher_library_center")
+        val left = bounds("launcher_left_controls")
+        val right = bounds("launcher_right_controls")
+        val preview = bounds("launcher_preview")
+        val density = compose.activity.resources.displayMetrics.density
+        assertTrue(left.right <= center.left && center.right <= right.left)
+        assertEquals(preview.center.x, center.center.x, 1f)
+        assertTrue("Wings retain at least 156dp", left.width >= 156f * density - 1f)
+        assertTrue("Wings stay at most 176dp", left.width <= 176f * density + 1f)
+        for (description in listOf("Select game to the right", "Select game to the left", "Select game above", "Select game below")) {
+            val target = compose.onNodeWithContentDescription(description).fetchSemanticsNode().boundsInWindow
+            assertTrue("48dp target: $description", target.width >= 48f * density - 1f && target.height >= 48f * density - 1f)
+            assertTrue("Target inside wing: $description", target.left >= left.left && target.right <= left.right && target.top >= left.top && target.bottom <= left.bottom)
+        }
+        val games = runBlocking(kotlinx.coroutines.Dispatchers.IO) { compose.activity.retrogradeDb.gameDao().observeLibrary().first() }
+        check(games.size >= 2) { "Two existing original homebrew fixtures are required" }
+        compose.onNodeWithTag("launcher_game_${games.first().id}").performClick().assertIsSelected()
+        compose.onNodeWithContentDescription("Select game to the right").performTouchInput { click() }
+        compose.onNodeWithTag("launcher_game_${games[1].id}").assertIsSelected()
+        capture("enlarged-library")
+        compose.onNodeWithContentDescription("Settings").performClick()
+        compose.onNodeWithText("Console frame").performScrollTo().performClick()
+        val dialog = bounds("console_settings_dialog")
+        val dialogLeft = bounds("console_dialog_left_controls")
+        val dialogRight = bounds("console_dialog_right_controls")
+        assertEquals(center.left, dialog.left, 2f)
+        assertEquals(center.right, dialog.right, 2f)
+        assertEquals(left.width, dialogLeft.width, 2f)
+        assertEquals(right.width, dialogRight.width, 2f)
+        assertTrue(dialogLeft.right <= dialog.left && dialog.right <= dialogRight.left)
+        capture("enlarged-frame-dialog")
+        compose.onNode(hasAnyAncestor(hasTestTag("console_settings_dialog")) and hasText("Match app theme"))
+            .performScrollTo().assertIsDisplayed()
+        capture("enlarged-frame-dialog-scrolled")
+        val report = org.json.JSONObject().put("width", preview.width).put("density", density)
+        for ((name, rect) in listOf("library" to center, "leftWing" to left, "rightWing" to right, "dialog" to dialog)) {
+            report.put(name, org.json.JSONArray(listOf(rect.left, rect.top, rect.right, rect.bottom)))
+        }
+        File(compose.activity.getExternalFilesDir(null), "polish-qa/enlarged-layout.json").writeText(report.toString(2))
     }
 
 }
