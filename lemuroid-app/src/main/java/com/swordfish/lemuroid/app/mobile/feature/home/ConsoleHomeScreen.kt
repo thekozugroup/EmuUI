@@ -30,7 +30,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.waterfall
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
@@ -100,7 +103,8 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalHapticFeedback
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LocalConsoleHaptics
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberConsoleControlInteractions
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
@@ -138,6 +142,11 @@ import com.swordfish.lemuroid.app.utils.android.settings.ConsoleDialogRegion
 import com.swordfish.lemuroid.app.utils.android.settings.LocalConsoleDialogRegion
 import com.swordfish.lemuroid.lib.library.db.entity.Game
 import kotlin.math.roundToInt
+
+/** IME insets are excluded: the keyboard may pan the window, but cannot move the hinge. */
+@Composable
+private fun consolePhysicalInsets(): WindowInsets =
+    WindowInsets.systemBars.union(WindowInsets.displayCutout).union(WindowInsets.waterfall)
 
 /** The two halves are measured against the physical window crease, never side by side. */
 @Composable
@@ -228,7 +237,7 @@ internal fun ConsoleHomeScreen(
                 posture.fold?.relativeTo(rootPosition.x.roundToInt(), rootPosition.y.roundToInt()),
                 creasePadding,
             )
-        val safeInsets = WindowInsets.safeDrawing
+        val safeInsets = consolePhysicalInsets()
         val lowerWindowBounds =
             FoldRect(
                 rootPosition.x.roundToInt() + geometry.lower.left + safeInsets.getLeft(density, LayoutDirection.Ltr),
@@ -396,6 +405,7 @@ private fun PreviewPane(
     onOpenHelp: () -> Unit,
     onSyncSaves: (() -> Unit)?,
 ) {
+    val haptics = LocalConsoleHaptics.current
     var previewPosition by remember { mutableStateOf(Offset.Zero) }
     val cutout = LocalWindowCutout.current
     val density = LocalDensity.current
@@ -409,8 +419,9 @@ private fun PreviewPane(
         var hasSavedPreview by remember(game?.id, game?.fileUri) { mutableStateOf(false) }
         Surface(
             Modifier.fillMaxSize().testTag("launcher_preview_surface"),
-            color = MaterialTheme.colorScheme.surfaceContainer,
+            color = MaterialTheme.colorScheme.surface,
             shape = RoundedCornerShape(24.dp),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .6f)),
         ) {
             Box(Modifier.fillMaxSize()) {
                 // A full-width artwork canvas is the upper screen, never a split text/cover card.
@@ -423,7 +434,7 @@ private fun PreviewPane(
                             listOf(
                                 Color.Transparent,
                                 MaterialTheme.colorScheme.surface.copy(alpha = .08f),
-                                MaterialTheme.colorScheme.surface.copy(alpha = .78f),
+                                MaterialTheme.colorScheme.surface.copy(alpha = .94f),
                             ),
                         ),
                     ),
@@ -443,7 +454,7 @@ private fun PreviewPane(
                         ),
                     brand = { compact, measuring ->
                         Surface(
-                            onClick = onBrandClick,
+                            onClick = { haptics.press(); onBrandClick() },
                             modifier =
                                 if (measuring) {
                                     Modifier.clearAndSetSemantics { }
@@ -484,7 +495,7 @@ private fun PreviewPane(
                                 if (!largeText && !compact) {
                                     Spacer(Modifier.width(14.dp))
                                     Text(
-                                        game?.systemId?.uppercase() ?: "PLAY SOMETHING GOOD",
+                                        game?.systemId?.uppercase() ?: "YOUR CONSOLE",
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         maxLines = 1,
@@ -503,13 +514,13 @@ private fun PreviewPane(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             if (onSyncSaves != null) {
                                 IconButton(
-                                    onClick = onSyncSaves,
+                                    onClick = { haptics.press(); onSyncSaves() },
                                 ) { Icon(Icons.Outlined.CloudSync, "Sync saved games") }
                             }
                             IconButton(
-                                onClick = onOpenHelp,
+                                onClick = { haptics.press(); onOpenHelp() },
                             ) { Icon(Icons.Outlined.HelpOutline, "Help and supported formats") }
-                            IconButton(onClick = onOpenSettings) { Icon(Icons.Outlined.Settings, "Settings") }
+                            IconButton(onClick = { haptics.press(); onOpenSettings() }) { Icon(Icons.Outlined.Settings, "Settings") }
                         }
                     }
                     Surface(
@@ -536,7 +547,7 @@ private fun PreviewPane(
                     }
                     Button(
                         shapes = ButtonDefaults.shapes(),
-                        onClick = onPrimaryAction,
+                        onClick = { haptics.press(); onPrimaryAction() },
                         enabled = primaryAction.isEnabled(),
                         colors =
                             ButtonDefaults.buttonColors(
@@ -577,7 +588,7 @@ private fun PreviewPane(
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Text(
-                                game?.title ?: "Your next little escape",
+                                game?.title ?: "Your games, ready to play",
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 maxLines = if (largeText) 2 else 1,
@@ -625,10 +636,10 @@ private fun PreviewPane(
                 }
                 if (game != null) {
                     IconButton(
-                        onClick = { onOptions(game) },
+                        onClick = { haptics.press(); onOptions(game) },
                         modifier =
                             Modifier.align(Alignment.CenterEnd)
-                                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+                                .windowInsetsPadding(consolePhysicalInsets().only(WindowInsetsSides.Horizontal))
                                 .padding(10.dp).background(
                                     MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = .9f),
                                     CircleShape,
@@ -753,7 +764,7 @@ private fun LibraryPane(
     val view = LocalView.current
     BoxWithConstraints(
         Modifier.fillMaxSize().windowInsetsPadding(
-            WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal),
+            consolePhysicalInsets().only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal),
         ),
     ) {
         val wingWidth = with(density) { launcherControlWingWidthDp(maxWidth.value).dp.roundToPx() }
@@ -990,6 +1001,18 @@ private fun LibraryCenter(
     onFocusShortcut: (Int) -> Unit,
 ) {
     BalancedLibraryLayout {
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("launcher_library_heading"),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(
+                when (filter) { LibraryFilter.ALL -> "All games"; LibraryFilter.FAVORITES -> "Favorites"; else -> "Recently played" },
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.semantics { heading(); selected = true },
+            )
+            Text("${games.size}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
         Box(Modifier.fillMaxSize()) {
             when {
                 state.errorMessage != null ->
@@ -1011,12 +1034,12 @@ private fun LibraryCenter(
                             color = MaterialTheme.colorScheme.primary,
                             strokeWidth = 2.dp,
                         )
-                        Text("Opening your collection…", style = MaterialTheme.typography.bodySmall)
+                        Text("Opening your library…", style = MaterialTheme.typography.bodySmall)
                     }
                 state.allGames.isEmpty() && state.indexInProgress ->
                     LibraryMessage(
                         Icons.Outlined.FolderOpen,
-                        "Making room for good times",
+                        "Importing your games",
                         "Scanning your folder. Games will appear here as they're found.",
                     )
                 state.allGames.isEmpty() -> WelcomeSteps(compact = true, onImport = onImport)
@@ -1054,15 +1077,29 @@ private fun LibraryCenter(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             shortcuts.forEachIndexed { index, shortcut ->
-                IconButton(
+                Surface(
                     onClick = shortcut.activate,
                     enabled = shortcut.enabled,
+                    interactionSource = rememberConsoleControlInteractions(shortcut.enabled),
+                    color = Color.Transparent,
+                    shape = RoundedCornerShape(14.dp),
                     modifier =
                         Modifier.testTag("launcher_shortcut_$index")
                             .launcherNavigationFocus(
                                 navigation.section == LauncherSection.SHORTCUTS && navigation.index == index,
                             ).onFocusChanged { if (it.isFocused) onFocusShortcut(index) },
-                ) { Icon(shortcut.icon, shortcut.label) }
+                ) {
+                    Column(
+                        Modifier.width(64.dp).heightIn(min = 56.dp).padding(vertical = 7.dp)
+                            .semantics(mergeDescendants = true) { contentDescription = shortcut.label },
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(3.dp),
+                    ) {
+                        Icon(shortcut.icon, null, Modifier.size(20.dp))
+                        Text(listOf("Import", "Search", "Systems", "Settings", "Help", "Setup")[index],
+                            style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 0.sp), maxLines = 1)
+                    }
+                }
             }
         }
     }
@@ -1072,11 +1109,14 @@ private fun LibraryCenter(
 @Composable
 private fun BalancedLibraryLayout(content: @Composable () -> Unit) {
     Layout(content = content, modifier = Modifier.fillMaxSize()) { measurables, constraints ->
-        val dockHeight = minOf(56.dp.roundToPx(), constraints.maxHeight)
-        val dock = measurables[1].measure(Constraints(maxWidth = constraints.maxWidth, maxHeight = dockHeight))
-        val shelf = measurables[0].measure(Constraints.fixed(constraints.maxWidth, (constraints.maxHeight - dock.height).coerceAtLeast(0)))
+        val headerHeight = if (constraints.maxHeight >= 180.dp.roundToPx()) 36.dp.roundToPx() else 0
+        val header = measurables[0].measure(Constraints.fixed(constraints.maxWidth, headerHeight))
+        val dockHeight = minOf(64.dp.roundToPx(), constraints.maxHeight)
+        val dock = measurables[2].measure(Constraints(maxWidth = constraints.maxWidth, maxHeight = dockHeight))
+        val shelf = measurables[1].measure(Constraints.fixed(constraints.maxWidth, (constraints.maxHeight - dock.height - header.height).coerceAtLeast(0)))
         layout(constraints.maxWidth, constraints.maxHeight) {
-            shelf.placeRelative(0, 0)
+            if (header.height > 0) header.placeRelative(0, 0)
+            shelf.placeRelative(0, header.height)
             dock.placeRelative((constraints.maxWidth - dock.width) / 2, constraints.maxHeight - dock.height)
         }
     }
@@ -1164,7 +1204,7 @@ private fun GameIconCard(
     onOptions: () -> Unit,
 ) {
     val containerColor by animateColorAsState(
-        if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
+        if (isSelected) MaterialTheme.colorScheme.surfaceContainerHighest else MaterialTheme.colorScheme.surfaceContainerLow,
         animationSpec = MaterialTheme.motionScheme.fastEffectsSpec(),
         label = "Cartridge selection",
     )
@@ -1173,14 +1213,14 @@ private fun GameIconCard(
         animationSpec = spring(dampingRatio = 0.8f, stiffness = 420f),
         label = "Cartridge growth",
     )
-    val haptic = LocalHapticFeedback.current
+    val haptic = LocalConsoleHaptics.current
     val shape = RoundedCornerShape(12.dp)
     Box(
         modifier.testTag("launcher_game_${game.id}")
             .graphicsLayer { scaleX = selectedScale; scaleY = selectedScale }.clip(shape)
             .background(containerColor)
             .border(
-                if (isSelected) 3.dp else 1.dp,
+                if (isSelected) 2.dp else 1.dp,
                 if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
                 shape,
             )
@@ -1191,13 +1231,11 @@ private fun GameIconCard(
                 onLongClickLabel = "Game options",
                 onClick = {
                     if (!isSelected) {
-                        haptic.performHapticFeedback(
-                            androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove,
-                        )
+                        haptic.selection()
                     }
                     onSelect()
                 },
-                onLongClick = onOptions,
+                onLongClick = { haptic.press(); onOptions() },
             )
             .semantics(mergeDescendants = true) {
                 // The upper title plaque supplies the visible label; retain full titles for assistive tech.
@@ -1486,7 +1524,7 @@ private fun ConsoleHinge() {
 @Composable
 private fun OrientationGuidance(guidance: FoldGuidance) {
     Column(
-        Modifier.fillMaxSize().testTag("fold_guidance").windowInsetsPadding(WindowInsets.safeDrawing)
+        Modifier.fillMaxSize().testTag("fold_guidance").windowInsetsPadding(consolePhysicalInsets())
             .padding(24.dp).verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,

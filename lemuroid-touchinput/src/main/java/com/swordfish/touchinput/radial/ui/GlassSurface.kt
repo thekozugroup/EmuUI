@@ -14,6 +14,8 @@ import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -118,6 +120,16 @@ fun GlassSurface(
                         cornerRadius = CornerRadius(cornerRadiusPx, cornerRadiusPx),
                     )
 
+                    if (fillColor.alpha > 0f) {
+                        val stroke = 1.dp.toPx()
+                        drawRoundRect(
+                            brush = Brush.verticalGradient(listOf(Color.White.copy(alpha = .24f), Color.White.copy(alpha = .06f))),
+                            topLeft = Offset(stroke / 2, stroke / 2),
+                            size = Size((expandedSize.width - stroke).coerceAtLeast(0f), (expandedSize.height - stroke).coerceAtLeast(0f)),
+                            cornerRadius = CornerRadius(cornerRadiusPx, cornerRadiusPx),
+                            style = Stroke(stroke),
+                        )
+                    }
                     drawContent()
                 }
             },

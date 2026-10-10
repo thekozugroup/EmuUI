@@ -1,5 +1,8 @@
 package com.swordfish.lemuroid.app.mobile.feature.main
 
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberConsoleControlInteractions
+import androidx.compose.material3.MaterialTheme
+
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -14,6 +17,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
@@ -25,7 +31,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -81,7 +86,7 @@ fun LemuroidTopAppBar(
     onUpdateQueryString: (String) -> Unit,
 ) {
     val context = LocalContext.current
-    val topBarColor = BottomAppBarDefaults.containerColor
+    val topBarColor = MaterialTheme.colorScheme.surfaceContainerLow
 
     TopAppBar(
         windowInsets = WindowInsets(0, 0, 0, 0),
@@ -106,7 +111,7 @@ fun LemuroidTopAppBar(
                 enter = fadeIn(),
                 exit = fadeOut(),
             ) {
-                IconButton(onClick = { navController.popBackStack() }) {
+                IconButton(onClick = { navController.popBackStack() }, interactionSource = rememberConsoleControlInteractions()) {
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBack,
                         stringResource(id = R.string.back),
@@ -174,12 +179,8 @@ private fun LemuroidSearchView(
     mainUIState: MainViewModel.UiState,
     onUpdateQueryString: (String) -> Unit,
 ) {
-    val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
-
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
+    val keyboard = LocalSoftwareKeyboardController.current
 
     Box(
         modifier =
@@ -200,15 +201,16 @@ private fun LemuroidSearchView(
             value = mainUIState.searchQuery,
             modifier =
                 Modifier
-                    .fillMaxSize()
-                    .focusRequester(focusRequester),
+                    .fillMaxSize(),
             textStyle = MaterialTheme.typography.bodyMedium,
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
             onValueChange = { onUpdateQueryString(it) },
             singleLine = true,
+            placeholder = { Text("Search your library") },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions =
                 KeyboardActions(
-                    onDone = { focusManager.clearFocus(true) },
+                    onDone = { keyboard?.hide(); focusManager.clearFocus(true) },
                 ),
             colors =
                 TextFieldDefaults.colors(

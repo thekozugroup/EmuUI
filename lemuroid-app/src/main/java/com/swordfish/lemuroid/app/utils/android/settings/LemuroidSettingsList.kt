@@ -1,5 +1,6 @@
 package com.swordfish.lemuroid.app.utils.android.settings
 
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LocalConsoleHaptics
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -44,6 +45,7 @@ fun LemuroidSettingsList(
         throw IndexOutOfBoundsException("Current value for $title list setting cannot be grater than items size")
     }
 
+    val haptics = LocalConsoleHaptics.current
     var showDialog by remember { mutableStateOf(false) }
 
     val safeSubtitle =
@@ -98,6 +100,7 @@ fun LemuroidSettingsList(
                                     role = Role.RadioButton,
                                     selected = isSelected,
                                     onClick = {
+                                        if (!isSelected) haptics.selection()
                                         onSelected(index, !isSelected)
                                         onItemSelected?.invoke(index, items[index])
                                     },

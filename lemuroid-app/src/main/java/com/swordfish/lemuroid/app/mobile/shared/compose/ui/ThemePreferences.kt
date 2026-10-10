@@ -16,8 +16,8 @@ import com.swordfish.lemuroid.app.utils.settings.safeGetString
 import com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper
 
 data class ThemePreferences(
-    val mode: ThemeMode = ThemeMode.SYSTEM,
-    val dynamicColor: Boolean = true,
+    val mode: ThemeMode = ThemeMode.DARK,
+    val dynamicColor: Boolean = false,
     val frame: FrameTheme = FrameTheme.OLED,
 ) {
     companion object {
@@ -27,8 +27,8 @@ data class ThemePreferences(
 
         internal fun read(preferences: SharedPreferences): ThemePreferences =
             ThemePreferences(
-                mode = ThemeMode.fromPreference(preferences.safeGetString(THEME_MODE_KEY, null)),
-                dynamicColor = preferences.safeGetBoolean(DYNAMIC_COLOR_KEY, true),
+                mode = ThemeMode.fromPreference(preferences.safeGetString(THEME_MODE_KEY, "dark")),
+                dynamicColor = preferences.safeGetBoolean(DYNAMIC_COLOR_KEY, false),
                 frame = FrameTheme.entries.firstOrNull { it.name == preferences.safeGetString(FRAME_KEY, null) } ?: FrameTheme.OLED,
             )
     }

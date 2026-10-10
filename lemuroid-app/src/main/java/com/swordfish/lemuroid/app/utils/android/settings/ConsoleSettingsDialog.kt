@@ -1,6 +1,8 @@
 package com.swordfish.lemuroid.app.utils.android.settings
 
 import android.os.Build
+import androidx.compose.foundation.BorderStroke
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberConsoleControlInteractions
 import android.view.ViewTreeObserver
 import com.swordfish.lemuroid.app.mobile.feature.emuui.enterImmersiveConsole
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.consoleFrameColor
@@ -171,11 +173,12 @@ fun ConsoleSettingsDialog(
                             .focusProperties { exit = { FocusRequester.Cancel } }.focusGroup(),
                     shape = MaterialTheme.shapes.large,
                     color = MaterialTheme.colorScheme.surface,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                 ) {
                     Column(Modifier.fillMaxSize().padding(8.dp)) {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                             // Always reachable, even when large text makes the body scroll.
-                            IconButton(onClick = onDismissRequest, modifier = Modifier.size(48.dp)) {
+                            IconButton(onClick = onDismissRequest, modifier = Modifier.size(48.dp), interactionSource = rememberConsoleControlInteractions()) {
                                 Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close))
                             }
                         }

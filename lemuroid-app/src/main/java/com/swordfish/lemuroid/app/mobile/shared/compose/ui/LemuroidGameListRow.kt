@@ -9,6 +9,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Surface
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,13 +28,17 @@ fun LemuroidGameListRow(
     onLongClick: () -> Unit,
     onFavoriteToggle: (Boolean) -> Unit,
 ) {
+    val haptics = LocalConsoleHaptics.current
     Surface(
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        shape = MaterialTheme.shapes.medium,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .6f)),
         modifier =
             modifier
-                .wrapContentHeight()
+                .padding(horizontal = 12.dp, vertical = 4.dp).wrapContentHeight()
                 .combinedClickable(
-                    onClick = onClick,
-                    onLongClick = onLongClick,
+                    onClick = { haptics.press(); onClick() },
+                    onLongClick = { haptics.press(); onLongClick() },
                 ),
     ) {
         Row(
@@ -45,9 +53,9 @@ fun LemuroidGameListRow(
             LemuroidSmallGameImage(
                 modifier =
                     Modifier
-                        .width(40.dp)
-                        .height(40.dp)
-                        .align(Alignment.CenterVertically),
+                        .width(48.dp)
+                        .height(48.dp)
+                        .align(Alignment.CenterVertically).clip(RoundedCornerShape(10.dp)),
                 game = game,
             )
             LemuroidGameTexts(
@@ -60,8 +68,8 @@ fun LemuroidGameListRow(
             Box(
                 modifier =
                     Modifier
-                        .width(40.dp)
-                        .height(40.dp)
+                        .width(48.dp)
+                        .height(48.dp)
                         .align(Alignment.CenterVertically),
             ) {
                 FavoriteToggle(

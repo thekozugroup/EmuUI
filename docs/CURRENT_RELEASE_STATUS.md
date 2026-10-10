@@ -1,3 +1,5 @@
+> Latest development: [Refined console UI and haptics](../qa/CONSOLE_UI_HAPTICS_20261010.md), based on the published October 9 QA build. The development preview does not clear the outstanding Play launch gates. Older verification counts below are historical.
+
 > FREE RELEASE UPDATE: [FREE_RELEASE_CHECKPOINT.md](FREE_RELEASE_CHECKPOINT.md) supersedes all earlier monetization, purchase-gate and payment-profile requirements below.
 
 > Superseded for the latest native candidate by [FULL_SOURCE_CORE_CHECKPOINT.md](FULL_SOURCE_CORE_CHECKPOINT.md). Earlier counts and byte-identity claims below are historical.

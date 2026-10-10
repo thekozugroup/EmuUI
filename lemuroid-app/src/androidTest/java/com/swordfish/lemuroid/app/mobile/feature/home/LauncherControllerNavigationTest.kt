@@ -81,12 +81,13 @@ class LauncherControllerNavigationTest {
         val games = listOf(game(1), game(2))
         install(readyState(games))
         compose.onNodeWithTag("launcher_game_2").performClick().assertIsSelected()
-        compose.onNodeWithText("Favorites").performClick().assertIsSelected()
+        repeat(2) { clickKey("R") }
+        compose.onNodeWithText("Favorites").assertIsSelected()
         compose.onNodeWithText("Keep your favorites close").assertIsDisplayed()
         clickKey("A")
         compose.onNodeWithText("All games").assertIsSelected()
         assertEquals("A confirms See all games; it must never launch a hidden game", emptyList<String>(), actions)
-        compose.onNodeWithText("Favorites").performClick()
+        repeat(2) { clickKey("R") }
         clickKey("B")
         compose.onNodeWithText("All games").assertIsSelected()
         assertEquals("B clears the filter before navigating away", emptyList<String>(), actions)
@@ -111,19 +112,10 @@ class LauncherControllerNavigationTest {
     }
 
     @Test
-    fun selectAndDpadReachFiltersAndAllBottomShortcutsWhileBCancelsFocus() {
+    fun selectAndDpadReachBottomShortcutsWhileShouldersChangeFilterAndBCancelsFocus() {
         install(readyState(listOf(game(1), game(2).copy(isFavorite = true))))
-        clickKey("SELECT")
-        assertReady("launcher_filter_all")
-        compose.onNodeWithContentDescription("Move focus right").performClick()
-        compose.onNodeWithContentDescription("Move focus right").performClick()
-        assertReady("launcher_filter_favorites")
-        clickKey("A")
+        repeat(2) { clickKey("R") }
         compose.onNodeWithText("Favorites").assertIsSelected()
-        compose.onNodeWithTag("launcher_game_2").assertIsSelected()
-        assertEquals(emptyList<String>(), actions)
-
-        clickKey("SELECT")
         clickKey("SELECT")
         assertReady("launcher_shortcut_0")
         repeat(3) { compose.onNodeWithContentDescription("Move focus right").performClick() }
@@ -131,12 +123,10 @@ class LauncherControllerNavigationTest {
         clickKey("A")
         assertEquals(listOf("settings"), actions)
         clickKey("B")
-        compose.onNodeWithContentDescription("A, play selected game").assertIsDisplayed()
         compose.onNodeWithText("Favorites").assertIsSelected()
-        assertEquals("First B cancels shortcut focus only", listOf("settings"), actions)
         clickKey("B")
         compose.onNodeWithText("All games").assertIsSelected()
-        assertEquals("Second B returns to All games without leaving the library", listOf("settings"), actions)
+        assertEquals(listOf("settings"), actions)
     }
 
     private fun assertReady(tag: String) {
@@ -149,7 +139,7 @@ class LauncherControllerNavigationTest {
     fun sameIdExplicitResultRevealsGameButOrdinaryBackKeepsTheEmptyFilter() {
         install(readyState(listOf(game(1), game(2))))
         compose.onNodeWithTag("launcher_game_1").assertIsSelected()
-        compose.onNodeWithText("Favorites").performClick()
+        repeat(2) { clickKey("R") }
         compose.onNodeWithText("Keep your favorites close").assertIsDisplayed()
         // Model a route roundtrip with no explicit result selection. B alone must retain the filter.
         compose.runOnIdle { libraryActive.value = false }
@@ -162,7 +152,8 @@ class LauncherControllerNavigationTest {
         compose.onNodeWithText("All games").assertIsSelected()
         compose.onNodeWithTag("launcher_game_1").assertIsDisplayed().assertIsSelected()
         assertEquals("Revealing a search result must not start its core", listOf("back"), actions)
-        compose.onNodeWithText("Favorites").performClick()
+        compose.runOnIdle { libraryActive.value = true }
+        repeat(2) { clickKey("R") }
         compose.runOnIdle { state.value = state.value.copy(showNoMicrophonePermissionCard = true) }
         compose.onNodeWithText("Favorites").assertIsSelected()
         compose.onNodeWithText("Keep your favorites close").assertIsDisplayed()

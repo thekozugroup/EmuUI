@@ -1,6 +1,7 @@
 package com.swordfish.lemuroid.app.mobile.feature.billing
 
 import android.net.Uri
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LocalConsoleHaptics
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -36,6 +37,7 @@ class BillingActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             AppTheme(updateSystemBarIcons = true) {
+                val haptics = LocalConsoleHaptics.current
                 Surface(modifier = Modifier.fillMaxSize()) {
                     Column(Modifier.safeDrawingPadding().padding(24.dp).verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -43,12 +45,13 @@ class BillingActivity : ComponentActivity() {
                         Text(stringResource(R.string.billing_description))
                         Text(stringResource(R.string.billing_saves_retained))
                         OutlinedButton(onClick = {
+                            haptics.press()
                             if (GameProcessLock.isHeldByAnotherProcess(applicationContext)) {
                                 message = getString(R.string.billing_export_close_game)
                             } else exportDocument.launch("EmuUI-saves.zip")
                         }, enabled = !exporting) { Text(stringResource(R.string.billing_export_saves)) }
                         message?.let { Text(it) }
-                        TextButton(onClick = { finish() }) { Text(stringResource(R.string.billing_back)) }
+                        TextButton(onClick = { haptics.press(); finish() }) { Text(stringResource(R.string.billing_back)) }
                     }
                 }
             }

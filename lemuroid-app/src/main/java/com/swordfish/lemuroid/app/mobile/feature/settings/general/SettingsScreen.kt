@@ -103,7 +103,7 @@ private fun AppearanceSettings() {
                     }
 
                 override fun reset() {
-                    value = ThemeMode.SYSTEM.ordinal
+                    value = ThemeMode.DARK.ordinal
                 }
             }
         }
@@ -117,7 +117,7 @@ private fun AppearanceSettings() {
                     }
 
                 override fun reset() {
-                    value = true
+                    value = false
                 }
             }
         }
@@ -214,6 +214,7 @@ private fun InputSettings(navController: NavController) {
                 Text(text = stringResource(id = R.string.settings_title_enable_touch_feedback))
             },
             items = stringListResource(R.array.pref_key_haptic_feedback_mode_display_names),
+            subtitle = { Text(stringResource(R.string.settings_description_touch_haptics)) },
         )
         LemuroidSettingsMenuLink(
             title = { Text(text = stringResource(id = R.string.settings_title_gamepad_settings)) },

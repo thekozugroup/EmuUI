@@ -1,10 +1,12 @@
 package com.swordfish.lemuroid.app.mobile.feature.gamemenu.states
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsPage
+import com.swordfish.lemuroid.app.utils.android.settings.LemuroidCardSettingsGroup
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -21,24 +23,26 @@ fun GameMenuStatesScreen(
 ) {
     val state = viewModel.uiStates.collectAsState(initial = GameMenuStatesViewModel.State())
 
-    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+    LemuroidSettingsPage {
         state.value.entries.forEachIndexed { index, entry ->
-            LemuroidSettingsMenuLink(
-                title = { Text(text = entry.title) },
-                subtitle = { Text(text = entry.description) },
-                enabled = entry.enabled,
-                icon = {
-                    if (entry.preview != null) {
-                        Image(
-                            modifier = Modifier.size(48.dp),
-                            bitmap = entry.preview.asImageBitmap(),
-                            contentScale = ContentScale.Crop,
-                            contentDescription = null,
-                        )
-                    }
-                },
-                onClick = { onStateClicked(index) },
-            )
+            LemuroidCardSettingsGroup {
+                LemuroidSettingsMenuLink(
+                    title = { Text(text = entry.title) },
+                    subtitle = { Text(text = entry.description) },
+                    enabled = entry.enabled,
+                    icon = {
+                        if (entry.preview != null) {
+                            Image(
+                                modifier = Modifier.width(88.dp).height(66.dp).clip(RoundedCornerShape(10.dp)),
+                                bitmap = entry.preview.asImageBitmap(),
+                                contentScale = ContentScale.Fit,
+                                contentDescription = null,
+                            )
+                        }
+                    },
+                    onClick = { onStateClicked(index) },
+                )
+            }
         }
     }
 }

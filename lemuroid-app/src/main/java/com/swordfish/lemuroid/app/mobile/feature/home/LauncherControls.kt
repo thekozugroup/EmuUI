@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,9 +18,13 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.graphicsLayer
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberConsoleControlInteractions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -203,7 +206,6 @@ internal fun LauncherControlWing(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun WingKey(
     label: String,
@@ -215,33 +217,36 @@ private fun WingKey(
     enabled: Boolean = true,
     onClick: () -> Unit,
 ) {
-    Button(
+    val interactions = rememberConsoleControlInteractions(enabled)
+    val pressed by interactions.collectIsPressedAsState()
+    Surface(
         onClick = onClick,
         enabled = enabled,
-        shapes = ButtonDefaults.shapes(),
+        interactionSource = interactions,
+        shape = RoundedCornerShape(if (label.length > 1) 18.dp else 24.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         // Virtual controls must not become their own DPAD_CENTER target in menu mode.
         // TalkBack/Switch Access still see their Button semantics and click actions.
         modifier =
             modifier.size(
                 48.dp,
-            ).focusProperties { canFocus = false }.semantics { contentDescription = description },
-        contentPadding = PaddingValues(0.dp),
-        colors =
-            ButtonDefaults.buttonColors(
-                containerColor = color,
-                contentColor = contentColor,
-            ),
+            ).graphicsLayer { scaleX = if (pressed) .94f else 1f; scaleY = scaleX }
+                .focusProperties { canFocus = false }.semantics { contentDescription = description },
+        color = if (pressed) MaterialTheme.colorScheme.surfaceContainerHighest else color,
+        contentColor = if (enabled) contentColor else contentColor.copy(alpha = .38f),
     ) {
-        if (icon != null) {
-            Icon(icon, null, Modifier.size(28.dp))
-        } else {
-            Text(
-                label,
-                style = MaterialTheme.typography.labelLarge,
-                fontSize = if (label.length > 1) 10.sp else 17.sp,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-            )
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            if (icon != null) {
+                Icon(icon, null, Modifier.size(28.dp))
+            } else {
+                Text(
+                    label,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontSize = if (label.length > 1) 10.sp else 17.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                )
+            }
         }
     }
 }

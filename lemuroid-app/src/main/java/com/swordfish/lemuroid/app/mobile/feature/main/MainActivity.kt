@@ -154,6 +154,8 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
         )
         window.allowDisplayCutouts()
         super.onCreate(savedInstanceState)
+        // Preserve physical hinge geometry while the IME pans the focused search field.
+        window.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
         val content = findViewById<View>(android.R.id.content)
         ViewCompat.setOnApplyWindowInsetsListener(content) { view, insets ->
@@ -480,9 +482,9 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
                 getString(R.string.lemuroid_help_content).replace("\$SYSTEMS", systemFolders)
             }
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
-            Column(Modifier.padding(12.dp)) {
+            Column(Modifier.padding(16.dp), verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp)) {
                 TextButton(onClick = onClose) { Text("Back to console") }
-                Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+                Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(16.dp)) {
                     Text("EmuUI · Help & credits", style = MaterialTheme.typography.titleMedium)
                     Text(
                         "Use the open inner display full-screen, with the crease running left to right. " +

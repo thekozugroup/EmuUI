@@ -35,8 +35,54 @@ class ConsolePolishTest {
     }
 
     private fun capture(name: String) {
+        compose.waitForIdle()
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).waitForIdle(1000)
         val output = File(compose.activity.getExternalFilesDir(null), "polish-qa").apply { mkdirs() }
         assertTrue(UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).takeScreenshot(File(output, "$name.png")))
+    }
+
+    @Test fun refinedConsoleRoutesAndHapticPreferenceRemainReachable() {
+        openFold()
+        compose.onNodeWithTag("launcher_library_heading").assertIsDisplayed()
+        capture("refined-library")
+        compose.onNodeWithTag("launcher_shortcut_1").performClick()
+        compose.onNode(hasSetTextAction()).assertIsDisplayed()
+        capture("refined-search")
+        compose.onNodeWithContentDescription("B, back").performClick()
+        compose.onNodeWithTag("launcher_shortcut_2").performClick()
+        compose.onNodeWithText("Systems").assertIsDisplayed()
+        capture("refined-systems")
+        compose.onNodeWithContentDescription("B, back").performClick()
+        compose.onNodeWithContentDescription("Settings").performClick()
+        compose.onNodeWithText("Console frame").performScrollTo().assertIsDisplayed()
+        capture("refined-settings")
+        compose.onNodeWithText("Control haptics").performScrollTo().performClick()
+        compose.onNodeWithTag("console_settings_dialog").assertIsDisplayed()
+        capture("refined-haptics-dialog")
+        compose.onNodeWithContentDescription("B, close dialog").performClick()
+        compose.onNodeWithContentDescription("B, back").performClick()
+        compose.onNodeWithContentDescription("Help and supported formats").performClick()
+        compose.onNodeWithText("EmuUI · Help & credits").assertIsDisplayed()
+        capture("refined-help")
+        compose.onNodeWithContentDescription("B, back").performClick()
+        compose.onNodeWithTag("launcher_grid").assertIsDisplayed()
+    }
+
+    @Test fun searchTypingKeepsReadableInputAndRestoresConsoleControls() {
+        openFold()
+        compose.onNodeWithTag("launcher_shortcut_1").performClick()
+        val field = compose.onNode(hasSetTextAction())
+        field.performClick().performTextInput("EmuUI")
+        compose.waitForIdle()
+        val height = field.fetchSemanticsNode().boundsInWindow.height
+        assertTrue("Keyboard must not compress the search field", height >= 48f * compose.activity.resources.displayMetrics.density - 1f)
+        capture("refined-search-typing")
+        field.performImeAction()
+        compose.waitUntil(10000) {
+            ViewCompat.getRootWindowInsets(compose.activity.window.decorView)?.isVisible(WindowInsetsCompat.Type.ime()) == false
+        }
+        compose.onNodeWithContentDescription("B, back").performClick()
+        compose.onNodeWithTag("launcher_grid").assertIsDisplayed()
     }
 
     @Test fun repeatedSelectionHasNoHiddenFilterTargetsAndReturnsFromBackgroundImmersive() {

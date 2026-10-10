@@ -67,6 +67,12 @@ class GameViewModelTouchControls(
         }
     }
 
+    override fun onResume(owner: LifecycleOwner) {
+        scope.launch(Dispatchers.IO) {
+            hapticFeedbackMode.value = HapticFeedbackMode.parse(settingsManager.hapticFeedbackMode())
+        }
+    }
+
     override fun onPause(owner: LifecycleOwner) {
         releaseVirtualControls()
     }

@@ -4,6 +4,9 @@ package com.swordfish.lemuroid.app.mobile.feature.gamemenu
 
 import com.swordfish.lemuroid.app.mobile.feature.emuui.enterImmersiveConsole
 import android.content.Intent
+import androidx.compose.foundation.BorderStroke
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberConsoleControlInteractions
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.consoleFrameColor
 import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.SystemBarStyle
@@ -205,14 +208,14 @@ class GameMenuActivity : RetrogradeComponentActivity() {
                     navigationIcon = {
                         AnimatedContent(targetState = currentRoute.canGoBack(), label = "Back") { canGoBack ->
                             if (canGoBack) {
-                                IconButton(onClick = { navController.popBackStack() }) {
+                                IconButton(onClick = { navController.popBackStack() }, interactionSource = rememberConsoleControlInteractions()) {
                                     Icon(
                                         Icons.AutoMirrored.Filled.ArrowBack,
                                         stringResource(R.string.back),
                                     )
                                 }
                             } else {
-                                IconButton(onClick = { onResult { } }) {
+                                IconButton(onClick = { onResult { } }, interactionSource = rememberConsoleControlInteractions()) {
                                     Icon(
                                         Icons.Filled.Close,
                                         stringResource(R.string.close),
@@ -381,7 +384,7 @@ class GameMenuActivity : RetrogradeComponentActivity() {
                 }
             }
             ConsoleRegion(layout.lower) {
-                Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface))
+                Box(Modifier.fillMaxSize().background(consoleFrameColor()))
             }
             for ((isLeft, region) in listOf(true to console.leftControls, false to console.rightControls)) {
                 val tag = if (isLeft) "emuui_menu_left_controls" else "emuui_menu_right_controls"
@@ -414,6 +417,7 @@ class GameMenuActivity : RetrogradeComponentActivity() {
                             .focusProperties { exit = { FocusRequester.Cancel } }.focusGroup(),
                     color = MaterialTheme.colorScheme.surfaceContainerLow,
                     shape = RoundedCornerShape(24.dp),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                 ) {
                     val dialogBounds =
                         centerPanel.bounds.copy(
@@ -435,7 +439,7 @@ class GameMenuActivity : RetrogradeComponentActivity() {
                 }
             }
             ConsoleRegion(raw.hinge, "emuui_menu_hinge") {
-                Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface))
+                Box(Modifier.fillMaxSize().background(consoleFrameColor()))
             }
         }
     }

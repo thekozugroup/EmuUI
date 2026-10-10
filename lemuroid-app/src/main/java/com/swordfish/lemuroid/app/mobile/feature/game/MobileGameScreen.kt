@@ -2,6 +2,7 @@ package com.swordfish.lemuroid.app.mobile.feature.game
 
 import androidx.compose.foundation.layout.mandatorySystemGestures
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.consoleFrameColor
 import android.graphics.RectF
 import androidx.compose.foundation.Canvas
@@ -85,7 +86,6 @@ import com.swordfish.lemuroid.app.mobile.feature.emuui.WindowCutoutSnapshot
 import com.swordfish.lemuroid.app.mobile.feature.emuui.rememberFoldPosture
 import com.swordfish.lemuroid.app.shared.game.BaseGameScreenViewModel
 import com.swordfish.lemuroid.app.shared.game.viewmodel.GameViewModelTouchControls.Companion.MENU_LOADING_ANIMATION_MILLIS
-import com.swordfish.lemuroid.app.shared.settings.HapticFeedbackMode
 import com.swordfish.lemuroid.app.utils.android.settings.ConsoleDialogRegion
 import com.swordfish.lemuroid.app.utils.android.settings.ConsoleSettingsDialog
 import com.swordfish.lemuroid.app.utils.android.settings.LocalConsoleDialogRegion
@@ -103,6 +103,8 @@ import com.swordfish.touchinput.radial.ui.LemuroidButtonPressFeedback
 import gg.padkit.PadKit
 import gg.padkit.config.HapticFeedbackType
 import gg.padkit.inputstate.InputState
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LocalConsoleHaptics
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.GameControlHaptics
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.roundToInt
@@ -288,13 +290,9 @@ fun MobileGameScreen(
         val tiltConfiguration = viewModel.getTiltConfiguration().collectAsState(TiltConfiguration.Disabled)
         val tiltSimulatedStates = viewModel.getSimulatedTiltEvents().collectAsState(InputState())
         val tiltSimulatedControls = remember { derivedStateOf { tiltConfiguration.value.controlIds() } }
-        val hapticFeedbackMode = viewModel.getTouchHapticFeedbackMode().collectAsState(HapticFeedbackMode.NONE)
-        val padHapticFeedback =
-            when (hapticFeedbackMode.value) {
-                HapticFeedbackMode.NONE -> HapticFeedbackType.NONE
-                HapticFeedbackMode.PRESS -> HapticFeedbackType.PRESS
-                HapticFeedbackMode.PRESS_RELEASE -> HapticFeedbackType.PRESS_RELEASE
-            }
+        val consoleHaptics = LocalConsoleHaptics.current
+        val gameHaptics = remember(consoleHaptics) { GameControlHaptics(consoleHaptics) }
+        LaunchedEffect(consoleAvailable) { gameHaptics.reset() }
         val touchGate = remember { FoldTouchGate() }
         LaunchedEffect(foldLayout, nativeWindows, consoleAvailable) {
             viewModel.releaseVirtualControls()
@@ -329,8 +327,22 @@ fun MobileGameScreen(
         ) {
             PadKit(
                 modifier = Modifier.fillMaxSize(),
-                onInputEvents = { viewModel.handleVirtualInputEvent(it) },
-                hapticFeedbackType = padHapticFeedback,
+                onInputEvents = { events ->
+                    viewModel.handleVirtualInputEvent(events)
+                    if (consoleAvailable) {
+                        // Tilt simulates controls without a touch; it should remain silent.
+                        val touchEvents = events.filterNot { event ->
+                            when (event) {
+                                is gg.padkit.inputevents.InputEvent.DiscreteDirection -> gg.padkit.ids.Id.DiscreteDirection(event.id) in tiltSimulatedControls.value
+                                is gg.padkit.inputevents.InputEvent.ContinuousDirection -> gg.padkit.ids.Id.ContinuousDirection(event.id) in tiltSimulatedControls.value
+                                is gg.padkit.inputevents.InputEvent.Button -> false
+                            }
+                        }
+                        gameHaptics.onInputEvents(touchEvents)
+                    } else gameHaptics.reset()
+                },
+                // One feedback path: platform View feedback honors Android's setting.
+                hapticFeedbackType = HapticFeedbackType.NONE,
                 simulatedState = tiltSimulatedStates,
                 simulatedControlIds = tiltSimulatedControls,
             ) {
@@ -375,7 +387,7 @@ fun MobileGameScreen(
                 val settings = touchControllerSettings
                 val config = currentControllerConfig
                 if (consoleAvailable && settings != null && config != null) {
-                    CompositionLocalProvider(LocalLemuroidPadTheme provides LemuroidPadTheme()) {
+                    CompositionLocalProvider(LocalLemuroidPadTheme provides LemuroidPadTheme(darkSurface = consoleFrameColor().luminance() < .5f)) {
                         val pads = config.getTouchControllerConfig()
                         // Clip and constrain complete radial pads to the lower pane. User
                         // scale/margins remain saved but cannot push controls into the hinge.

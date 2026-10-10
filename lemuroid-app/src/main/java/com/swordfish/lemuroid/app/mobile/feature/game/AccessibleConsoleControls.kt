@@ -1,6 +1,7 @@
 package com.swordfish.lemuroid.app.mobile.feature.game
 
 import android.view.KeyEvent
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LocalConsoleHaptics
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -41,6 +42,7 @@ internal fun AccessibleConsoleControls(
     controller: TouchControllerID,
     viewModel: BaseGameScreenViewModel,
 ) {
+    val haptics = LocalConsoleHaptics.current
     val held = viewModel.getAccessibleHeldButtons().collectAsState(emptySet()).value
     DisposableEffect(viewModel) {
         onDispose { viewModel.releaseVirtualControls() }
@@ -93,6 +95,7 @@ internal fun AccessibleConsoleControls(
                 row.forEach { (label, code) ->
                     TextButton(
                         onClick = {
+                            haptics.press()
                             if (code in held) {
                                 viewModel.setAccessibleButton(code, false)
                             } else {
@@ -106,10 +109,12 @@ internal fun AccessibleConsoleControls(
                                 customActions =
                                     listOf(
                                         CustomAccessibilityAction("Hold $label") {
+                                            haptics.press()
                                             viewModel.setAccessibleButton(code, true)
                                             true
                                         },
                                         CustomAccessibilityAction("Release $label") {
+                                            haptics.release()
                                             viewModel.setAccessibleButton(code, false)
                                             true
                                         },
