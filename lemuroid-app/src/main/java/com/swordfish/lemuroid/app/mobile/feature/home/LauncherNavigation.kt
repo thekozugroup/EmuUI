@@ -37,7 +37,7 @@ internal fun launcherControlWingWidthDp(widthDp: Float): Float = (widthDp * .20f
 
 internal const val LAUNCHER_PANEL_INSET_DP = 6f
 internal const val LAUNCHER_GRID_SPACING_DP = 14f
-internal const val LAUNCHER_GRID_INSET_DP = 16f
+internal const val LAUNCHER_GRID_INSET_DP = 20f // 16dp glow plus selected-card growth.
 
 /** Bounded launcher minimums include full-size wings, safe text and an 80dp square-card viewport. */
 internal fun launcherWindowFits(

@@ -31,11 +31,11 @@ fun LemuroidGameListRow(
     val haptics = LocalConsoleHaptics.current
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainerLow,
-        shape = MaterialTheme.shapes.medium,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .6f)),
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(.5.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .4f)),
         modifier =
             modifier
-                .padding(horizontal = 12.dp, vertical = 4.dp).wrapContentHeight()
+                .padding(horizontal = 16.dp, vertical = 4.dp).wrapContentHeight()
                 .combinedClickable(
                     onClick = { haptics.press(); onClick() },
                     onLongClick = { haptics.press(); onLongClick() },

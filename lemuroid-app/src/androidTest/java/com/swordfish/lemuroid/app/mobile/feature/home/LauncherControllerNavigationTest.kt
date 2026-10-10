@@ -82,14 +82,14 @@ class LauncherControllerNavigationTest {
         install(readyState(games))
         compose.onNodeWithTag("launcher_game_2").performClick().assertIsSelected()
         repeat(2) { clickKey("R") }
-        compose.onNodeWithText("Favorites").assertIsSelected()
+        compose.onNode(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Favorites")).assertIsDisplayed()
         compose.onNodeWithText("Keep your favorites close").assertIsDisplayed()
         clickKey("A")
-        compose.onNodeWithText("All games").assertIsSelected()
+        compose.onNode(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "All games")).assertIsDisplayed()
         assertEquals("A confirms See all games; it must never launch a hidden game", emptyList<String>(), actions)
         repeat(2) { clickKey("R") }
         clickKey("B")
-        compose.onNodeWithText("All games").assertIsSelected()
+        compose.onNode(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "All games")).assertIsDisplayed()
         assertEquals("B clears the filter before navigating away", emptyList<String>(), actions)
     }
 
@@ -115,7 +115,7 @@ class LauncherControllerNavigationTest {
     fun selectAndDpadReachBottomShortcutsWhileShouldersChangeFilterAndBCancelsFocus() {
         install(readyState(listOf(game(1), game(2).copy(isFavorite = true))))
         repeat(2) { clickKey("R") }
-        compose.onNodeWithText("Favorites").assertIsSelected()
+        compose.onNode(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Favorites")).assertIsDisplayed()
         clickKey("SELECT")
         assertReady("launcher_shortcut_0")
         repeat(3) { compose.onNodeWithContentDescription("Move focus right").performClick() }
@@ -123,9 +123,9 @@ class LauncherControllerNavigationTest {
         clickKey("A")
         assertEquals(listOf("settings"), actions)
         clickKey("B")
-        compose.onNodeWithText("Favorites").assertIsSelected()
+        compose.onNode(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Favorites")).assertIsDisplayed()
         clickKey("B")
-        compose.onNodeWithText("All games").assertIsSelected()
+        compose.onNode(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "All games")).assertIsDisplayed()
         assertEquals(listOf("settings"), actions)
     }
 
@@ -144,18 +144,18 @@ class LauncherControllerNavigationTest {
         // Model a route roundtrip with no explicit result selection. B alone must retain the filter.
         compose.runOnIdle { libraryActive.value = false }
         clickKey("B")
-        compose.onNodeWithText("Favorites").assertIsSelected()
+        compose.onNode(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Favorites")).assertIsDisplayed()
         compose.onNodeWithText("Keep your favorites close").assertIsDisplayed()
         assertEquals(listOf("back"), actions)
         // A real Search/Systems click supplies a new token even when its game ID is unchanged.
         compose.runOnIdle { selectionRequest.value += 1 }
-        compose.onNodeWithText("All games").assertIsSelected()
+        compose.onNode(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "All games")).assertIsDisplayed()
         compose.onNodeWithTag("launcher_game_1").assertIsDisplayed().assertIsSelected()
         assertEquals("Revealing a search result must not start its core", listOf("back"), actions)
         compose.runOnIdle { libraryActive.value = true }
         repeat(2) { clickKey("R") }
         compose.runOnIdle { state.value = state.value.copy(showNoMicrophonePermissionCard = true) }
-        compose.onNodeWithText("Favorites").assertIsSelected()
+        compose.onNode(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Favorites")).assertIsDisplayed()
         compose.onNodeWithText("Keep your favorites close").assertIsDisplayed()
     }
 

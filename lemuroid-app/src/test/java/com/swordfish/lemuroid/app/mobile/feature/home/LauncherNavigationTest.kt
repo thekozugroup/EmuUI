@@ -67,7 +67,7 @@ class LauncherNavigationTest {
 
     @Test fun iconSquaresAreLargerThanTheOldSeventyEightDpMinimumAndStayBounded() {
         assertEquals(148f, launcherGridTileSize(540f, 3), 0.01f)
-        assertEquals(96f, launcherGridTileSize(128f, 1), 0.01f)
+        assertEquals(88f, launcherGridTileSize(128f, 1), 0.01f)
         assertEquals(148f, launcherGridTileSize(900f, 1), 0.01f)
         assertEquals(1f, launcherGridTileSize(8f, 0), 0.01f)
     }

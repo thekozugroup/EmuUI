@@ -56,12 +56,12 @@ class LauncherPresentationLayoutTest {
     }
 
     @Test fun shortViewportFitsOneWholeSquareRowWithBothInsets() {
-        assertEquals(58f, checkNotNull(launcherGridTileSizeForViewport(480f, 90f, 3)), .01f)
+        assertEquals(50f, checkNotNull(launcherGridTileSizeForViewport(480f, 90f, 3)), .01f)
     }
 
     @Test fun touchTargetsAreNeverReducedBelowFortyEightDp() {
-        assertEquals(48f, checkNotNull(launcherGridTileSizeForViewport(480f, 80f, 3)), .01f)
-        assertNull(launcherGridTileSizeForViewport(480f, 79f, 3))
+        assertEquals(48f, checkNotNull(launcherGridTileSizeForViewport(480f, 88f, 3)), .01f)
+        assertNull(launcherGridTileSizeForViewport(480f, 87f, 3))
         assertNull(launcherGridTileSizeForViewport(70f, 300f, 1))
         assertNull(launcherGridTileSizeForViewport(480f, 0f, 3))
     }

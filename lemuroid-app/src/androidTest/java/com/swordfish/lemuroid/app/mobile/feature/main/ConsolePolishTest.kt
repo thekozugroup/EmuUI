@@ -36,14 +36,22 @@ class ConsolePolishTest {
 
     private fun capture(name: String) {
         compose.waitForIdle()
-        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).waitForIdle(1000)
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        device.waitForIdle(1000)
+        assertFalse("System dialogs must not obscure UI captures", device.hasObject(androidx.test.uiautomator.By.pkg("android").textContains("isn't responding")))
         val output = File(compose.activity.getExternalFilesDir(null), "polish-qa").apply { mkdirs() }
         assertTrue(UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).takeScreenshot(File(output, "$name.png")))
     }
 
     @Test fun refinedConsoleRoutesAndHapticPreferenceRemainReachable() {
         openFold()
-        compose.onNodeWithTag("launcher_library_heading").assertIsDisplayed()
+        compose.onNodeWithTag("launcher_library_heading").assertDoesNotExist()
+        for (label in listOf("Import", "Search", "Systems", "Settings", "Help", "Setup")) {
+            compose.onAllNodes(hasText(label) and hasAnyAncestor(hasTestTag("launcher_dock")), useUnmergedTree = true)
+                .assertCountEquals(0)
+        }
+        compose.onNodeWithContentDescription("Search library").assertIsDisplayed()
+        compose.waitUntil(60000) { compose.onAllNodesWithText("IMPORTING").fetchSemanticsNodes().isEmpty() }
         capture("refined-library")
         compose.onNodeWithTag("launcher_shortcut_1").performClick()
         compose.onNode(hasSetTextAction()).assertIsDisplayed()
@@ -168,6 +176,9 @@ class ConsolePolishTest {
         val density = compose.activity.resources.displayMetrics.density
         assertTrue(left.right <= center.left && center.right <= right.left)
         assertEquals(preview.center.x, center.center.x, 1f)
+        val dock = bounds("launcher_dock")
+        assertEquals("Dock floats above the bottom edge", 16f * density, center.bottom - dock.bottom, 1f)
+        assertTrue("Dock clears both side edges", dock.left - center.left >= 16f * density - 1 && center.right - dock.right >= 16f * density - 1)
         assertTrue("Wings retain at least 156dp", left.width >= 156f * density - 1f)
         assertTrue("Wings stay at most 176dp", left.width <= 176f * density + 1f)
         for (description in listOf("Select game to the right", "Select game to the left", "Select game above", "Select game below")) {
@@ -200,6 +211,58 @@ class ConsolePolishTest {
             report.put(name, org.json.JSONArray(listOf(rect.left, rect.top, rect.right, rect.bottom)))
         }
         File(compose.activity.getExternalFilesDir(null), "polish-qa/enlarged-layout.json").writeText(report.toString(2))
+    }
+
+    @Test fun selectionGlowFollowsLocalArtworkAndFadesAwayFromItsEdge() {
+        val db = compose.activity.retrogradeDb.gameDao()
+        val files = listOf("red" to 0xFFD84848.toInt(), "blue" to 0xFF4860D8.toInt()).map { (name, color) ->
+            File(compose.activity.cacheDir, "owned-glow-$name.png").apply {
+                outputStream().use { output ->
+                    val bitmap = android.graphics.Bitmap.createBitmap(32, 32, android.graphics.Bitmap.Config.ARGB_8888)
+                    bitmap.eraseColor(color)
+                    bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, output)
+                    bitmap.recycle()
+                }
+            }
+        }
+        val fixtures = files.mapIndexed { i, file ->
+            Game(fileName = "owned-glow-$i.nes", fileUri = "file:///owned-glow-$i.nes",
+                title = "Original Color Study ${i + 1}", systemId = "nes", developer = null,
+                coverFrontUrl = file.toURI().toString(), lastIndexedAt = System.currentTimeMillis())
+        }
+        val ids = runBlocking(kotlinx.coroutines.Dispatchers.IO) { db.insert(fixtures) }
+        try {
+            openFold()
+            compose.waitUntil(30000) {
+                compose.onAllNodesWithTag("launcher_game_${ids.first()}").fetchSemanticsNodes().isNotEmpty()
+            }
+            for ((index, id) in ids.withIndex()) {
+                compose.onNodeWithTag("launcher_game_$id").performScrollTo().performClick().assertIsSelected()
+                compose.waitForIdle()
+                val density = compose.activity.resources.displayMetrics.density
+                val bounds = compose.onNodeWithTag("launcher_game_$id").fetchSemanticsNode().boundsInWindow
+                fun difference(distance: Float, below: Boolean = false): Int {
+                    val screenshot = InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
+                    try {
+                        val pixel = if (below) {
+                            screenshot.getPixel(bounds.center.x.toInt(), (bounds.bottom + distance * density).toInt())
+                        } else {
+                            screenshot.getPixel((bounds.left - distance * density).toInt(), bounds.center.y.toInt())
+                        }
+                        val red = android.graphics.Color.red(pixel)
+                        val blue = android.graphics.Color.blue(pixel)
+                        return if (index == 0) red - blue else blue - red
+                    } finally { screenshot.recycle() }
+                }
+                compose.waitUntil(10000) { difference(4f) > 5 }
+                assertTrue("The glow fades away from the selected art", difference(4f) > difference(13f))
+                assertTrue("Selection scrolling must leave the lower glow visible", difference(4f, below = true) > 5)
+                capture("artwork-glow-${if (index == 0) "red" else "blue"}")
+            }
+        } finally {
+            runBlocking(kotlinx.coroutines.Dispatchers.IO) { db.delete(fixtures.mapIndexed { i, game -> game.copy(id = ids[i].toInt()) }) }
+            files.forEach { it.delete() }
+        }
     }
 
 }

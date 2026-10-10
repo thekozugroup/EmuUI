@@ -36,7 +36,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ConsolePageHeader
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
@@ -202,9 +202,8 @@ class GameMenuActivity : RetrogradeComponentActivity() {
                 onMenuHome = { navController.popBackStack(GameMenuRoute.HOME.route, false) },
                 onOptions = { navController.navigate(GameMenuRoute.OPTIONS.route) { launchSingleTop = true } },
             ) {
-                TopAppBar(
+                ConsolePageHeader(
                     title = { Text(stringResource(currentRoute.titleId)) },
-                    windowInsets = WindowInsets(0.dp),
                     navigationIcon = {
                         AnimatedContent(targetState = currentRoute.canGoBack(), label = "Back") { canGoBack ->
                             if (canGoBack) {
@@ -225,7 +224,7 @@ class GameMenuActivity : RetrogradeComponentActivity() {
                         }
                     },
                 )
-                Divider(modifier = Modifier.fillMaxWidth())
+                Divider(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .3f))
                 NavHost(
                     modifier =
                         Modifier
@@ -377,8 +376,8 @@ class GameMenuActivity : RetrogradeComponentActivity() {
             // the crease, rather than replacing it with a placeholder or another core.
             ConsoleRegion(layout.upper, "emuui_menu_upper") {
                 Surface(
-                    modifier = Modifier.align(Alignment.TopCenter).padding(8.dp),
-                    shape = MaterialTheme.shapes.large,
+                    modifier = Modifier.align(Alignment.TopCenter).padding(16.dp),
+                    shape = RoundedCornerShape(16.dp),
                 ) {
                     Text("Paused · $gameTitle", modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
                 }
@@ -411,12 +410,12 @@ class GameMenuActivity : RetrogradeComponentActivity() {
             ConsoleRegion(centerPanel.bounds, "emuui_menu_center") {
                 Surface(
                     modifier =
-                        Modifier.fillMaxSize().clip(RoundedCornerShape(24.dp))
+                        Modifier.fillMaxSize().clip(RoundedCornerShape(16.dp))
                             .focusRequester(centerFocus)
                             .onFocusChanged { centerHasFocus.value = it.hasFocus }
                             .focusProperties { exit = { FocusRequester.Cancel } }.focusGroup(),
                     color = MaterialTheme.colorScheme.surfaceContainerLow,
-                    shape = RoundedCornerShape(24.dp),
+                    shape = RoundedCornerShape(16.dp),
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                 ) {
                     val dialogBounds =

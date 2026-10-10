@@ -85,6 +85,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.graphics.drawable.toBitmap
+import coil.request.ImageRequest
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
@@ -420,7 +424,7 @@ private fun PreviewPane(
         Surface(
             Modifier.fillMaxSize().testTag("launcher_preview_surface"),
             color = MaterialTheme.colorScheme.surface,
-            shape = RoundedCornerShape(24.dp),
+            shape = RoundedCornerShape(16.dp),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .6f)),
         ) {
             Box(Modifier.fillMaxSize()) {
@@ -463,7 +467,7 @@ private fun PreviewPane(
                                         .semantics { contentDescription = "EmuUI home" }
                                 },
                             color = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = .94f),
-                            shape = RoundedCornerShape(18.dp),
+                            shape = RoundedCornerShape(16.dp),
                             tonalElevation = 2.dp,
                         ) {
                             Row(
@@ -508,7 +512,7 @@ private fun PreviewPane(
                     Surface(
                         modifier = Modifier.testTag("launcher_corner_tools"),
                         color = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = .94f),
-                        shape = RoundedCornerShape(18.dp),
+                        shape = RoundedCornerShape(16.dp),
                         tonalElevation = 2.dp,
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -526,7 +530,7 @@ private fun PreviewPane(
                     Surface(
                         modifier = Modifier.testTag("launcher_corner_count"),
                         color = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = .94f),
-                        shape = RoundedCornerShape(18.dp),
+                        shape = RoundedCornerShape(16.dp),
                     ) {
                         Row(
                             Modifier.heightIn(min = 48.dp).padding(horizontal = 12.dp, vertical = 8.dp),
@@ -569,18 +573,13 @@ private fun PreviewPane(
                             Text(primaryAction.label())
                         }
                     }
-                    // Sits against the divider, wholly above the physical hinge exclusion zone.
+                    // Floats above the divider with the same inset as all four corner controls.
                     Surface(
                         modifier =
                             Modifier.testTag("launcher_title_plaque"),
                         color = MaterialTheme.colorScheme.surfaceContainerLow,
                         shape =
-                            RoundedCornerShape(
-                                topStart = 24.dp,
-                                topEnd = 24.dp,
-                                bottomStart = 7.dp,
-                                bottomEnd = 7.dp,
-                            ),
+                            RoundedCornerShape(16.dp),
                         shadowElevation = 3.dp,
                     ) {
                         Column(
@@ -623,7 +622,7 @@ private fun PreviewPane(
                     Surface(
                         Modifier.align(Alignment.Center).fillMaxWidth(.72f),
                         color = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = .97f),
-                        shape = RoundedCornerShape(18.dp),
+                        shape = RoundedCornerShape(16.dp),
                     ) {
                         Text(
                             "Nintendo 3DS needs a different screen layout and is not supported in this console. " +
@@ -640,7 +639,7 @@ private fun PreviewPane(
                         modifier =
                             Modifier.align(Alignment.CenterEnd)
                                 .windowInsetsPadding(consolePhysicalInsets().only(WindowInsetsSides.Horizontal))
-                                .padding(10.dp).background(
+                                .padding(16.dp).background(
                                     MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = .9f),
                                     CircleShape,
                                 ),
@@ -653,7 +652,7 @@ private fun PreviewPane(
     }
 }
 
-/** One status-bar inset, one horizontal margin, and precise camera avoidance for the top row. */
+/** One 16dp margin on every edge, plus a single status-bar inset and precise camera avoidance. */
 @Composable
 private fun PreviewOverlayLayout(
     modifier: Modifier,
@@ -664,7 +663,7 @@ private fun PreviewOverlayLayout(
     content: @Composable () -> Unit,
 ) {
     SubcomposeLayout(modifier = modifier) { constraints ->
-        val inset = 12.dp.roundToPx()
+        val inset = 16.dp.roundToPx()
         val gap = 8.dp.roundToPx()
         val cornerWidth = ((constraints.maxWidth - inset * 2 - gap) / 2).coerceAtLeast(0)
         val fullBrand = subcompose("brand_measure") { brand(false, true) }.single()
@@ -680,7 +679,7 @@ private fun PreviewOverlayLayout(
         val toolsWidth = measurables[0].maxIntrinsicWidth(cornerHeight).coerceAtMost(cornerWidth)
         val placement =
             CornerOverlayGeometry.resolve(
-                FoldRect(0, statusBarTop, constraints.maxWidth, constraints.maxHeight),
+                FoldRect(0, statusBarTop + inset, constraints.maxWidth, constraints.maxHeight - inset),
                 fullBrandWidth,
                 48.dp.roundToPx(),
                 toolsWidth,
@@ -723,7 +722,7 @@ private fun PreviewOverlayLayout(
                     constraints.maxWidth - inset - corners[2].width,
                     constraints.maxHeight - inset - cornerHeight,
                 )
-                title.placeRelative((constraints.maxWidth - titleWidth) / 2, constraints.maxHeight - titleHeight)
+                title.placeRelative((constraints.maxWidth - titleWidth) / 2, constraints.maxHeight - inset - titleHeight)
             } else {
                 guidance?.placeRelative(0, 0)
             }
@@ -943,7 +942,7 @@ private fun LibraryPane(
                     .onFocusChanged { centerHasFocus = it.hasFocus }
                     .focusProperties { exit = { FocusRequester.Cancel } }.focusGroup(),
                 color = MaterialTheme.colorScheme.surfaceContainerLow,
-                shape = RoundedCornerShape(24.dp),
+                shape = RoundedCornerShape(16.dp),
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
             ) {
                 val library: @Composable () -> Unit = {
@@ -1001,19 +1000,13 @@ private fun LibraryCenter(
     onFocusShortcut: (Int) -> Unit,
 ) {
     BalancedLibraryLayout {
-        Row(
-            Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("launcher_library_heading"),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            Text(
-                when (filter) { LibraryFilter.ALL -> "All games"; LibraryFilter.FAVORITES -> "Favorites"; else -> "Recently played" },
-                style = MaterialTheme.typography.titleSmall,
-                modifier = Modifier.semantics { heading(); selected = true },
-            )
-            Text("${games.size}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        Box(Modifier.fillMaxSize()) {
+        Box(Modifier.fillMaxSize().semantics {
+            stateDescription = when (filter) {
+                LibraryFilter.ALL -> "All games"
+                LibraryFilter.FAVORITES -> "Favorites"
+                LibraryFilter.RECENT -> "Recently played"
+            }
+        }) {
             when {
                 state.errorMessage != null ->
                     LibraryMessage(
@@ -1069,11 +1062,12 @@ private fun LibraryCenter(
                 )
             }
         }
-        // Compact, scrollable shortcut dock stays reachable at large font sizes.
+        // Icon-only touch-screen dock retains spoken labels and controller focus.
         Row(
-            Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 8.dp)
-                .background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(18.dp))
-                .testTag("launcher_dock"),
+            Modifier.horizontalScroll(rememberScrollState())
+                .background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(14.dp))
+                .testTag("launcher_dock")
+                .padding(horizontal = 4.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             shortcuts.forEachIndexed { index, shortcut ->
@@ -1089,15 +1083,12 @@ private fun LibraryCenter(
                                 navigation.section == LauncherSection.SHORTCUTS && navigation.index == index,
                             ).onFocusChanged { if (it.isFocused) onFocusShortcut(index) },
                 ) {
-                    Column(
-                        Modifier.width(64.dp).heightIn(min = 56.dp).padding(vertical = 7.dp)
+                    Box(
+                        Modifier.size(48.dp)
                             .semantics(mergeDescendants = true) { contentDescription = shortcut.label },
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(3.dp),
+                        contentAlignment = Alignment.Center,
                     ) {
-                        Icon(shortcut.icon, null, Modifier.size(20.dp))
-                        Text(listOf("Import", "Search", "Systems", "Settings", "Help", "Setup")[index],
-                            style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 0.sp), maxLines = 1)
+                        Icon(shortcut.icon, null, Modifier.size(22.dp))
                     }
                 }
             }
@@ -1105,19 +1096,21 @@ private fun LibraryCenter(
     }
 }
 
-/** The shelf receives the space previously occupied by the filter pills. */
+/** Both screens use floating controls; the dock has the same 16dp edge clearance. */
 @Composable
 private fun BalancedLibraryLayout(content: @Composable () -> Unit) {
     Layout(content = content, modifier = Modifier.fillMaxSize()) { measurables, constraints ->
-        val headerHeight = if (constraints.maxHeight >= 180.dp.roundToPx()) 36.dp.roundToPx() else 0
-        val header = measurables[0].measure(Constraints.fixed(constraints.maxWidth, headerHeight))
-        val dockHeight = minOf(64.dp.roundToPx(), constraints.maxHeight)
-        val dock = measurables[2].measure(Constraints(maxWidth = constraints.maxWidth, maxHeight = dockHeight))
-        val shelf = measurables[1].measure(Constraints.fixed(constraints.maxWidth, (constraints.maxHeight - dock.height - header.height).coerceAtLeast(0)))
+        val inset = minOf(16.dp.roundToPx(), constraints.maxHeight / 4, constraints.maxWidth / 4)
+        val dock = measurables[1].measure(
+            Constraints(maxWidth = (constraints.maxWidth - inset * 2).coerceAtLeast(0),
+                maxHeight = (constraints.maxHeight - inset * 2).coerceAtLeast(0)),
+        )
+        val shelf = measurables[0].measure(
+            Constraints.fixed(constraints.maxWidth, (constraints.maxHeight - dock.height - inset * 2).coerceAtLeast(0)),
+        )
         layout(constraints.maxWidth, constraints.maxHeight) {
-            if (header.height > 0) header.placeRelative(0, 0)
-            shelf.placeRelative(0, header.height)
-            dock.placeRelative((constraints.maxWidth - dock.width) / 2, constraints.maxHeight - dock.height)
+            shelf.placeRelative(0, 0)
+            dock.placeRelative((constraints.maxWidth - dock.width) / 2, constraints.maxHeight - inset - dock.height)
         }
     }
 }
@@ -1133,6 +1126,7 @@ private fun GameShelf(
     val scrollState = rememberLazyListState()
     val selectedIndex = games.indexOfFirst { it.id == selectedGameId }
     val rows = (games.size + columns - 1) / columns
+    val density = LocalDensity.current
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val tileSizeDp = launcherGridTileSizeForViewport(maxWidth.value, maxHeight.value, columns)
         if (tileSizeDp == null) {
@@ -1147,9 +1141,10 @@ private fun GameShelf(
             val selectedRow = selectedIndex / columns
             val viewport = scrollState.layoutInfo
             val item = viewport.visibleItemsInfo.firstOrNull { it.index == selectedRow }
+            val clearance = with(density) { LAUNCHER_GRID_INSET_DP.dp.roundToPx() }
             val fullyVisible =
-                item != null && item.offset >= viewport.viewportStartOffset &&
-                    item.offset + item.size <= viewport.viewportEndOffset
+                item != null && item.offset >= viewport.viewportStartOffset + clearance &&
+                    item.offset + item.size <= viewport.viewportEndOffset - clearance
             if (selectedIndex >= 0 && !fullyVisible) scrollState.animateScrollToItem(selectedRow)
         }
         val tileSize = tileSizeDp.dp
@@ -1214,14 +1209,21 @@ private fun GameIconCard(
         label = "Cartridge growth",
     )
     val haptic = LocalConsoleHaptics.current
+    var artworkColor by remember(game.id, game.coverFrontUrl) { mutableStateOf<Color?>(null) }
+    val accent by animateColorAsState(
+        artworkColor ?: MaterialTheme.colorScheme.onSurfaceVariant,
+        label = "Artwork glow color",
+    )
+    val glow by animateFloatAsState(if (isSelected) 1f else 0f, label = "Artwork glow")
     val shape = RoundedCornerShape(12.dp)
     Box(
         modifier.testTag("launcher_game_${game.id}")
-            .graphicsLayer { scaleX = selectedScale; scaleY = selectedScale }.clip(shape)
+            .graphicsLayer { scaleX = selectedScale; scaleY = selectedScale }
+            .drawBehind { drawArtworkGlow(accent, glow) }.clip(shape)
             .background(containerColor)
             .border(
-                if (isSelected) 2.dp else 1.dp,
-                if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
+                .5.dp,
+                if (isSelected) accent.copy(alpha = .35f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = .35f),
                 shape,
             )
             .onFocusChanged { if (it.isFocused) onSelect() }
@@ -1251,7 +1253,7 @@ private fun GameIconCard(
             },
     ) {
         // The artwork reaches the card edge; the parent draws its outline above the image.
-        GameArtwork(game, Modifier.fillMaxSize().testTag("launcher_game_art_${game.id}"))
+        GameArtwork(game, Modifier.fillMaxSize().testTag("launcher_game_art_${game.id}"), onAccent = { artworkColor = it })
         if (game.isFavorite) {
             Icon(
                 Icons.Outlined.Star,
@@ -1436,7 +1438,7 @@ private fun LibraryMessage(
             modifier =
                 Modifier.size(
                     56.dp,
-                ).background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(18.dp)).padding(14.dp),
+                ).background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(16.dp)).padding(14.dp),
         )
         Column(Modifier.weight(1f)) {
             Text(title, style = MaterialTheme.typography.titleMedium)
@@ -1453,7 +1455,13 @@ private fun GameArtwork(
     game: Game?,
     modifier: Modifier = Modifier,
     preview: Boolean = false,
+    onAccent: ((Color?) -> Unit)? = null,
 ) {
+    val context = LocalContext.current
+    val imageRequest = remember(game?.coverFrontUrl, onAccent != null) {
+        ImageRequest.Builder(context).data(game?.coverFrontUrl)
+            .allowHardware(onAccent == null).build()
+    }
     val colors = MaterialTheme.colorScheme
     val base = colors.surfaceContainer
     val cartridge = colors.surfaceContainerHighest
@@ -1506,7 +1514,17 @@ private fun GameArtwork(
         }
         if (game?.coverFrontUrl != null) {
             AsyncImage(
-                model = game.coverFrontUrl,
+                model = imageRequest,
+                onSuccess = { result ->
+                    if (onAccent != null) {
+                        // Sample at most 1024 pixels from the decoded image; no extra request or dependency.
+                        val bitmap = result.result.drawable.toBitmap(32, 32, android.graphics.Bitmap.Config.ARGB_8888)
+                        val pixels = IntArray(32 * 32)
+                        bitmap.getPixels(pixels, 0, 32, 0, 0, 32, 32)
+                        onAccent(dominantArtworkColor(pixels)?.let { Color(it) })
+                    }
+                },
+                onError = { onAccent?.invoke(null) },
                 contentDescription = if (preview) "Cover art for ${game.title}" else null,
                 contentScale = if (preview) ContentScale.Fit else ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
@@ -1585,7 +1603,7 @@ private fun Modifier.launcherNavigationFocus(active: Boolean): Modifier {
     LaunchedEffect(active) { if (active) bringIntoView.bringIntoView() }
     return this.bringIntoViewRequester(bringIntoView).then(
         if (active) {
-            Modifier.border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(24.dp))
+            Modifier.border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = .4f), RoundedCornerShape(14.dp))
                 .semantics { stateDescription = "Ready to confirm with A" }
         } else {
             Modifier

@@ -1,4 +1,4 @@
-> Latest development: [Refined console UI and haptics](../qa/CONSOLE_UI_HAPTICS_20261010.md), based on the published October 9 QA build. The development preview does not clear the outstanding Play launch gates. Older verification counts below are historical.
+> Latest development: [DS-style spacing, icon dock and artwork glow](../qa/CONSOLE_UI_REFINEMENT_20261010.md), following the refined UI/haptics preview. Play launch gates remain outstanding. Older verification counts below are historical.
 
 > FREE RELEASE UPDATE: [FREE_RELEASE_CHECKPOINT.md](FREE_RELEASE_CHECKPOINT.md) supersedes all earlier monetization, purchase-gate and payment-profile requirements below.
 

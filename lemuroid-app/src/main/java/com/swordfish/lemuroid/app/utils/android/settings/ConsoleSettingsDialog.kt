@@ -2,6 +2,7 @@ package com.swordfish.lemuroid.app.utils.android.settings
 
 import android.os.Build
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.shape.RoundedCornerShape
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberConsoleControlInteractions
 import android.view.ViewTreeObserver
 import com.swordfish.lemuroid.app.mobile.feature.emuui.enterImmersiveConsole
@@ -171,11 +172,11 @@ fun ConsoleSettingsDialog(
                         Modifier.fillMaxSize().clipToBounds().testTag("console_settings_dialog")
                             .focusRequester(centerFocus).onFocusChanged { centerHasFocus = it.hasFocus }
                             .focusProperties { exit = { FocusRequester.Cancel } }.focusGroup(),
-                    shape = MaterialTheme.shapes.large,
+                    shape = RoundedCornerShape(16.dp),
                     color = MaterialTheme.colorScheme.surface,
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                    border = BorderStroke(.5.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .5f)),
                 ) {
-                    Column(Modifier.fillMaxSize().padding(8.dp)) {
+                    Column(Modifier.fillMaxSize().padding(16.dp)) {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                             // Always reachable, even when large text makes the body scroll.
                             IconButton(onClick = onDismissRequest, modifier = Modifier.size(48.dp), interactionSource = rememberConsoleControlInteractions()) {
@@ -184,9 +185,9 @@ fun ConsoleSettingsDialog(
                         }
                         Column(
                             Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState())
-                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                                .padding(vertical = 8.dp),
                         ) {
-                            ProvideTextStyle(MaterialTheme.typography.titleLarge) {
+                            ProvideTextStyle(MaterialTheme.typography.titleMedium) {
                                 Box(Modifier.semantics { heading() }) { title() }
                             }
                             Spacer(Modifier.height(12.dp))

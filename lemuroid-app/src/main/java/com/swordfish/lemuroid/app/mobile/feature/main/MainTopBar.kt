@@ -2,6 +2,7 @@ package com.swordfish.lemuroid.app.mobile.feature.main
 
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberConsoleControlInteractions
 import androidx.compose.material3.MaterialTheme
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ConsolePageHeader
 
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
@@ -10,7 +11,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,7 +26,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.CloudSync
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,14 +34,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -86,10 +79,7 @@ fun LemuroidTopAppBar(
     onUpdateQueryString: (String) -> Unit,
 ) {
     val context = LocalContext.current
-    val topBarColor = MaterialTheme.colorScheme.surfaceContainerLow
-
-    TopAppBar(
-        windowInsets = WindowInsets(0, 0, 0, 0),
+    ConsolePageHeader(
         title = {
             if (route == MainRoute.SEARCH) {
                 LemuroidSearchView(
@@ -100,11 +90,6 @@ fun LemuroidTopAppBar(
                 Text(text = stringResource(route.titleId))
             }
         },
-        colors =
-            TopAppBarDefaults.topAppBarColors(
-                scrolledContainerColor = topBarColor,
-                containerColor = topBarColor,
-            ),
         navigationIcon = {
             AnimatedVisibility(
                 visible = route.parent != null || route == MainRoute.SETTINGS,
@@ -144,6 +129,7 @@ fun LemuroidTopBarActions(
     Row {
         IconButton(
             onClick = { onHelpPressed() },
+            interactionSource = rememberConsoleControlInteractions(),
         ) {
             Icon(
                 Icons.Outlined.Info,
@@ -154,6 +140,7 @@ fun LemuroidTopBarActions(
             IconButton(
                 onClick = { SaveSyncWork.enqueueManualWork(context.applicationContext) },
                 enabled = !operationsInProgress,
+                interactionSource = rememberConsoleControlInteractions(!operationsInProgress),
             ) {
                 Icon(
                     Icons.Outlined.CloudSync,
@@ -164,6 +151,7 @@ fun LemuroidTopBarActions(
         if (route.showBottomNavigation) {
             IconButton(
                 onClick = { navController.navigate(MainRoute.SETTINGS.route) },
+                interactionSource = rememberConsoleControlInteractions(),
             ) {
                 Icon(
                     Icons.Outlined.Settings,
@@ -192,9 +180,9 @@ private fun LemuroidSearchView(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(top = 8.dp, bottom = 8.dp, end = 8.dp),
-            shape = RoundedCornerShape(100),
-            tonalElevation = 16.dp,
+                    .padding(vertical = 4.dp),
+            shape = RoundedCornerShape(12.dp),
+            color = MaterialTheme.colorScheme.surfaceContainer,
         ) { }
 
         TextField(
