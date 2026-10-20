@@ -22,7 +22,10 @@ fun FavoriteToggle(
     val haptics = LocalConsoleHaptics.current
     IconToggleButton(
         checked = isToggled,
-        onCheckedChange = { haptics.selection(); onFavoriteToggle(it) },
+        onCheckedChange = {
+            haptics.selection()
+            onFavoriteToggle(it)
+        },
         modifier = Modifier.fillMaxSize(),
     ) {
         val image =

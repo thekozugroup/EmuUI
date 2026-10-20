@@ -1,7 +1,24 @@
 package com.swordfish.lemuroid.app.mobile.feature.main
 
-import androidx.compose.ui.test.*
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.click
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performImeAction
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTouchInput
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.test.platform.app.InstrumentationRegistry
@@ -12,9 +29,11 @@ import androidx.window.testing.layout.WindowLayoutInfoPublisherRule
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ThemePreferences
 import com.swordfish.lemuroid.lib.library.db.entity.Game
 import com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.flow.first
-import org.junit.Assert.*
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import java.io.File
@@ -22,25 +41,44 @@ import androidx.window.testing.layout.FoldingFeature as TestFoldingFeature
 
 /** Synthetic fold metadata on the real launcher; never a hardware or native DS claim. */
 class ConsolePolishTest {
-    @get:Rule(order = 0) val windowInfo = WindowLayoutInfoPublisherRule()
-    @get:Rule(order = 1) val compose = createAndroidComposeRule<MainActivity>()
+    @get:Rule(order = 0)
+    val windowInfo = WindowLayoutInfoPublisherRule()
+
+    @get:Rule(order = 1)
+    val compose = createAndroidComposeRule<MainActivity>()
 
     private fun openFold() {
-        windowInfo.overrideWindowLayoutInfo(TestWindowLayoutInfo(listOf(TestFoldingFeature(
-            activity = compose.activity, size = 24,
-            state = FoldingFeature.State.HALF_OPENED,
-            orientation = FoldingFeature.Orientation.HORIZONTAL,
-        ))))
-        compose.waitUntil(60000) { runCatching { compose.onNodeWithTag("launcher_preview").fetchSemanticsNode() }.isSuccess }
+        windowInfo.overrideWindowLayoutInfo(
+            TestWindowLayoutInfo(
+                listOf(
+                    TestFoldingFeature(
+                        activity = compose.activity,
+                        size = 24,
+                        state = FoldingFeature.State.HALF_OPENED,
+                        orientation = FoldingFeature.Orientation.HORIZONTAL,
+                    ),
+                ),
+            ),
+        )
+        compose.waitUntil(
+            60000,
+        ) { runCatching { compose.onNodeWithTag("launcher_preview").fetchSemanticsNode() }.isSuccess }
     }
 
     private fun capture(name: String) {
         compose.waitForIdle()
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         device.waitForIdle(1000)
-        assertFalse("System dialogs must not obscure UI captures", device.hasObject(androidx.test.uiautomator.By.pkg("android").textContains("isn't responding")))
+        assertFalse(
+            "System dialogs must not obscure UI captures",
+            device.hasObject(androidx.test.uiautomator.By.pkg("android").textContains("isn't responding")),
+        )
         val output = File(compose.activity.getExternalFilesDir(null), "polish-qa").apply { mkdirs() }
-        assertTrue(UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).takeScreenshot(File(output, "$name.png")))
+        assertTrue(
+            UiDevice.getInstance(
+                InstrumentationRegistry.getInstrumentation(),
+            ).takeScreenshot(File(output, "$name.png")),
+        )
     }
 
     @Test fun refinedConsoleRoutesAndHapticPreferenceRemainReachable() {
@@ -83,11 +121,16 @@ class ConsolePolishTest {
         field.performClick().performTextInput("EmuUI")
         compose.waitForIdle()
         val height = field.fetchSemanticsNode().boundsInWindow.height
-        assertTrue("Keyboard must not compress the search field", height >= 48f * compose.activity.resources.displayMetrics.density - 1f)
+        assertTrue(
+            "Keyboard must not compress the search field",
+            height >= 48f * compose.activity.resources.displayMetrics.density - 1f,
+        )
         capture("refined-search-typing")
         field.performImeAction()
         compose.waitUntil(10000) {
-            ViewCompat.getRootWindowInsets(compose.activity.window.decorView)?.isVisible(WindowInsetsCompat.Type.ime()) == false
+            ViewCompat.getRootWindowInsets(
+                compose.activity.window.decorView,
+            )?.isVisible(WindowInsetsCompat.Type.ime()) == false
         }
         compose.onNodeWithContentDescription("B, back").performClick()
         compose.onNodeWithTag("launcher_grid").assertIsDisplayed()
@@ -95,7 +138,19 @@ class ConsolePolishTest {
 
     @Test fun repeatedSelectionHasNoHiddenFilterTargetsAndReturnsFromBackgroundImmersive() {
         val db = compose.activity.retrogradeDb.gameDao()
-        val fixtures = (1..2).map { n -> Game(fileName = "polish-$n.nes", fileUri = "file:///emuui-owned-polish-$n.nes", title = "Original Homebrew $n", systemId = "nes", developer = null, coverFrontUrl = null, lastIndexedAt = System.currentTimeMillis()) }
+        val fixtures =
+            (1..2).map {
+                    n ->
+                Game(
+                    fileName = "polish-$n.nes",
+                    fileUri = "file:///emuui-owned-polish-$n.nes",
+                    title = "Original Homebrew $n",
+                    systemId = "nes",
+                    developer = null,
+                    coverFrontUrl = null,
+                    lastIndexedAt = System.currentTimeMillis(),
+                )
+            }
         val ids = runBlocking(kotlinx.coroutines.Dispatchers.IO) { db.insert(fixtures) }
         try {
             openFold()
@@ -111,12 +166,24 @@ class ConsolePolishTest {
             openFold()
             compose.waitUntil(10000) {
                 val insets = ViewCompat.getRootWindowInsets(compose.activity.window.decorView)
-                insets != null && !insets.isVisible(WindowInsetsCompat.Type.statusBars()) && !insets.isVisible(WindowInsetsCompat.Type.navigationBars())
+                insets != null &&
+                    !insets.isVisible(
+                        WindowInsetsCompat.Type.statusBars(),
+                    ) && !insets.isVisible(WindowInsetsCompat.Type.navigationBars())
             }
             compose.onNodeWithTag("launcher_game_${ids.last()}").assertIsSelected()
             capture("launcher-resumed-immersive")
         } finally {
-            runBlocking(kotlinx.coroutines.Dispatchers.IO) { db.delete(fixtures.mapIndexed { i, game -> game.copy(id = ids[i].toInt()) }) }
+            runBlocking(kotlinx.coroutines.Dispatchers.IO) {
+                db.delete(
+                    fixtures.mapIndexed {
+                            i,
+                            game,
+                        ->
+                        game.copy(id = ids[i].toInt())
+                    },
+                )
+            }
         }
     }
 
@@ -132,16 +199,32 @@ class ConsolePolishTest {
             capture("frame-setting-graphite")
             compose.activityRule.scenario.recreate()
             openFold()
-            assertEquals("GRAPHITE", SharedPreferencesHelper.getSharedPreferences(compose.activity).getString(ThemePreferences.FRAME_KEY, null))
+            assertEquals(
+                "GRAPHITE",
+                SharedPreferencesHelper.getSharedPreferences(
+                    compose.activity,
+                ).getString(ThemePreferences.FRAME_KEY, null),
+            )
             // The settings route is restored by rememberSaveable on recreation.
             compose.onNodeWithText("Console frame").performScrollTo().performClick()
-            compose.onNode(hasAnyAncestor(hasTestTag("console_settings_dialog")) and hasText("OLED black")).performClick()
+            compose.onNode(
+                hasAnyAncestor(hasTestTag("console_settings_dialog")) and hasText("OLED black"),
+            ).performClick()
             compose.waitUntil(10000) { preferences.getString(ThemePreferences.FRAME_KEY, null) == "OLED" }
             capture("frame-setting-oled")
         } finally {
-            preferences.edit().apply { if (before == null) remove(ThemePreferences.FRAME_KEY) else putString(ThemePreferences.FRAME_KEY, before) }.commit()
+            preferences.edit().apply {
+                if (before == null) {
+                    remove(
+                        ThemePreferences.FRAME_KEY,
+                    )
+                } else {
+                    putString(ThemePreferences.FRAME_KEY, before)
+                }
+            }.commit()
         }
     }
+
     @Test fun calibratedPositionSurvivesRecreationAndCanBeReset() {
         val prefs = SharedPreferencesHelper.getSharedPreferences(compose.activity)
         val key = com.swordfish.lemuroid.app.mobile.feature.emuui.ConsoleOrientation.KEY
@@ -150,14 +233,28 @@ class ConsolePolishTest {
         val oldDevice = prefs.getString(deviceKey, null)
         try {
             openFold()
-            compose.runOnIdle { com.swordfish.lemuroid.app.mobile.feature.emuui.ConsoleOrientation.calibrate(compose.activity) }
+            compose.runOnIdle {
+                com.swordfish.lemuroid.app.mobile.feature.emuui.ConsoleOrientation.calibrate(
+                    compose.activity,
+                )
+            }
             val saved = prefs.getInt(key, -1)
-            assertTrue(saved == android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE || saved == android.content.pm.ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE)
+            assertTrue(
+                saved == android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE ||
+                    saved == android.content.pm.ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE,
+            )
             compose.activityRule.scenario.recreate()
             openFold()
             assertEquals(saved, compose.activity.requestedOrientation)
-            compose.runOnIdle { com.swordfish.lemuroid.app.mobile.feature.emuui.ConsoleOrientation.clear(compose.activity) }
-            assertEquals(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED, compose.activity.requestedOrientation)
+            compose.runOnIdle {
+                com.swordfish.lemuroid.app.mobile.feature.emuui.ConsoleOrientation.clear(
+                    compose.activity,
+                )
+            }
+            assertEquals(
+                android.content.pm.ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED,
+                compose.activity.requestedOrientation,
+            )
         } finally {
             prefs.edit().apply {
                 if (old == -1) remove(key) else putInt(key, old)
@@ -168,6 +265,7 @@ class ConsolePolishTest {
 
     @Test fun enlargedLibraryAndDialogKeepComfortableNonOverlappingControls() {
         openFold()
+
         fun bounds(tag: String) = compose.onNodeWithTag(tag).fetchSemanticsNode().boundsInWindow
         val center = bounds("launcher_library_center")
         val left = bounds("launcher_left_controls")
@@ -178,15 +276,33 @@ class ConsolePolishTest {
         assertEquals(preview.center.x, center.center.x, 1f)
         val dock = bounds("launcher_dock")
         assertEquals("Dock floats above the bottom edge", 16f * density, center.bottom - dock.bottom, 1f)
-        assertTrue("Dock clears both side edges", dock.left - center.left >= 16f * density - 1 && center.right - dock.right >= 16f * density - 1)
+        assertTrue(
+            "Dock clears both side edges",
+            dock.left - center.left >= 16f * density - 1 && center.right - dock.right >= 16f * density - 1,
+        )
         assertTrue("Wings retain at least 156dp", left.width >= 156f * density - 1f)
         assertTrue("Wings stay at most 176dp", left.width <= 176f * density + 1f)
-        for (description in listOf("Select game to the right", "Select game to the left", "Select game above", "Select game below")) {
+        for (description in listOf(
+            "Select game to the right",
+            "Select game to the left",
+            "Select game above",
+            "Select game below",
+        )) {
             val target = compose.onNodeWithContentDescription(description).fetchSemanticsNode().boundsInWindow
-            assertTrue("48dp target: $description", target.width >= 48f * density - 1f && target.height >= 48f * density - 1f)
-            assertTrue("Target inside wing: $description", target.left >= left.left && target.right <= left.right && target.top >= left.top && target.bottom <= left.bottom)
+            assertTrue(
+                "48dp target: $description",
+                target.width >= 48f * density - 1f && target.height >= 48f * density - 1f,
+            )
+            assertTrue(
+                "Target inside wing: $description",
+                target.left >= left.left && target.right <= left.right &&
+                    target.top >= left.top && target.bottom <= left.bottom,
+            )
         }
-        val games = runBlocking(kotlinx.coroutines.Dispatchers.IO) { compose.activity.retrogradeDb.gameDao().observeLibrary().first() }
+        val games =
+            runBlocking(
+                kotlinx.coroutines.Dispatchers.IO,
+            ) { compose.activity.retrogradeDb.gameDao().observeLibrary().first() }
         check(games.size >= 2) { "Two existing original homebrew fixtures are required" }
         compose.onNodeWithTag("launcher_game_${games.first().id}").performClick().assertIsSelected()
         compose.onNodeWithContentDescription("Select game to the right").performTouchInput { click() }
@@ -207,7 +323,12 @@ class ConsolePolishTest {
             .performScrollTo().assertIsDisplayed()
         capture("enlarged-frame-dialog-scrolled")
         val report = org.json.JSONObject().put("width", preview.width).put("density", density)
-        for ((name, rect) in listOf("library" to center, "leftWing" to left, "rightWing" to right, "dialog" to dialog)) {
+        for ((name, rect) in listOf(
+            "library" to center,
+            "leftWing" to left,
+            "rightWing" to right,
+            "dialog" to dialog,
+        )) {
             report.put(name, org.json.JSONArray(listOf(rect.left, rect.top, rect.right, rect.bottom)))
         }
         File(compose.activity.getExternalFilesDir(null), "polish-qa/enlarged-layout.json").writeText(report.toString(2))
@@ -215,21 +336,34 @@ class ConsolePolishTest {
 
     @Test fun selectionGlowFollowsLocalArtworkAndFadesAwayFromItsEdge() {
         val db = compose.activity.retrogradeDb.gameDao()
-        val files = listOf("red" to 0xFFD84848.toInt(), "blue" to 0xFF4860D8.toInt()).map { (name, color) ->
-            File(compose.activity.cacheDir, "owned-glow-$name.png").apply {
-                outputStream().use { output ->
-                    val bitmap = android.graphics.Bitmap.createBitmap(32, 32, android.graphics.Bitmap.Config.ARGB_8888)
-                    bitmap.eraseColor(color)
-                    bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, output)
-                    bitmap.recycle()
+        val files =
+            listOf("red" to 0xFFD84848.toInt(), "blue" to 0xFF4860D8.toInt()).map { (name, color) ->
+                File(compose.activity.cacheDir, "owned-glow-$name.png").apply {
+                    outputStream().use { output ->
+                        val bitmap =
+                            android.graphics.Bitmap.createBitmap(
+                                32,
+                                32,
+                                android.graphics.Bitmap.Config.ARGB_8888,
+                            )
+                        bitmap.eraseColor(color)
+                        bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, output)
+                        bitmap.recycle()
+                    }
                 }
             }
-        }
-        val fixtures = files.mapIndexed { i, file ->
-            Game(fileName = "owned-glow-$i.nes", fileUri = "file:///owned-glow-$i.nes",
-                title = "Original Color Study ${i + 1}", systemId = "nes", developer = null,
-                coverFrontUrl = file.toURI().toString(), lastIndexedAt = System.currentTimeMillis())
-        }
+        val fixtures =
+            files.mapIndexed { i, file ->
+                Game(
+                    fileName = "owned-glow-$i.nes",
+                    fileUri = "file:///owned-glow-$i.nes",
+                    title = "Original Color Study ${i + 1}",
+                    systemId = "nes",
+                    developer = null,
+                    coverFrontUrl = file.toURI().toString(),
+                    lastIndexedAt = System.currentTimeMillis(),
+                )
+            }
         val ids = runBlocking(kotlinx.coroutines.Dispatchers.IO) { db.insert(fixtures) }
         try {
             openFold()
@@ -241,18 +375,28 @@ class ConsolePolishTest {
                 compose.waitForIdle()
                 val density = compose.activity.resources.displayMetrics.density
                 val bounds = compose.onNodeWithTag("launcher_game_$id").fetchSemanticsNode().boundsInWindow
-                fun difference(distance: Float, below: Boolean = false): Int {
+
+                fun difference(
+                    distance: Float,
+                    below: Boolean = false,
+                ): Int {
                     val screenshot = InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
                     try {
-                        val pixel = if (below) {
-                            screenshot.getPixel(bounds.center.x.toInt(), (bounds.bottom + distance * density).toInt())
-                        } else {
-                            screenshot.getPixel((bounds.left - distance * density).toInt(), bounds.center.y.toInt())
-                        }
+                        val pixel =
+                            if (below) {
+                                screenshot.getPixel(
+                                    bounds.center.x.toInt(),
+                                    (bounds.bottom + distance * density).toInt(),
+                                )
+                            } else {
+                                screenshot.getPixel((bounds.left - distance * density).toInt(), bounds.center.y.toInt())
+                            }
                         val red = android.graphics.Color.red(pixel)
                         val blue = android.graphics.Color.blue(pixel)
                         return if (index == 0) red - blue else blue - red
-                    } finally { screenshot.recycle() }
+                    } finally {
+                        screenshot.recycle()
+                    }
                 }
                 compose.waitUntil(10000) { difference(4f) > 5 }
                 assertTrue("The glow fades away from the selected art", difference(4f) > difference(13f))
@@ -260,9 +404,17 @@ class ConsolePolishTest {
                 capture("artwork-glow-${if (index == 0) "red" else "blue"}")
             }
         } finally {
-            runBlocking(kotlinx.coroutines.Dispatchers.IO) { db.delete(fixtures.mapIndexed { i, game -> game.copy(id = ids[i].toInt()) }) }
+            runBlocking(kotlinx.coroutines.Dispatchers.IO) {
+                db.delete(
+                    fixtures.mapIndexed {
+                            i,
+                            game,
+                        ->
+                        game.copy(id = ids[i].toInt())
+                    },
+                )
+            }
             files.forEach { it.delete() }
         }
     }
-
 }

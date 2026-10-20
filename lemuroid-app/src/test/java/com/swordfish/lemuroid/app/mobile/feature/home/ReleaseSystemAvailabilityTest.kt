@@ -11,8 +11,16 @@ import org.junit.Test
 
 class ReleaseSystemAvailabilityTest {
     @Test fun restrictedSystemsAreNotOfferedButHistoricalRowsRemainReadable() {
-        val omitted = setOf(SystemID.SNES, SystemID.SMS, SystemID.GENESIS, SystemID.SEGACD,
-            SystemID.GG, SystemID.FBNEO, SystemID.MAME2003PLUS)
+        val omitted =
+            setOf(
+                SystemID.SNES,
+                SystemID.SMS,
+                SystemID.GENESIS,
+                SystemID.SEGACD,
+                SystemID.GG,
+                SystemID.FBNEO,
+                SystemID.MAME2003PLUS,
+            )
         omitted.forEach { id ->
             assertFalse(GameSystem.isAvailable(id.dbname))
             assertFalse(GameSystem.all().any { it.id == id })

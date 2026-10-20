@@ -1,6 +1,7 @@
 package com.swordfish.lemuroid.app.mobile.feature.emuui
 
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ConsolePolishGeometryTest {
@@ -11,7 +12,9 @@ class ConsolePolishGeometryTest {
             val after = FoldGeometry.displayPanel(FoldRect(462, 960, width - 462, 1816), 0, 63)
             val old = FoldGeometry.independentDualScreen(upper, before)!!
             val result = FoldGeometry.balancedDualScreen(upper, after)!!
-            assertTrue(result.lowerScreen.width + 0.01f >= minOf(old.lowerScreen.width, result.upperScreen.width * 0.94f))
+            assertTrue(
+                result.lowerScreen.width + 0.01f >= minOf(old.lowerScreen.width, result.upperScreen.width * 0.94f),
+            )
             assertTrue(result.lowerScreen.width <= result.upperScreen.width * 0.9401f)
             assertEquals(4f / 3f, result.lowerScreen.width / result.lowerScreen.height, 0.0001f)
             assertEquals(width / 2f, (result.lowerScreen.left + result.lowerScreen.right) / 2f, 0.01f)

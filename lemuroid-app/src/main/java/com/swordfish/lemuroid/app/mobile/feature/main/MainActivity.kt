@@ -1,6 +1,5 @@
 package com.swordfish.lemuroid.app.mobile.feature.main
 
-import com.swordfish.lemuroid.app.mobile.feature.emuui.enterImmersiveConsole
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
@@ -51,6 +50,7 @@ import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.emuui.LocalWindowCutout
 import com.swordfish.lemuroid.app.mobile.feature.emuui.WindowCutoutSnapshot
 import com.swordfish.lemuroid.app.mobile.feature.emuui.allowDisplayCutouts
+import com.swordfish.lemuroid.app.mobile.feature.emuui.enterImmersiveConsole
 import com.swordfish.lemuroid.app.mobile.feature.favorites.FavoritesScreen
 import com.swordfish.lemuroid.app.mobile.feature.favorites.FavoritesViewModel
 import com.swordfish.lemuroid.app.mobile.feature.games.GamesScreen
@@ -482,9 +482,15 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
                 getString(R.string.lemuroid_help_content).replace("\$SYSTEMS", systemFolders)
             }
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
-            Column(Modifier.padding(16.dp), verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp)) {
+            Column(
+                Modifier.padding(16.dp),
+                verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp),
+            ) {
                 TextButton(onClick = onClose) { Text("Back to console") }
-                Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(16.dp)) {
+                Column(
+                    Modifier.weight(1f).verticalScroll(rememberScrollState()),
+                    verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(16.dp),
+                ) {
                     Text("EmuUI · Help & credits", style = MaterialTheme.typography.titleMedium)
                     Text(
                         "Use the open inner display full-screen, with the crease running left to right. " +

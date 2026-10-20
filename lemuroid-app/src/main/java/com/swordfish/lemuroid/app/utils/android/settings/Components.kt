@@ -1,7 +1,6 @@
 package com.swordfish.lemuroid.app.utils.android.settings
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +10,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -36,7 +36,10 @@ import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberConsoleContro
 import kotlin.math.roundToInt
 
 @Composable
-fun LemuroidSettingsPage(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+fun LemuroidSettingsPage(
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit,
+) {
     Column(
         modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -55,12 +58,13 @@ fun LemuroidSettingsSwitch(
 ) {
     val haptics = LocalConsoleHaptics.current
     ListItem(
-        modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp)
-            .toggleable(value = state.value, enabled = enabled, role = Role.Switch) {
-                haptics.selection()
-                state.value = it
-                onCheckedChange(it)
-            },
+        modifier =
+            Modifier.fillMaxWidth().heightIn(min = 64.dp)
+                .toggleable(value = state.value, enabled = enabled, role = Role.Switch) {
+                    haptics.selection()
+                    state.value = it
+                    onCheckedChange(it)
+                },
         headlineContent = { ProvideTextStyle(MaterialTheme.typography.titleMedium) { title() } },
         supportingContent = subtitle,
         leadingContent = icon,
@@ -111,7 +115,11 @@ fun LemuroidCardSettingsGroup(
     Column(modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (title != null) {
             Box(Modifier.padding(horizontal = 8.dp).semantics { heading() }) {
-                ProvideTextStyle(MaterialTheme.typography.titleSmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)) { title() }
+                ProvideTextStyle(
+                    MaterialTheme.typography.titleSmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
+                ) {
+                    title()
+                }
             }
         }
         Surface(
@@ -135,7 +143,9 @@ fun LemuroidSettingsSlider(
     val haptics = LocalConsoleHaptics.current
     Column(modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
         ProvideTextStyle(MaterialTheme.typography.titleMedium) { title() }
-        ProvideTextStyle(MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)) { subtitle() }
+        ProvideTextStyle(MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)) {
+            subtitle()
+        }
         Slider(
             value = state.value.toFloat(),
             onValueChange = {
@@ -153,10 +163,11 @@ fun LemuroidSettingsSlider(
 }
 
 @Composable
-private fun lemuroidSettingsColor(enabled: Boolean): ListItemColors = ListItemDefaults.colors(
-    containerColor = Color.Transparent,
-    headlineColor = MaterialTheme.colorScheme.onSurface.copy(alpha = if (enabled) 1f else .38f),
-    leadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else .38f),
-    trailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else .38f),
-    supportingColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else .38f),
-)
+private fun lemuroidSettingsColor(enabled: Boolean): ListItemColors =
+    ListItemDefaults.colors(
+        containerColor = Color.Transparent,
+        headlineColor = MaterialTheme.colorScheme.onSurface.copy(alpha = if (enabled) 1f else .38f),
+        leadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else .38f),
+        trailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else .38f),
+        supportingColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else .38f),
+    )

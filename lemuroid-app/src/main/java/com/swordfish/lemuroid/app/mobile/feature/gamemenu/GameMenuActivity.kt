@@ -2,11 +2,7 @@
 
 package com.swordfish.lemuroid.app.mobile.feature.gamemenu
 
-import com.swordfish.lemuroid.app.mobile.feature.emuui.enterImmersiveConsole
 import android.content.Intent
-import androidx.compose.foundation.BorderStroke
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberConsoleControlInteractions
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.consoleFrameColor
 import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.SystemBarStyle
@@ -15,6 +11,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Box
@@ -36,7 +33,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ConsolePageHeader
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
@@ -68,6 +64,7 @@ import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.emuui.FoldGeometry
 import com.swordfish.lemuroid.app.mobile.feature.emuui.FoldGuidance
 import com.swordfish.lemuroid.app.mobile.feature.emuui.allowDisplayCutouts
+import com.swordfish.lemuroid.app.mobile.feature.emuui.enterImmersiveConsole
 import com.swordfish.lemuroid.app.mobile.feature.emuui.rememberFoldPosture
 import com.swordfish.lemuroid.app.mobile.feature.game.ConsoleRegion
 import com.swordfish.lemuroid.app.mobile.feature.game.FoldGameGuidance
@@ -80,6 +77,9 @@ import com.swordfish.lemuroid.app.mobile.feature.home.LauncherDirection
 import com.swordfish.lemuroid.app.mobile.feature.home.activateLauncherMenuFocus
 import com.swordfish.lemuroid.app.mobile.feature.home.moveLauncherMenuFocus
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.AppTheme
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ConsolePageHeader
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.consoleFrameColor
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberConsoleControlInteractions
 import com.swordfish.lemuroid.app.shared.GameMenuContract
 import com.swordfish.lemuroid.app.shared.coreoptions.LemuroidCoreOption
 import com.swordfish.lemuroid.app.shared.input.InputDeviceManager
@@ -207,14 +207,20 @@ class GameMenuActivity : RetrogradeComponentActivity() {
                     navigationIcon = {
                         AnimatedContent(targetState = currentRoute.canGoBack(), label = "Back") { canGoBack ->
                             if (canGoBack) {
-                                IconButton(onClick = { navController.popBackStack() }, interactionSource = rememberConsoleControlInteractions()) {
+                                IconButton(
+                                    onClick = { navController.popBackStack() },
+                                    interactionSource = rememberConsoleControlInteractions(),
+                                ) {
                                     Icon(
                                         Icons.AutoMirrored.Filled.ArrowBack,
                                         stringResource(R.string.back),
                                     )
                                 }
                             } else {
-                                IconButton(onClick = { onResult { } }, interactionSource = rememberConsoleControlInteractions()) {
+                                IconButton(
+                                    onClick = { onResult { } },
+                                    interactionSource = rememberConsoleControlInteractions(),
+                                ) {
                                     Icon(
                                         Icons.Filled.Close,
                                         stringResource(R.string.close),
@@ -224,7 +230,10 @@ class GameMenuActivity : RetrogradeComponentActivity() {
                         }
                     },
                 )
-                Divider(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .3f))
+                Divider(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .3f),
+                )
                 NavHost(
                     modifier =
                         Modifier

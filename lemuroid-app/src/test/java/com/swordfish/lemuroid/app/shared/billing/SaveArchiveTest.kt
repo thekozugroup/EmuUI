@@ -1,10 +1,12 @@
 package com.swordfish.lemuroid.app.shared.billing
 
+import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Test
 import java.io.ByteArrayOutputStream
 import java.nio.file.Files
 import java.util.zip.ZipInputStream
-import org.junit.Assert.*
-import org.junit.Test
 
 class SaveArchiveTest {
     @Test fun exportPreservesOriginalsAndSkipsSymlinksOutsideSaveRoot() {
@@ -23,7 +25,9 @@ class SaveArchiveTest {
             }
             assertArrayEquals(byteArrayOf(1, 2, 3), original.readBytes())
             assertEquals("not a save", unrelated.readText())
-        } finally { temporary.deleteRecursively() }
+        } finally {
+            temporary.deleteRecursively()
+        }
     }
 
     @Test fun emptySaveDirectoryProducesValidEmptyZip() {
@@ -32,6 +36,8 @@ class SaveArchiveTest {
             val output = ByteArrayOutputStream()
             assertEquals(0, SaveArchive.write(mapOf("saves" to missing.resolve("absent")), output))
             ZipInputStream(output.toByteArray().inputStream()).use { assertNull(it.nextEntry) }
-        } finally { missing.deleteRecursively() }
+        } finally {
+            missing.deleteRecursively()
+        }
     }
 }

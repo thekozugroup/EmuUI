@@ -8,7 +8,10 @@ import java.util.zip.ZipOutputStream
 
 /** Read-only export of explicitly supplied save roots. Never traverses a symlink. */
 object SaveArchive {
-    fun write(roots: Map<String, File>, output: OutputStream): Int {
+    fun write(
+        roots: Map<String, File>,
+        output: OutputStream,
+    ): Int {
         var count = 0
         ZipOutputStream(output).use { zip ->
             roots.forEach { (label, directory) ->

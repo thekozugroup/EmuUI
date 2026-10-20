@@ -1,6 +1,5 @@
 package com.swordfish.lemuroid.app.mobile.feature.game
 
-import com.swordfish.lemuroid.app.mobile.feature.emuui.enterImmersiveConsole
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
@@ -19,6 +18,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.swordfish.lemuroid.app.mobile.feature.emuui.WindowCutoutSnapshot
 import com.swordfish.lemuroid.app.mobile.feature.emuui.allowDisplayCutouts
+import com.swordfish.lemuroid.app.mobile.feature.emuui.enterImmersiveConsole
 import com.swordfish.lemuroid.app.mobile.feature.gamemenu.GameMenuActivity
 import com.swordfish.lemuroid.app.shared.game.BaseGameActivity
 import com.swordfish.lemuroid.app.shared.game.BaseGameScreenViewModel

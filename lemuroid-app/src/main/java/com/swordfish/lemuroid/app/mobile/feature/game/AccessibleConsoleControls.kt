@@ -1,7 +1,6 @@
 package com.swordfish.lemuroid.app.mobile.feature.game
 
 import android.view.KeyEvent
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LocalConsoleHaptics
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,14 +24,19 @@ import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LocalConsoleHaptics
 import com.swordfish.lemuroid.app.shared.game.BaseGameScreenViewModel
 import com.swordfish.touchinput.radial.settings.TouchControllerID
 
 internal fun supportsAccessibleConsole(controller: TouchControllerID): Boolean =
     controller in
         setOf(
-            TouchControllerID.GB, TouchControllerID.GBA, TouchControllerID.NES,
-            TouchControllerID.SNES, TouchControllerID.MELONDS, TouchControllerID.DESMUME,
+            TouchControllerID.GB,
+            TouchControllerID.GBA,
+            TouchControllerID.NES,
+            TouchControllerID.SNES,
+            TouchControllerID.MELONDS,
+            TouchControllerID.DESMUME,
         )
 
 /** Native button semantics for TalkBack/Switch Access, with explicit held-button actions. */

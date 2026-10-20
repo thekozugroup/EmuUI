@@ -2,7 +2,6 @@ package com.swordfish.lemuroid.app.mobile.feature.main
 
 import android.view.HapticFeedbackConstants
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -11,8 +10,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.*
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.AppTheme
@@ -47,7 +49,14 @@ class ConsoleHapticsTest {
         generator.onInputEvents(listOf(gg.padkit.inputevents.InputEvent.DiscreteDirection(0, Offset.Zero)))
         assertEquals(listOf(HapticFeedbackConstants.VIRTUAL_KEY, HapticFeedbackConstants.VIRTUAL_KEY_RELEASE), effects)
         effects.clear()
-        val silent = com.swordfish.lemuroid.app.mobile.shared.compose.ui.GameControlHaptics(ConsoleHaptics(HapticFeedbackMode.NONE) { effects += it })
+        val silent =
+            com.swordfish.lemuroid.app.mobile.shared.compose.ui.GameControlHaptics(
+                ConsoleHaptics(
+                    HapticFeedbackMode.NONE,
+                ) {
+                    effects += it
+                },
+            )
         silent.onInputEvents(pressed)
         silent.onInputEvents(released)
         assertEquals(0, effects.size)
@@ -59,8 +68,26 @@ class ConsoleHapticsTest {
         compose.activityRule.scenario.onActivity { activity ->
             activity.setContent {
                 AppTheme {
-                    CompositionLocalProvider(LocalConsoleHaptics provides ConsoleHaptics(HapticFeedbackMode.PRESS_RELEASE) { effects += it }) {
-                        Button(onClick = { clicks++ }, interactionSource = rememberConsoleControlInteractions(), modifier = Modifier.size(120.dp).testTag("control")) { Text("A") }
+                    CompositionLocalProvider(
+                        LocalConsoleHaptics provides
+                            ConsoleHaptics(
+                                HapticFeedbackMode.PRESS_RELEASE,
+                            ) {
+                                effects += it
+                            },
+                    ) {
+                        Button(
+                            onClick = {
+                                clicks++
+                            },
+                            interactionSource = rememberConsoleControlInteractions(),
+                            modifier =
+                                Modifier.size(
+                                    120.dp,
+                                ).testTag("control"),
+                        ) {
+                            Text("A")
+                        }
                     }
                 }
             }
@@ -69,11 +96,17 @@ class ConsoleHapticsTest {
         compose.runOnIdle { assertEquals(listOf(HapticFeedbackConstants.VIRTUAL_KEY), effects) }
         compose.onNodeWithTag("control").performTouchInput { up() }
         compose.runOnIdle {
-            assertEquals(listOf(HapticFeedbackConstants.VIRTUAL_KEY, HapticFeedbackConstants.VIRTUAL_KEY_RELEASE), effects)
+            assertEquals(
+                listOf(HapticFeedbackConstants.VIRTUAL_KEY, HapticFeedbackConstants.VIRTUAL_KEY_RELEASE),
+                effects,
+            )
             assertEquals(1, clicks)
             effects.clear()
         }
-        compose.onNodeWithTag("control").performTouchInput { down(center); cancel() }
+        compose.onNodeWithTag("control").performTouchInput {
+            down(center)
+            cancel()
+        }
         compose.runOnIdle {
             assertEquals(listOf(HapticFeedbackConstants.VIRTUAL_KEY), effects)
             assertEquals(1, clicks)
@@ -88,17 +121,42 @@ class ConsoleHapticsTest {
         compose.activityRule.scenario.onActivity { activity ->
             activity.setContent {
                 AppTheme {
-                    CompositionLocalProvider(LocalConsoleHaptics provides ConsoleHaptics(mode.value) { effects += it }) {
-                        Button(onClick = { clicks++ }, enabled = enabled.value, interactionSource = rememberConsoleControlInteractions(enabled.value), modifier = Modifier.size(120.dp).testTag("control")) { Text("A") }
+                    CompositionLocalProvider(
+                        LocalConsoleHaptics provides ConsoleHaptics(mode.value) { effects += it },
+                    ) {
+                        Button(
+                            onClick = {
+                                clicks++
+                            },
+                            enabled = enabled.value,
+                            interactionSource =
+                                rememberConsoleControlInteractions(
+                                    enabled.value,
+                                ),
+                            modifier = Modifier.size(120.dp).testTag("control"),
+                        ) {
+                            Text("A")
+                        }
                     }
                 }
             }
         }
         compose.onNodeWithTag("control").performTouchInput { click() }
-        compose.runOnIdle { assertEquals(0, effects.size); assertEquals(1, clicks); mode.value = HapticFeedbackMode.PRESS }
+        compose.runOnIdle {
+            assertEquals(0, effects.size)
+            assertEquals(1, clicks)
+            mode.value = HapticFeedbackMode.PRESS
+        }
         compose.onNodeWithTag("control").performTouchInput { click() }
-        compose.runOnIdle { assertEquals(listOf(HapticFeedbackConstants.VIRTUAL_KEY), effects); effects.clear(); enabled.value = false }
+        compose.runOnIdle {
+            assertEquals(listOf(HapticFeedbackConstants.VIRTUAL_KEY), effects)
+            effects.clear()
+            enabled.value = false
+        }
         compose.onNodeWithTag("control").assertIsNotEnabled().performTouchInput { click() }
-        compose.runOnIdle { assertEquals(0, effects.size); assertEquals(2, clicks) }
+        compose.runOnIdle {
+            assertEquals(0, effects.size)
+            assertEquals(2, clicks)
+        }
     }
 }

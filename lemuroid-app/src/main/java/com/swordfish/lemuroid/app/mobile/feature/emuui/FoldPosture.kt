@@ -58,7 +58,10 @@ fun rememberFoldPosture(): FoldPosture {
                             val bounds = feature.bounds
                             FoldPosture(
                                 FoldBounds(
-                                    bounds.left, bounds.top, bounds.right, bounds.bottom,
+                                    bounds.left,
+                                    bounds.top,
+                                    bounds.right,
+                                    bounds.bottom,
                                     if (feature.orientation == FoldingFeature.Orientation.HORIZONTAL) {
                                         FoldAxis.HORIZONTAL
                                     } else {

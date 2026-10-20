@@ -24,16 +24,19 @@ object ConsoleOrientation {
     }
 
     /** Both natural-landscape and natural-portrait devices: derive from observed landscape rotation. */
-    fun landscapeRequest(rotation: Int): Int = when (rotation) {
-        Surface.ROTATION_180, Surface.ROTATION_270 -> ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
-        else -> ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-    }
+    fun landscapeRequest(rotation: Int): Int =
+        when (rotation) {
+            Surface.ROTATION_180, Surface.ROTATION_270 -> ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+            else -> ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        }
 
     fun apply(activity: Activity) {
         val prefs = SharedPreferencesHelper.getSharedPreferences(activity)
         if (prefs.getString(DEVICE_KEY, null) != deviceKey) return
         val value = prefs.getInt(KEY, ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
-        if (value == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE || value == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE) {
+        if (value == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE ||
+            value == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+        ) {
             activity.requestedOrientation = value
         }
     }

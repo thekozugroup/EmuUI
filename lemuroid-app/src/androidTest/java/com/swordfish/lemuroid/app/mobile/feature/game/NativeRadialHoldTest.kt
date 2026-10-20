@@ -418,11 +418,16 @@ class NativeRadialHoldTest {
         const val SURFACE = "emuui_game_surface"
         val DIGITS =
             arrayOf(
-                intArrayOf(14, 17, 19, 21, 25, 17, 14), intArrayOf(4, 12, 4, 4, 4, 4, 14),
-                intArrayOf(14, 17, 1, 2, 4, 8, 31), intArrayOf(30, 1, 1, 14, 1, 1, 30),
-                intArrayOf(2, 6, 10, 18, 31, 2, 2), intArrayOf(31, 16, 16, 30, 1, 1, 30),
-                intArrayOf(14, 16, 16, 30, 17, 17, 14), intArrayOf(31, 1, 2, 4, 8, 8, 8),
-                intArrayOf(14, 17, 17, 14, 17, 17, 14), intArrayOf(14, 17, 17, 15, 1, 1, 14),
+                intArrayOf(14, 17, 19, 21, 25, 17, 14),
+                intArrayOf(4, 12, 4, 4, 4, 4, 14),
+                intArrayOf(14, 17, 1, 2, 4, 8, 31),
+                intArrayOf(30, 1, 1, 14, 1, 1, 30),
+                intArrayOf(2, 6, 10, 18, 31, 2, 2),
+                intArrayOf(31, 16, 16, 30, 1, 1, 30),
+                intArrayOf(14, 16, 16, 30, 17, 17, 14),
+                intArrayOf(31, 1, 2, 4, 8, 8, 8),
+                intArrayOf(14, 17, 17, 14, 17, 17, 14),
+                intArrayOf(14, 17, 17, 15, 1, 1, 14),
             )
     }
 }

@@ -185,7 +185,8 @@ class HomeViewModel(
                     .catch {
                         emit(
                             uiStates.value.copy(
-                                isLoading = false, indexInProgress = false,
+                                isLoading = false,
+                                indexInProgress = false,
                                 errorMessage =
                                     "Your library could not be loaded. " +
                                         "Try again or choose your games folder.",

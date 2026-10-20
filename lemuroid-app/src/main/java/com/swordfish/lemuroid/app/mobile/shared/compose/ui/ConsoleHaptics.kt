@@ -37,13 +37,25 @@ class ConsoleHaptics(
 
     fun release() {
         if (mode == HapticFeedbackMode.PRESS_RELEASE) {
-            emit(if (Build.VERSION.SDK_INT >= 27) HapticFeedbackConstants.VIRTUAL_KEY_RELEASE else HapticFeedbackConstants.VIRTUAL_KEY)
+            emit(
+                if (Build.VERSION.SDK_INT >= 27) {
+                    HapticFeedbackConstants.VIRTUAL_KEY_RELEASE
+                } else {
+                    HapticFeedbackConstants.VIRTUAL_KEY
+                },
+            )
         }
     }
 
     fun selection() {
         if (mode != HapticFeedbackMode.NONE) {
-            emit(if (Build.VERSION.SDK_INT >= 27) HapticFeedbackConstants.CLOCK_TICK else HapticFeedbackConstants.VIRTUAL_KEY)
+            emit(
+                if (Build.VERSION.SDK_INT >= 27) {
+                    HapticFeedbackConstants.CLOCK_TICK
+                } else {
+                    HapticFeedbackConstants.VIRTUAL_KEY
+                },
+            )
         }
     }
 }
@@ -66,17 +78,29 @@ internal class GameControlHaptics(private val haptics: ConsoleHaptics) {
         events.forEach { event ->
             when (event) {
                 is InputEvent.Button -> {
-                    if (event.pressed) pressed = heldKeys.add(event.id) || pressed
-                    else released = heldKeys.remove(event.id) || released
+                    if (event.pressed) {
+                        pressed = heldKeys.add(event.id) || pressed
+                    } else {
+                        released = heldKeys.remove(event.id) || released
+                    }
                 }
                 is InputEvent.DiscreteDirection, is InputEvent.ContinuousDirection -> {
-                    val (id, raw) = when (event) {
-                        is InputEvent.DiscreteDirection -> event.id to event.direction
-                        is InputEvent.ContinuousDirection -> event.id to event.direction
-                        else -> error("Not a direction")
-                    }
+                    val (id, raw) =
+                        when (event) {
+                            is InputEvent.DiscreteDirection -> event.id to event.direction
+                            is InputEvent.ContinuousDirection -> event.id to event.direction
+                            else -> error("Not a direction")
+                        }
+
                     // Analog motion only ticks when crossing a direction sector, not on every move.
-                    fun sector(value: Float): Float = if (abs(value) < .5f) 0f else if (value > 0f) 1f else -1f
+                    fun sector(value: Float): Float =
+                        if (abs(value) < .5f) {
+                            0f
+                        } else if (value > 0f) {
+                            1f
+                        } else {
+                            -1f
+                        }
                     val next = Offset(sector(raw.x), sector(raw.y))
                     val previous = directions[id] ?: Offset.Zero
                     if (next != previous) {
@@ -86,7 +110,11 @@ internal class GameControlHaptics(private val haptics: ConsoleHaptics) {
                 }
             }
         }
-        if (pressed) haptics.press() else if (released) haptics.release()
+        if (pressed) {
+            haptics.press()
+        } else if (released) {
+            haptics.release()
+        }
     }
 }
 
@@ -97,15 +125,18 @@ internal fun rememberConsoleHaptics(): ConsoleHaptics {
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val preferences = remember(context) { SharedPreferencesHelper.getSharedPreferences(context) }
     val key = context.getString(R.string.pref_key_haptic_feedback_mode)
+
     fun readMode() = HapticFeedbackMode.parse(preferences.safeGetString(key, "press") ?: "press")
     var mode by remember(preferences) { mutableStateOf(readMode()) }
     DisposableEffect(preferences, lifecycle, key) {
-        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, changed ->
-            if (changed == null || changed == key) mode = readMode()
-        }
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) mode = readMode()
-        }
+        val listener =
+            SharedPreferences.OnSharedPreferenceChangeListener { _, changed ->
+                if (changed == null || changed == key) mode = readMode()
+            }
+        val observer =
+            LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) mode = readMode()
+            }
         preferences.registerOnSharedPreferenceChangeListener(listener)
         lifecycle.addObserver(observer)
         mode = readMode()

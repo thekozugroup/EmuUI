@@ -1,9 +1,5 @@
 package com.swordfish.lemuroid.app.mobile.feature.main
 
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberConsoleControlInteractions
-import androidx.compose.material3.MaterialTheme
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ConsolePageHeader
-
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -18,8 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
@@ -30,6 +24,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -39,11 +34,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.swordfish.lemuroid.R
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ConsolePageHeader
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberConsoleControlInteractions
 import com.swordfish.lemuroid.app.shared.savesync.SaveSyncWork
 
 @Composable
@@ -96,7 +95,10 @@ fun LemuroidTopAppBar(
                 enter = fadeIn(),
                 exit = fadeOut(),
             ) {
-                IconButton(onClick = { navController.popBackStack() }, interactionSource = rememberConsoleControlInteractions()) {
+                IconButton(
+                    onClick = { navController.popBackStack() },
+                    interactionSource = rememberConsoleControlInteractions(),
+                ) {
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBack,
                         stringResource(id = R.string.back),
@@ -198,7 +200,10 @@ private fun LemuroidSearchView(
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions =
                 KeyboardActions(
-                    onDone = { keyboard?.hide(); focusManager.clearFocus(true) },
+                    onDone = {
+                        keyboard?.hide()
+                        focusManager.clearFocus(true)
+                    },
                 ),
             colors =
                 TextFieldDefaults.colors(

@@ -19,19 +19,33 @@ import java.io.File
 class CoverCapabilityProbeTest {
     @Test fun recordActualDualDisplayAvailabilityWithoutActivatingIt() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val infos = runBlocking {
-            withContext(Dispatchers.Main) {
-                withTimeoutOrNull(5000) { WindowAreaController.getOrCreate().windowAreaInfos.first() }
+        val infos =
+            runBlocking {
+                withContext(Dispatchers.Main) {
+                    withTimeoutOrNull(5000) { WindowAreaController.getOrCreate().windowAreaInfos.first() }
+                }
             }
-        }
-        val report = JSONObject().put("model", android.os.Build.MODEL)
-            .put("api", android.os.Build.VERSION.SDK_INT)
-            .put("receivedCapabilityReport", infos != null)
-            .put("areas", JSONArray().apply {
-                infos?.forEach { info -> put(JSONObject().put("type", info.type.toString())
-                    .put("presentStatus", info.getCapability(WindowAreaCapability.Operation.OPERATION_PRESENT_ON_AREA).status.toString())) }
-            })
-            .put("simultaneousTouchVerified", false)
+        val report =
+            JSONObject().put("model", android.os.Build.MODEL)
+                .put("api", android.os.Build.VERSION.SDK_INT)
+                .put("receivedCapabilityReport", infos != null)
+                .put(
+                    "areas",
+                    JSONArray().apply {
+                        infos?.forEach { info ->
+                            put(
+                                JSONObject().put("type", info.type.toString())
+                                    .put(
+                                        "presentStatus",
+                                        info.getCapability(
+                                            WindowAreaCapability.Operation.OPERATION_PRESENT_ON_AREA,
+                                        ).status.toString(),
+                                    ),
+                            )
+                        }
+                    },
+                )
+                .put("simultaneousTouchVerified", false)
         val dir = File(context.getExternalFilesDir(null), "polish-qa").apply { mkdirs() }
         File(dir, "cover-capability.json").writeText(report.toString(2))
     }

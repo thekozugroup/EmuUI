@@ -12,11 +12,20 @@ class ArtworkAccentTest {
         assertEquals(blue, dominantArtworkColor(IntArray(100) { if (it < 70) blue else red }))
     }
 
-    @Test fun BlackAndWhiteBordersDoNotDrownOutTheCoverColor() {
+    @Test fun blackAndWhiteBordersDoNotDrownOutTheCoverColor() {
         val green = 0xFF48A868.toInt()
-        assertEquals(green, dominantArtworkColor(IntArray(100) {
-            when { it < 45 -> 0xFFFFFFFF.toInt(); it < 90 -> 0xFF000000.toInt(); else -> green }
-        }))
+        assertEquals(
+            green,
+            dominantArtworkColor(
+                IntArray(100) {
+                    when {
+                        it < 45 -> 0xFFFFFFFF.toInt()
+                        it < 90 -> 0xFF000000.toInt()
+                        else -> green
+                    }
+                },
+            ),
+        )
     }
 
     @Test fun emptyOrMonochromeImagesUseNeutralFallback() {

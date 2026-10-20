@@ -29,7 +29,14 @@ data class ThemePreferences(
             ThemePreferences(
                 mode = ThemeMode.fromPreference(preferences.safeGetString(THEME_MODE_KEY, "dark")),
                 dynamicColor = preferences.safeGetBoolean(DYNAMIC_COLOR_KEY, false),
-                frame = FrameTheme.entries.firstOrNull { it.name == preferences.safeGetString(FRAME_KEY, null) } ?: FrameTheme.OLED,
+                frame =
+                    FrameTheme.entries.firstOrNull {
+                        it.name ==
+                            preferences.safeGetString(
+                                FRAME_KEY,
+                                null,
+                            )
+                    } ?: FrameTheme.OLED,
             )
     }
 }

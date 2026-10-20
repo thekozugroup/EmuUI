@@ -1,11 +1,9 @@
 package com.swordfish.lemuroid.app.mobile.feature.home
 
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.consoleFrameColor
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -23,6 +21,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,12 +29,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.displayCutout
-import androidx.compose.foundation.layout.waterfall
-import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.waterfall
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -86,9 +84,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.graphics.drawable.toBitmap
-import coil.request.ImageRequest
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
@@ -99,16 +94,16 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LocalConsoleHaptics
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberConsoleControlInteractions
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
@@ -134,7 +129,9 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.drawable.toBitmap
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.emuui.CornerOverlayGeometry
 import com.swordfish.lemuroid.app.mobile.feature.emuui.FoldGeometry
@@ -142,6 +139,9 @@ import com.swordfish.lemuroid.app.mobile.feature.emuui.FoldGuidance
 import com.swordfish.lemuroid.app.mobile.feature.emuui.FoldRect
 import com.swordfish.lemuroid.app.mobile.feature.emuui.LocalWindowCutout
 import com.swordfish.lemuroid.app.mobile.feature.emuui.rememberFoldPosture
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LocalConsoleHaptics
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.consoleFrameColor
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberConsoleControlInteractions
 import com.swordfish.lemuroid.app.utils.android.settings.ConsoleDialogRegion
 import com.swordfish.lemuroid.app.utils.android.settings.LocalConsoleDialogRegion
 import com.swordfish.lemuroid.lib.library.db.entity.Game
@@ -290,7 +290,9 @@ internal fun ConsoleHomeScreen(
         CompositionLocalProvider(
             LocalConsoleDialogRegion provides
                 ConsoleDialogRegion(
-                    dialogBounds, dialogConsole?.leftControls, dialogConsole?.rightControls,
+                    dialogBounds,
+                    dialogConsole?.leftControls,
+                    dialogConsole?.rightControls,
                 ),
         ) {
             // Keep navigation and remembered library state composed through folding changes.
@@ -458,7 +460,10 @@ private fun PreviewPane(
                         ),
                     brand = { compact, measuring ->
                         Surface(
-                            onClick = { haptics.press(); onBrandClick() },
+                            onClick = {
+                                haptics.press()
+                                onBrandClick()
+                            },
                             modifier =
                                 if (measuring) {
                                     Modifier.clearAndSetSemantics { }
@@ -518,13 +523,22 @@ private fun PreviewPane(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             if (onSyncSaves != null) {
                                 IconButton(
-                                    onClick = { haptics.press(); onSyncSaves() },
+                                    onClick = {
+                                        haptics.press()
+                                        onSyncSaves()
+                                    },
                                 ) { Icon(Icons.Outlined.CloudSync, "Sync saved games") }
                             }
                             IconButton(
-                                onClick = { haptics.press(); onOpenHelp() },
+                                onClick = {
+                                    haptics.press()
+                                    onOpenHelp()
+                                },
                             ) { Icon(Icons.Outlined.HelpOutline, "Help and supported formats") }
-                            IconButton(onClick = { haptics.press(); onOpenSettings() }) { Icon(Icons.Outlined.Settings, "Settings") }
+                            IconButton(onClick = {
+                                haptics.press()
+                                onOpenSettings()
+                            }) { Icon(Icons.Outlined.Settings, "Settings") }
                         }
                     }
                     Surface(
@@ -551,7 +565,10 @@ private fun PreviewPane(
                     }
                     Button(
                         shapes = ButtonDefaults.shapes(),
-                        onClick = { haptics.press(); onPrimaryAction() },
+                        onClick = {
+                            haptics.press()
+                            onPrimaryAction()
+                        },
                         enabled = primaryAction.isEnabled(),
                         colors =
                             ButtonDefaults.buttonColors(
@@ -635,7 +652,10 @@ private fun PreviewPane(
                 }
                 if (game != null) {
                     IconButton(
-                        onClick = { haptics.press(); onOptions(game) },
+                        onClick = {
+                            haptics.press()
+                            onOptions(game)
+                        },
                         modifier =
                             Modifier.align(Alignment.CenterEnd)
                                 .windowInsetsPadding(consolePhysicalInsets().only(WindowInsetsSides.Horizontal))
@@ -722,7 +742,10 @@ private fun PreviewOverlayLayout(
                     constraints.maxWidth - inset - corners[2].width,
                     constraints.maxHeight - inset - cornerHeight,
                 )
-                title.placeRelative((constraints.maxWidth - titleWidth) / 2, constraints.maxHeight - inset - titleHeight)
+                title.placeRelative(
+                    (constraints.maxWidth - titleWidth) / 2,
+                    constraints.maxHeight - inset - titleHeight,
+                )
             } else {
                 guidance?.placeRelative(0, 0)
             }
@@ -950,8 +973,18 @@ private fun LibraryPane(
                         setupContent()
                     } else {
                         LibraryCenter(
-                            state, games, selectedGameId, filter, columns, changeFilter, selectGame, onOptions,
-                            onImport, onRetry, shortcuts, navigation,
+                            state,
+                            games,
+                            selectedGameId,
+                            filter,
+                            columns,
+                            changeFilter,
+                            selectGame,
+                            onOptions,
+                            onImport,
+                            onRetry,
+                            shortcuts,
+                            navigation,
                             onFocusFilter = {
                                 sectionIndex = it
                                 section = LauncherSection.FILTERS
@@ -1000,13 +1033,16 @@ private fun LibraryCenter(
     onFocusShortcut: (Int) -> Unit,
 ) {
     BalancedLibraryLayout {
-        Box(Modifier.fillMaxSize().semantics {
-            stateDescription = when (filter) {
-                LibraryFilter.ALL -> "All games"
-                LibraryFilter.FAVORITES -> "Favorites"
-                LibraryFilter.RECENT -> "Recently played"
-            }
-        }) {
+        Box(
+            Modifier.fillMaxSize().semantics {
+                stateDescription =
+                    when (filter) {
+                        LibraryFilter.ALL -> "All games"
+                        LibraryFilter.FAVORITES -> "Favorites"
+                        LibraryFilter.RECENT -> "Recently played"
+                    }
+            },
+        ) {
             when {
                 state.errorMessage != null ->
                     LibraryMessage(
@@ -1101,13 +1137,20 @@ private fun LibraryCenter(
 private fun BalancedLibraryLayout(content: @Composable () -> Unit) {
     Layout(content = content, modifier = Modifier.fillMaxSize()) { measurables, constraints ->
         val inset = minOf(16.dp.roundToPx(), constraints.maxHeight / 4, constraints.maxWidth / 4)
-        val dock = measurables[1].measure(
-            Constraints(maxWidth = (constraints.maxWidth - inset * 2).coerceAtLeast(0),
-                maxHeight = (constraints.maxHeight - inset * 2).coerceAtLeast(0)),
-        )
-        val shelf = measurables[0].measure(
-            Constraints.fixed(constraints.maxWidth, (constraints.maxHeight - dock.height - inset * 2).coerceAtLeast(0)),
-        )
+        val dock =
+            measurables[1].measure(
+                Constraints(
+                    maxWidth = (constraints.maxWidth - inset * 2).coerceAtLeast(0),
+                    maxHeight = (constraints.maxHeight - inset * 2).coerceAtLeast(0),
+                ),
+            )
+        val shelf =
+            measurables[0].measure(
+                Constraints.fixed(
+                    constraints.maxWidth,
+                    (constraints.maxHeight - dock.height - inset * 2).coerceAtLeast(0),
+                ),
+            )
         layout(constraints.maxWidth, constraints.maxHeight) {
             shelf.placeRelative(0, 0)
             dock.placeRelative((constraints.maxWidth - dock.width) / 2, constraints.maxHeight - inset - dock.height)
@@ -1199,7 +1242,11 @@ private fun GameIconCard(
     onOptions: () -> Unit,
 ) {
     val containerColor by animateColorAsState(
-        if (isSelected) MaterialTheme.colorScheme.surfaceContainerHighest else MaterialTheme.colorScheme.surfaceContainerLow,
+        if (isSelected) {
+            MaterialTheme.colorScheme.surfaceContainerHighest
+        } else {
+            MaterialTheme.colorScheme.surfaceContainerLow
+        },
         animationSpec = MaterialTheme.motionScheme.fastEffectsSpec(),
         label = "Cartridge selection",
     )
@@ -1218,12 +1265,21 @@ private fun GameIconCard(
     val shape = RoundedCornerShape(12.dp)
     Box(
         modifier.testTag("launcher_game_${game.id}")
-            .graphicsLayer { scaleX = selectedScale; scaleY = selectedScale }
+            .graphicsLayer {
+                scaleX = selectedScale
+                scaleY = selectedScale
+            }
             .drawBehind { drawArtworkGlow(accent, glow) }.clip(shape)
             .background(containerColor)
             .border(
                 .5.dp,
-                if (isSelected) accent.copy(alpha = .35f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = .35f),
+                if (isSelected) {
+                    accent.copy(
+                        alpha = .35f,
+                    )
+                } else {
+                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = .35f)
+                },
                 shape,
             )
             .onFocusChanged { if (it.isFocused) onSelect() }
@@ -1237,7 +1293,10 @@ private fun GameIconCard(
                     }
                     onSelect()
                 },
-                onLongClick = { haptic.press(); onOptions() },
+                onLongClick = {
+                    haptic.press()
+                    onOptions()
+                },
             )
             .semantics(mergeDescendants = true) {
                 // The upper title plaque supplies the visible label; retain full titles for assistive tech.
@@ -1253,7 +1312,11 @@ private fun GameIconCard(
             },
     ) {
         // The artwork reaches the card edge; the parent draws its outline above the image.
-        GameArtwork(game, Modifier.fillMaxSize().testTag("launcher_game_art_${game.id}"), onAccent = { artworkColor = it })
+        GameArtwork(
+            game,
+            Modifier.fillMaxSize().testTag("launcher_game_art_${game.id}"),
+            onAccent = { artworkColor = it },
+        )
         if (game.isFavorite) {
             Icon(
                 Icons.Outlined.Star,
@@ -1458,10 +1521,11 @@ private fun GameArtwork(
     onAccent: ((Color?) -> Unit)? = null,
 ) {
     val context = LocalContext.current
-    val imageRequest = remember(game?.coverFrontUrl, onAccent != null) {
-        ImageRequest.Builder(context).data(game?.coverFrontUrl)
-            .allowHardware(onAccent == null).build()
-    }
+    val imageRequest =
+        remember(game?.coverFrontUrl, onAccent != null) {
+            ImageRequest.Builder(context).data(game?.coverFrontUrl)
+                .allowHardware(onAccent == null).build()
+        }
     val colors = MaterialTheme.colorScheme
     val base = colors.surfaceContainer
     val cartridge = colors.surfaceContainerHighest

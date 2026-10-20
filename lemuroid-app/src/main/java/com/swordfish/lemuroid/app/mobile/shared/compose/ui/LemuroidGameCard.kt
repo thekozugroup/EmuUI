@@ -1,14 +1,14 @@
 package com.swordfish.lemuroid.app.mobile.shared.compose.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.OutlinedCard
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -34,8 +34,14 @@ fun LemuroidGameCard(
                 Modifier
                     .fillMaxWidth()
                     .combinedClickable(
-                        onClick = { haptics.press(); onClick() },
-                        onLongClick = { haptics.press(); onLongClick() },
+                        onClick = {
+                            haptics.press()
+                            onClick()
+                        },
+                        onLongClick = {
+                            haptics.press()
+                            onLongClick()
+                        },
                     ),
         ) {
             LemuroidGameImage(game = game)

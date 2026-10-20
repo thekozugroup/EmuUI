@@ -1,6 +1,5 @@
 package com.swordfish.lemuroid.app.utils.android.settings
 
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LocalConsoleHaptics
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.alorma.compose.settings.storage.base.SettingValueState
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LocalConsoleHaptics
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

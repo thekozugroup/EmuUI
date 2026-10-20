@@ -10,7 +10,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
-import java.io.File
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -21,7 +20,9 @@ class BillingPreparationUiTest {
     @get:Rule val compose = createAndroidComposeRule<BillingActivity>()
 
     @Test fun freeAccessHasNoCheckoutOrLogin() {
-        compose.onNodeWithText("All supported games are free and ad-free. No purchase or login is required.").assertExists()
+        compose.onNodeWithText(
+            "All supported games are free and ad-free. No purchase or login is required.",
+        ).assertExists()
         compose.onNodeWithText("Subscribe monthly").assertDoesNotExist()
         compose.onNodeWithText("Buy lifetime access").assertDoesNotExist()
         compose.onNodeWithText("Restore purchases").assertDoesNotExist()
@@ -31,8 +32,10 @@ class BillingPreparationUiTest {
     @Test fun saveExportIsAvailableWithoutEntitlementAndOpensRealDocumentPicker() {
         compose.onNodeWithText("Export saves and previews").performScrollTo().assertIsEnabled().performClick()
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        assertTrue(device.wait(Until.hasObject(By.pkg("com.google.android.documentsui")), 10000) ||
-            device.wait(Until.hasObject(By.pkg("com.android.documentsui")), 10000))
+        assertTrue(
+            device.wait(Until.hasObject(By.pkg("com.google.android.documentsui")), 10000) ||
+                device.wait(Until.hasObject(By.pkg("com.android.documentsui")), 10000),
+        )
         device.pressBack()
     }
 }

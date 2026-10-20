@@ -82,7 +82,9 @@ class MainActivitySmokeTest {
         // though startActivity works. Resolve via the disposable emulator's shell;
         // still open/cancel the real picker through the app's normal UI below.
         val pickerPackage =
-            device.executeShellCommand("cmd package resolve-activity --brief -a android.intent.action.OPEN_DOCUMENT_TREE")
+            device.executeShellCommand(
+                "cmd package resolve-activity --brief -a android.intent.action.OPEN_DOCUMENT_TREE",
+            )
                 .lineSequence().map(String::trim)
                 .lastOrNull { it.matches(Regex("[A-Za-z0-9_.]+/[A-Za-z0-9_.$]+")) }
                 ?.substringBefore('/')
@@ -122,8 +124,9 @@ class MainActivitySmokeTest {
         waitForLibrary()
         compose.onNodeWithText("Favorites").performClick()
         val originalRotation = device.displayRotation
-        val systemRotationRequired = android.os.Build.VERSION.SDK_INT >= 36 &&
-            compose.activity.resources.configuration.smallestScreenWidthDp >= 600
+        val systemRotationRequired =
+            android.os.Build.VERSION.SDK_INT >= 36 &&
+                compose.activity.resources.configuration.smallestScreenWidthDp >= 600
         try {
             if (systemRotationRequired) {
                 // API 36 ignores Activity orientation requests on large screens.

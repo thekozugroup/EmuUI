@@ -1,12 +1,8 @@
 package com.swordfish.lemuroid.app.utils.android.settings
 
 import android.os.Build
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.shape.RoundedCornerShape
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberConsoleControlInteractions
 import android.view.ViewTreeObserver
-import com.swordfish.lemuroid.app.mobile.feature.emuui.enterImmersiveConsole
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.consoleFrameColor
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -62,10 +59,13 @@ import androidx.compose.ui.window.DialogWindowProvider
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.emuui.FoldRect
 import com.swordfish.lemuroid.app.mobile.feature.emuui.allowDisplayCutouts
+import com.swordfish.lemuroid.app.mobile.feature.emuui.enterImmersiveConsole
 import com.swordfish.lemuroid.app.mobile.feature.home.LauncherControlWing
 import com.swordfish.lemuroid.app.mobile.feature.home.LauncherDirection
 import com.swordfish.lemuroid.app.mobile.feature.home.activateLauncherMenuFocus
 import com.swordfish.lemuroid.app.mobile.feature.home.moveLauncherMenuFocus
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.consoleFrameColor
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberConsoleControlInteractions
 
 /** A null rectangle explicitly blocks dialogs while a retained console route is unplaced. */
 data class ConsoleDialogRegion(
@@ -134,9 +134,10 @@ fun ConsoleSettingsDialog(
             dialogWindow?.allowDisplayCutouts()
             dialogWindow?.enterImmersiveConsole()
             val observer = dialogWindow?.decorView?.viewTreeObserver
-            val focusListener = ViewTreeObserver.OnWindowFocusChangeListener { focused ->
-                if (focused) dialogWindow?.enterImmersiveConsole()
-            }
+            val focusListener =
+                ViewTreeObserver.OnWindowFocusChangeListener { focused ->
+                    if (focused) dialogWindow?.enterImmersiveConsole()
+                }
             observer?.addOnWindowFocusChangeListener(focusListener)
             onDispose {
                 if (observer?.isAlive == true) observer.removeOnWindowFocusChangeListener(focusListener)
@@ -179,7 +180,11 @@ fun ConsoleSettingsDialog(
                     Column(Modifier.fillMaxSize().padding(16.dp)) {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                             // Always reachable, even when large text makes the body scroll.
-                            IconButton(onClick = onDismissRequest, modifier = Modifier.size(48.dp), interactionSource = rememberConsoleControlInteractions()) {
+                            IconButton(
+                                onClick = onDismissRequest,
+                                modifier = Modifier.size(48.dp),
+                                interactionSource = rememberConsoleControlInteractions(),
+                            ) {
                                 Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close))
                             }
                         }

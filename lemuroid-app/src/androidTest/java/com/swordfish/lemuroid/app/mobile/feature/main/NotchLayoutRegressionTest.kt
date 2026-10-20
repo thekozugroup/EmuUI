@@ -97,9 +97,11 @@ class NotchLayoutRegressionTest {
                     )
                 }
                 evidence.put(name, row)
-                assertFalse("System dialogs must not obscure cutout captures",
+                assertFalse(
+                    "System dialogs must not obscure cutout captures",
                     androidx.test.uiautomator.UiDevice.getInstance(instrumentation)
-                        .hasObject(androidx.test.uiautomator.By.pkg("android").textContains("isn't responding")))
+                        .hasObject(androidx.test.uiautomator.By.pkg("android").textContains("isn't responding")),
+                )
                 output.resolve("launcher-$name.png").outputStream().use {
                     instrumentation.uiAutomation.takeScreenshot().compress(
                         android.graphics.Bitmap.CompressFormat.PNG,
@@ -124,7 +126,12 @@ class NotchLayoutRegressionTest {
                         }
                     }
                     if (name == "normal" || name == "center" || name == "restored") {
-                        assertEquals("Top controls retain the shared 16dp margin after one status inset", statusBarTop + 16f * density, a.top, 1f)
+                        assertEquals(
+                            "Top controls retain the shared 16dp margin after one status inset",
+                            statusBarTop + 16f * density,
+                            a.top,
+                            1f,
+                        )
                         val preview = compose.onNodeWithTag("launcher_preview").fetchSemanticsNode().boundsInWindow
                         assertEquals("Brand side margin", 16f * density, a.left - preview.left, 1f)
                         assertEquals("Tools side margin", 16f * density, preview.right - b.right, 1f)
@@ -145,9 +152,21 @@ class NotchLayoutRegressionTest {
                         assertEquals("All floating corners share height", a.height, lower.height, 1f)
                         val preview = compose.onNodeWithTag("launcher_preview").fetchSemanticsNode().boundsInWindow
                         assertEquals("Bottom corners clear the edge", 16f * density, preview.bottom - lower.bottom, 1f)
-                        val sideMargin = if (tag.endsWith("count")) lower.left - preview.left else preview.right - lower.right
+                        val sideMargin =
+                            if (tag.endsWith(
+                                    "count",
+                                )
+                            ) {
+                                lower.left - preview.left
+                            } else {
+                                preview.right - lower.right
+                            }
                         assertEquals("Bottom corner side margin", 16f * density, sideMargin, 1f)
-                        val plaque = compose.onNodeWithTag("launcher_title_plaque", useUnmergedTree = true).fetchSemanticsNode().boundsInWindow
+                        val plaque =
+                            compose.onNodeWithTag(
+                                "launcher_title_plaque",
+                                useUnmergedTree = true,
+                            ).fetchSemanticsNode().boundsInWindow
                         assertEquals("Title floats at the same bottom inset", lower.bottom, plaque.bottom, 1f)
                     }
                 }
