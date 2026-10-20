@@ -8,7 +8,7 @@ Bring your own lawful game files. EmuUI does not include games or proprietary BI
 
 Gameplay needs no payment or EmuUI account, and the app contains no ads. Network artwork lookup can send a recognized game title to the cover provider. The Play build includes optional Google Drive save sync, which needs separate Google authorization; gameplay does not require it. The microphone permission is optional for compatible games. Save export uses a destination you choose.
 
-This is a development preview. Verification records describe specific homebrew fixtures, builds and emulator environments; they do not certify every game or physical foldable. Audio, long sessions, physical fold behavior, current game compatibility and Play-delivered cores still require release acceptance. Save states are core-specific, so keep a separate backup of important saves.
+This is a development preview. Verification records describe specific homebrew fixtures, builds and emulator environments; they do not certify every game or physical foldable. Audio, long sessions, physical fold behavior, current game compatibility, Google Drive sign-in and Play-delivered cores still require release acceptance. Save states are core-specific, so keep a separate backup of important saves.
 
 EmuUI is an independently branded, open-source GPL-3.0 fork of Lemuroid using LibretroDroid. Emulator cores keep their own licenses. It is not affiliated with Nintendo, Google or the Lemuroid maintainers.
 

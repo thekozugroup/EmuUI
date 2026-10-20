@@ -10,7 +10,7 @@ Appearance follows System, Light or Dark mode, saved across app launches. Androi
 
 ## Development preview
 
-The latest cloud work is recorded in [20 October readiness](docs/CLOUD_READINESS_20261020.md). It continues the October 10 OLED console/haptics preview on a separate branch; current Android build and runtime checks remain blocked as recorded there. Historical binary results do not verify this source revision.
+The latest cloud work is recorded in [20 October build verification](docs/BUILD_VERIFICATION_20261020.md). It continues the October 10 OLED console/haptics preview on a separate branch, with candidate-specific build, test and remaining runtime gates. Historical binary results do not verify this source revision.
 
 This is an early, independently branded GPL-3.0 fork. Device support is subject to the [verification record](docs/QA.md). Physical foldable behavior and any particular phone model are not certified by a successful build alone. You must provide your own lawful games; ROMs and BIOS files are not included.
 

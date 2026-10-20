@@ -1,5 +1,7 @@
 # Core support and compatibility checkpoint — 20 October 2026
 
+**Later cloud build follow-up:** [approved tooling and candidate verification](BUILD_VERIFICATION_20261020.md) supersedes the earlier SDK-approval/build blockers below. Historical results retain their original scope.
+
 Later update: [build-input recovery](BUILD_INPUT_RECOVERY_20261020.md) recovered the exact locked Android core/PSP bytes and published corresponding sources. It supersedes the missing-input/archive finding at the end of this checkpoint, without changing any runtime result or hash lock.
 
 This checkpoint starts from the existing `v0.3.0-dev.20261010.2-DEBUG` source (`cffb0fb`), not the older `main` preview. No new system is advertised merely because it has a library filter or libretro module. The existing two-display DS layout, arm64-only release scope, free/ad-free behavior, restricted-core exclusions, save formats and core revision locks are preserved.

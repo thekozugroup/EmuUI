@@ -1,0 +1,112 @@
+{
+  "artifact": "EmuUI-0.3.1-dev.20261020-play-dynamic-release-unsigned.aab",
+  "bytes": 52114806,
+  "sha256": "eaba8193363d6023fb159a8d483806c8aff972e4bb5a8b405a0a25061aa4c1d3",
+  "compiled_source_commit": "adb8678e6d6f773fd06937b007eea7286a32fd47",
+  "variant": "playDynamicRelease",
+  "package": "com.kozudigital.emuui",
+  "version_name": "0.3.1-dev.20261020",
+  "version_code": 8,
+  "min_sdk": 23,
+  "target_sdk": 36,
+  "unsigned": true,
+  "debuggable": false,
+  "uses_permissions": [
+    "android.permission.INTERNET",
+    "android.permission.READ_EXTERNAL_STORAGE",
+    "android.permission.VIBRATE",
+    "com.android.providers.tv.permission.WRITE_EPG_DATA",
+    "android.permission.POST_NOTIFICATIONS",
+    "android.permission.ACCESS_NETWORK_STATE",
+    "android.permission.FOREGROUND_SERVICE_DATA_SYNC",
+    "android.permission.RECORD_AUDIO",
+    "android.permission.WAKE_LOCK",
+    "android.permission.RECEIVE_BOOT_COMPLETED",
+    "android.permission.FOREGROUND_SERVICE",
+    "com.android.providers.tv.permission.READ_EPG_DATA",
+    "com.kozudigital.emuui.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+  ],
+  "declared_permissions": [
+    {
+      "name": "com.kozudigital.emuui.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
+      "protection_level": "0x00000002"
+    }
+  ],
+  "allow_backup": "true",
+  "full_backup_content_attribute": null,
+  "data_extraction_rules_attribute": null,
+  "request_legacy_external_storage": "true",
+  "network_security_config": "@xml/network_security_config",
+  "foreground_service_types": [
+    {
+      "class": "com.swordfish.lemuroid.app.mobile.feature.game.GameService",
+      "type_value": "0x00000001"
+    },
+    {
+      "class": "androidx.work.impl.foreground.SystemForegroundService",
+      "type_value": "0x00000001"
+    }
+  ],
+  "google_drive_sign_in_activity_present": true,
+  "billing_or_ad_id_permission_present": false,
+  "audit_checks": {
+    "zip_crc_integrity": true,
+    "exact_16_locked_cores": true,
+    "restricted_cores_absent": true,
+    "exact_18_native_entries": true,
+    "arm64_only": true,
+    "all_elf_load_segments_16kb_aligned": true,
+    "limited_private_or_game_asset_scan_clean": true,
+    "psp_assets_scope": true,
+    "gpl_license_packaged": true,
+    "all_source_licenses_packaged_byte_identically": true,
+    "review_bundle_unsigned": true,
+    "non_debuggable_release": true,
+    "no_billing_or_ad_id_permission": true,
+    "jarsigner_reports_unsigned": true,
+    "page_alignment_16k_requested": true,
+    "expected_final_artifact_hash": true,
+    "bundletool_validate": true
+  },
+  "decoded_manifest_sha256": "64770c3e39ee397cf67cd4274268ed1695e371fe2fa359a88a3d8602e4d625f9",
+  "source_audit_paths": {
+    "artifact_audit": "/workspace/EmuUI-build-20261020/evidence/final-aab-audit/result.json",
+    "decoded_manifest": "/workspace/EmuUI-build-20261020/evidence/final-aab-audit/manifest.xml",
+    "public_truststore_audit": "/workspace/EmuUI-build-20261020/evidence/final-aab-audit/public-truststores-verified.json"
+  },
+  "public_truststores": [
+    {
+      "archive_path": "base/root/com/google/api/client/googleapis/google.jks",
+      "sha256": "0d923518893514afb9288fe9139a601a4c1d7b2fed34cdf0e9a90c44ca388a2b",
+      "trusted_certificate_entries": 70,
+      "private_key_entries": 0,
+      "secret_key_entries": 0,
+      "matching_dependency_resources": [
+        {
+          "jar": "/workspace/tooling/gradle/caches/modules-2/files-2.1/com.google.api-client/google-api-client/1.32.1/3e216f54e59e3c6f01bc52beeeed9010724e0edf/google-api-client-1.32.1.jar",
+          "jar_sha256": "77adc2aeface4fc92a698bafa0f8bab716ab051bb21cb410600f5de2a7e6b30e",
+          "resource": "com/google/api/client/googleapis/google.jks"
+        }
+      ],
+      "classification": "Public CA truststore; no application signing key",
+      "verification_log": "google-jks-inventory.txt"
+    },
+    {
+      "archive_path": "base/root/com/google/api/client/googleapis/google.p12",
+      "sha256": "c98fba5f11f2f078ddf798fac0dcffa7e4a0ba1a9848e3e23f14210a506e827c",
+      "trusted_certificate_entries": 70,
+      "private_key_entries": 0,
+      "secret_key_entries": 0,
+      "matching_dependency_resources": [
+        {
+          "jar": "/workspace/tooling/gradle/caches/modules-2/files-2.1/com.google.api-client/google-api-client/1.32.1/3e216f54e59e3c6f01bc52beeeed9010724e0edf/google-api-client-1.32.1.jar",
+          "jar_sha256": "77adc2aeface4fc92a698bafa0f8bab716ab051bb21cb410600f5de2a7e6b30e",
+          "resource": "com/google/api/client/googleapis/google.p12"
+        }
+      ],
+      "classification": "Public CA truststore; no application signing key",
+      "verification_log": "google-p12-inventory.txt"
+    }
+  ],
+  "limits": "Packaging and manifest evidence only; no network capture, SDK behavior certification, OAuth success, signed Play delivery or completed Data safety form. Google CA stores contain zero private/secret entries and are not publisher signing keys."
+}

@@ -13,7 +13,8 @@ Prepared 20 October 2026 from the current EmuUI development branch, preserving t
 | `en-US/*.txt` | App title, short/full listing copy | Mirrors `fastlane/metadata/android/en-US` |
 | `screenshots/evidence.json` | Per-capture APK/source/device/posture/rights provenance | Pending native capture |
 | `screenshots/capture-plan.md` | Honest phone-guidance/foldable gameplay capture sequence | Pending execution |
-| `PRIVACY_DATA_SAFETY.md` | Source-based behavior and unresolved submission choices | Inventory, not an approved form |
+| `PRIVACY_DATA_SAFETY.md` | Source-based behavior and exact final release-manifest reconciliation | Inventory, not an approved form |
+| `release-manifest-inventory.json` | AAB identity, exact permissions, backup/service configuration and audit references | Matched to unsigned release AAB `eaba8193…`; no network/SDK certification |
 | `privacy-policy-draft.md` | Human-readable policy text for final publisher review | Contact, URL and service-retention details remain open |
 
 The inherited Lemuroid listing and TV banner were removed/replaced. EmuUI has no TV launcher and does not offer ordinary-phone gameplay. No commercial gameplay screenshots, device renders, generated gameplay or screenshots from a different binary are included.
@@ -27,9 +28,17 @@ python3 distribution/play/tools/render_assets.py
 python3 distribution/play/tools/validate_pack.py
 # This must fail while native screenshots remain missing:
 python3 distribution/play/tools/validate_pack.py --require-complete
+# After current captures pass, create a fresh archive outside source:
+python3 distribution/play/tools/build_review_archive.py /workspace/EmuUI-Play-Candidate-Review.zip
 ```
 
 The checker validates copy lengths, Fastlane parity, PNG sizes/modes, checksums, alt text and recorded screenshot provenance. It does not certify compatibility, image rights, final merged permissions or policy compliance.
+
+For current native captures, first set the `candidate` object in `screenshots/evidence.json` to the actual installed APK's SHA-256, source commit/tree, version, build flavor and delivery type. Then use `tools/add_capture.py NATIVE.png METADATA.json` with the required per-capture provenance fields from that manifest. The importer preserves the original, accepts only direct opaque native PNGs, and exports RGB without cropping, scaling or changing pixels. Captures stay in this pack: the repository publication guard intentionally forbids indexed Fastlane `phoneScreenshots` paths. A Fastlane upload layout may be prepared only in an external review archive. That group can include open foldable phones and does not imply ordinary-phone gameplay. Supporting captures can remain in evidence with `listing_eligible=false`.
+
+Current QA uses `freeBundleDebug`, version `0.3.1-dev.20261020-DEBUG`. A sideloaded debug screenshot must be labeled accordingly; it cannot prove the separately built unsigned `PlayDynamicRelease` AAB or Google Play feature delivery. Record software CPU/GPU emulation, API, native resolution and all synthetic hinge/posture inputs. A current ordinary-phone or cover-display capture may demonstrate open-screen guidance, and must not be described as supported phone gameplay.
+
+The review-archive tool refuses to overwrite earlier archives. It includes provenance, original native captures and a separate Fastlane upload-layout directory inside the external ZIP. Only captures explicitly marked eligible for the current APK enter that layout; no image upload is performed. Its `--allow-incomplete` option is for an explicitly unfinished draft, and `REVIEW-STATUS.json` always distinguishes listing asset completeness from launch readiness.
 
 ## Asset requirements checked
 

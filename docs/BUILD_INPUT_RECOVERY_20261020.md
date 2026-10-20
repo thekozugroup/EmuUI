@@ -1,5 +1,7 @@
 # Exact build-input recovery — 20 October 2026
 
+**Later cloud build follow-up:** [approved tooling and candidate verification](BUILD_VERIFICATION_20261020.md) supersedes the earlier SDK-approval/build blockers below. Historical results retain their original scope.
+
 This follow-up resolves the missing-native-input and unavailable-source-archive findings in [the initial cloud checkpoint](CLOUD_READINESS_20261020.md). Application code remains the implementation committed at `58d7763`; the earlier handoff files are preserved. Android build/runtime acceptance is still blocked by tooling agreements and installation.
 
 ## Recovered without changing a hash lock

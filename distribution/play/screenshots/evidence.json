@@ -1,10 +1,44 @@
 {
   "status": "pending_current_build_capture",
+  "candidate": {
+    "apk_sha256": "3f719e9ee0b83d47bf39f13f18c3e15337c66d40b07bec6541d6bed739c40b63",
+    "apk_bytes": 64362163,
+    "source_commit_or_tree": "adb8678e6d6f773fd06937b007eea7286a32fd47",
+    "version": "0.3.1-dev.20261020-DEBUG",
+    "version_code": 8,
+    "package": "com.kozudigital.emuui.debug",
+    "build_flavor": "freeBundleDebug",
+    "signing": "debug-signed QA build; no production signing identity",
+    "delivery": "sideloaded QA APK, not Google Play-delivered; final runtime capture pending",
+    "historical_apks_excluded": [
+      "9b9a7ade8e0c49e7f42d5a373dfa84cc1b3ecb4cef47453dd527f0aec2c66770"
+    ],
+    "limits": "Screenshots do not verify the separately built unsigned PlayDynamicRelease AAB, optional Play-only Drive flow, Play split delivery, physical devices or audible audio."
+  },
   "screenshots": [],
   "required_fields_per_capture": [
-    "file", "sha256", "apk_sha256", "source_commit_or_tree", "api_level",
-    "device_or_avd", "width", "height", "posture", "screen", "captured_utc",
-    "content_rights", "verification_scope", "alt_text"
+    "file",
+    "sha256",
+    "apk_sha256",
+    "source_commit_or_tree",
+    "api_level",
+    "device_or_avd",
+    "width",
+    "height",
+    "posture",
+    "screen",
+    "captured_utc",
+    "content_rights",
+    "verification_scope",
+    "alt_text",
+    "emulation",
+    "synthetic_posture",
+    "capture_method",
+    "build_flavor",
+    "delivery",
+    "listing_eligible",
+    "original_capture_sha256",
+    "pixel_processing"
   ],
-  "note": "No native app screenshots are tracked in the starting repository. Historical images named in docs/QA.md are in a separately delivered evidence archive and have not been retrieved or attributed to this build. Do not replace these slots with renders, mockups, older screenshots or commercial gameplay."
+  "note": "Capture the current 0.3.1-dev.20261020 candidate only. The freeBundle debug APK is sideloaded QA, not the unsigned PlayDynamicRelease AAB or Play-delivered app. Historical October 10 images, mockups, host-core captures and commercial gameplay are excluded from current listing evidence."
 }

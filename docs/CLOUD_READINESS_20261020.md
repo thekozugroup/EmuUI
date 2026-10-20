@@ -1,5 +1,7 @@
 # Cloud readiness checkpoint — 20 October 2026
 
+**Later cloud build follow-up:** [approved tooling and candidate verification](BUILD_VERIFICATION_20261020.md) supersedes the earlier SDK-approval/build blockers below. Historical results retain their original scope.
+
 **Later follow-up:** [Exact build-input recovery](BUILD_INPUT_RECOVERY_20261020.md) resolves the missing sixteen core inputs, PSP archive and source-archive availability findings below. All seventeen locked payloads now verify locally. SDK agreement approval/installation and Android verification remain pending; the initial handoff artifacts are preserved.
 
 **Implemented and host-tested; Android build and release acceptance remain blocked.** This work is on `codex/play-readiness-20261020`, in a separate cloud checkout. GitHub `main` was `bcda1e6` (0.1.1); the established October 10 preview is tag `v0.3.0-dev.20261010.2-DEBUG` at `cffb0fb79f7e387ef0b429d2e05f35ee077a9a8b`. Only the dedicated working branch was advanced to that source. No main merge, remote push, Play write, release, laptop access or change to Project-Subzero was performed.
