@@ -1,6 +1,6 @@
 # Native screenshot capture plan
 
-Pending execution against the final APK. No images in this directory currently count as store screenshots.
+Blocked before final app installation: the fresh cloud AVD's Android Watchdog killed `system_server` on 20 October 2026 at 18:39:05 UTC for blocked foreground/UI handlers. No Android test or current app capture executed. No images in this directory count as store screenshots. `evidence.json` records the final APK identity, runtime limits and supporting evidence paths. Resume this plan only in a stable Android runtime; do not replace it with historical images or host framebuffer renders.
 
 Capture clean PNGs directly from the app with `adb exec-out screencap -p`, using the final tested binary. Record every field in `evidence.json`. Confirm SHA-256 on the installed APK and label emulator captures as emulator captures. Disable notification content and use original or explicitly licensed homebrew only. Do not hide an error with image editing or upscale an old capture to imply a device was tested.
 

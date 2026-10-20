@@ -11,8 +11,8 @@ Prepared 20 October 2026 from the current EmuUI development branch, preserving t
 | `sources/*.svg` | Editable vector sources | Generated locally; no third-party game art |
 | `assets/manifest.json` / `assets/alt-text.json` | Checksums, dimensions, accessible descriptions | Validated |
 | `en-US/*.txt` | App title, short/full listing copy | Mirrors `fastlane/metadata/android/en-US` |
-| `screenshots/evidence.json` | Per-capture APK/source/device/posture/rights provenance | Pending native capture |
-| `screenshots/capture-plan.md` | Honest phone-guidance/foldable gameplay capture sequence | Pending execution |
+| `screenshots/evidence.json` | Final APK identity, exact capture blocker and future per-capture provenance | Blocked by Android system-server watchdog before final app installation; zero current captures |
+| `screenshots/capture-plan.md` | Honest phone-guidance/foldable gameplay capture sequence | Not executed on Android |
 | `PRIVACY_DATA_SAFETY.md` | Source-based behavior and exact final release-manifest reconciliation | Inventory, not an approved form |
 | `release-manifest-inventory.json` | AAB identity, exact permissions, backup/service configuration and audit references | Matched to unsigned release AAB `eaba8193…`; no network/SDK certification |
 | `privacy-policy-draft.md` | Human-readable policy text for final publisher review | Contact, URL and service-retention details remain open |
@@ -48,4 +48,6 @@ Keep the square icon uncropped: Google applies its own corner treatment. The fea
 
 ## Submission remains blocked
 
-Native screenshot capture of the final APK is pending. Also complete final-binary gameplay/lifecycle/audio/foldable acceptance, signed Play-delivery testing, source/license distribution obligations, publisher-approved privacy URL/contact and Data safety review. The pack does not contain signing credentials and does not authorize upload, publication, merge or release.
+Native screenshot capture is blocked. On the fresh isolated API 30 AVD, `boot_complete` was reached but Android Watchdog killed `system_server` at **20 October 2026, 18:39:05 UTC** for blocked foreground/UI handlers, before the final app could be installed. Gradle was stopped during that fresh run. The initial AVD also had system-process restarts and failed installs. These observations establish a cloud Android runtime blocker, not a demonstrated app crash or Android test failure. There are **zero current app screenshots and zero executed Android tests**. The exact blocker and evidence references are recorded in `screenshots/evidence.json`; no historical October 10 image, host framebuffer, generated gameplay or mockup is substituted.
+
+The new external `EmuUI-Play-Review-Incomplete-20261020.zip` is explicitly incomplete: `nativeMinimum=false`, `releaseReady=false` and `uploadScreenshotCount=0`. Earlier draft ZIPs remain unchanged. Complete final-binary gameplay/lifecycle/audio/foldable acceptance, signed Play-delivery testing, source/license distribution obligations, publisher-approved privacy URL/contact and Data safety review before publication. The pack contains no private signing material and does not authorize upload, publication, merge or release.

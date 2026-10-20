@@ -33,10 +33,11 @@ def main():
     output.parent.mkdir(parents=True, exist_ok=True)
     status = {
         "purpose": "Local Play listing review material; no upload, release or publication performed",
-        "native_screenshot_minimum_met": len(eligible) >= 2,
+        "nativeMinimum": len(eligible) >= 2,
         "candidate": evidence.get("candidate"),
-        "eligible_native_captures": len(eligible),
-        "release_ready": False,
+        "uploadScreenshotCount": len(eligible),
+        "releaseReady": False,
+        "capture_blocker": evidence.get("capture_blocker"),
         "remaining_gates": "See distribution/play/README.md, PRIVACY_DATA_SAFETY.md and current candidate runtime report. Sideloaded debug captures do not verify Play delivery.",
     }
     upload_root = Path("external-upload-layout/fastlane/metadata/android/en-US")

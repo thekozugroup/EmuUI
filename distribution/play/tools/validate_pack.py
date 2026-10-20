@@ -91,9 +91,13 @@ def main():
     if any(fastlane_screenshots.glob("*.png")):
         failures.append("Keep Fastlane screenshot upload layouts outside source; the publication guard forbids indexed phoneScreenshots")
     if len(eligible) < 2:
-        print("PENDING: fewer than two eligible current native screenshots; pack is not submission complete")
+        blocker = evidence.get("capture_blocker", {}).get("reason")
+        if blocker:
+            print(f"BLOCKED: {blocker}")
+        else:
+            print("PENDING: fewer than two eligible current native screenshots; pack is not submission complete")
         if args.require_complete:
-            failures.append("Verified native screenshots missing")
+            failures.append("Verified native screenshots missing" + (f": {blocker}" if blocker else ""))
     if captures:
         print(f"Screenshots: {len(captures)} evidence captures, {len(eligible)} current listing candidates")
     if failures:
