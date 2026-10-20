@@ -1,0 +1,10 @@
+{
+  "status": "pending_current_build_capture",
+  "screenshots": [],
+  "required_fields_per_capture": [
+    "file", "sha256", "apk_sha256", "source_commit_or_tree", "api_level",
+    "device_or_avd", "width", "height", "posture", "screen", "captured_utc",
+    "content_rights", "verification_scope", "alt_text"
+  ],
+  "note": "No native app screenshots are tracked in the starting repository. Historical images named in docs/QA.md are in a separately delivered evidence archive and have not been retrieved or attributed to this build. Do not replace these slots with renders, mockups, older screenshots or commercial gameplay."
+}

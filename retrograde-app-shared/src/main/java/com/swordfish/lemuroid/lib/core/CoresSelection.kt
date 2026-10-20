@@ -50,6 +50,7 @@ class CoresSelection(
         system: GameSystem,
         coreID: CoreID,
     ) = withContext(Dispatchers.IO) {
+        require(system.systemCoreConfigs.any { it.coreID == coreID }) { "Core does not belong to this system" }
         sharedPreferences.edit()
             .putString(computeSystemPreferenceKey(system.id), coreID.coreName)
             .commit()
@@ -62,18 +63,17 @@ class CoresSelection(
     private fun getSelectedCoreConfigForSystem(system: GameSystem): Flow<SystemCoreConfig> {
         return getSelectedCoreNameForSystem(system)
             .map { coreName ->
-                system.systemCoreConfigs.first { it.coreID.coreName == coreName }
-            }
+                resolveCore(system, coreName)
+            }.flowOn(Dispatchers.IO)
     }
 
     private fun getSelectedCoreNameForSystem(system: GameSystem): Flow<String> {
         return flow {
             val preferenceKey = computeSystemPreferenceKey(system.id)
             val currentValue = flowSharedPreferences.sharedPreferences.getString(preferenceKey, null)
-            var defaultValue = currentValue
+            val defaultValue = resolveCore(system, currentValue).coreID.coreName
 
-            if (currentValue == null) {
-                defaultValue = getDefaultCoreForSystem(system)
+            if (currentValue != defaultValue) {
                 flowSharedPreferences.sharedPreferences.edit(true) {
                     putString(preferenceKey, defaultValue)
                 }
@@ -88,16 +88,13 @@ class CoresSelection(
         }.flowOn(Dispatchers.IO)
     }
 
-    // TODO Also get rid of this when desmume is gone
-    private fun getDefaultCoreForSystem(system: GameSystem): String {
-        if (system.id == SystemID.NDS) {
-            return if (desmumeMigrationHandler.hasPendingDesmumeSaves()) {
-                CoreID.DESMUME.coreName
-            } else {
-                CoreID.MELONDS.coreName
-            }
-        }
-        return system.systemCoreConfigs.first().coreID.coreName
+    private fun resolveCore(
+        system: GameSystem,
+        requestedCoreName: String?,
+    ): SystemCoreConfig {
+        system.systemCoreConfigs.firstOrNull { it.coreID.coreName == requestedCoreName }?.let { return it }
+        val legacyDsSaves = system.id == SystemID.NDS && desmumeMigrationHandler.hasPendingDesmumeSaves()
+        return CoreSelectionPolicy.resolve(system, requestedCoreName, legacyDsSaves)
     }
 
     companion object {

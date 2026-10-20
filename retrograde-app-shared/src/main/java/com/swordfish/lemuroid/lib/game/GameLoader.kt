@@ -37,6 +37,7 @@ import com.swordfish.lemuroid.lib.saves.SavesManager
 import com.swordfish.lemuroid.lib.saves.StatesManager
 import com.swordfish.lemuroid.lib.storage.DirectoriesManager
 import com.swordfish.lemuroid.lib.storage.RomFiles
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import timber.log.Timber
@@ -84,7 +85,10 @@ class GameLoader(
                 val coreLibrary =
                     runCatching {
                         findLibrary(appContext, systemCoreConfig.coreID)!!.absolutePath
-                    }.getOrElse { throw GameLoaderException(GameLoaderError.LoadCore) }
+                    }.getOrElse {
+                        if (it is CancellationException) throw it
+                        throw GameLoaderException(GameLoaderError.LoadCore)
+                    }
 
                 emit(LoadingState.LoadingGame)
 
@@ -104,7 +108,10 @@ class GameLoader(
                     runCatching {
                         val data = savesManager.getSaveRAM(game, systemCoreConfig)
                         desmumeMigrationHandler.resolveSaveData(game, systemCoreConfig.coreID, data)
-                    }.getOrElse { throw GameLoaderException(GameLoaderError.Saves) }
+                    }.getOrElse {
+                        if (it is CancellationException) throw it
+                        throw GameLoaderException(GameLoaderError.Saves)
+                    }
                 val saveRAMData = saveRAM.data
 
                 val quickSaveData =
@@ -121,7 +128,10 @@ class GameLoader(
                         } else {
                             null
                         }
-                    }.getOrElse { throw GameLoaderException(GameLoaderError.Saves) }
+                    }.getOrElse {
+                        if (it is CancellationException) throw it
+                        throw GameLoaderException(GameLoaderError.Saves)
+                    }
 
                 val coreVariables =
                     coreVariablesManager.getOptionsForCore(system.id, systemCoreConfig)
@@ -144,6 +154,8 @@ class GameLoader(
                         ),
                     ),
                 )
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: GameLoaderException) {
                 Timber.e(e, "Error while preparing game")
                 throw e

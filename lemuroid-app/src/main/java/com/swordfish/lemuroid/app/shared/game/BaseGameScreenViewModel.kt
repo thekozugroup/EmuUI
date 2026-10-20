@@ -11,6 +11,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.game.GameService
 import com.swordfish.lemuroid.app.mobile.feature.settings.SettingsManager
 import com.swordfish.lemuroid.app.shared.game.viewmodel.GameViewModelInput
@@ -38,6 +39,7 @@ import com.swordfish.touchinput.radial.sensors.TiltConfiguration
 import com.swordfish.touchinput.radial.settings.TouchControllerSettingsManager
 import gg.padkit.inputevents.InputEvent
 import gg.padkit.inputstate.InputState
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -255,7 +257,14 @@ class BaseGameScreenViewModel(
     suspend fun saveSlot(index: Int) {
         if (loadingState.value) return
         withLoading {
-            saves.saveSlot(index)
+            try {
+                saves.saveSlot(index)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Timber.e(e, "Cannot write save slot")
+                sideEffects.showToast(appContext.getString(R.string.game_toast_save_state_failed))
+            }
         }
     }
 
@@ -303,13 +312,21 @@ class BaseGameScreenViewModel(
         if (loadingState.value) return
         viewModelScope.launch {
             withLoading {
-                // An initially blocked inner display may never have run the first frame.
-                // Exit without replacing existing saves with an uninitialized core snapshot.
-                if (retroGameView.canCaptureState) {
-                    val snapshot = saves.captureSaveSnapshot() ?: return@launch
-                    saves.writeSaveSnapshot(snapshot)
+                try {
+                    // An initially blocked inner display may never have run the first frame.
+                    // Exit without replacing existing saves with an uninitialized core snapshot.
+                    if (retroGameView.canCaptureState) {
+                        val snapshot = saves.captureSaveSnapshot() ?: return@launch
+                        saves.writeSaveSnapshot(snapshot)
+                    }
+                    sideEffects.requestSuccessfulFinish()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    // Keep the running game available so the user can retry the save.
+                    Timber.e(e, "Cannot save before closing game")
+                    sideEffects.showToast(appContext.getString(R.string.game_toast_save_state_failed))
                 }
-                sideEffects.requestSuccessfulFinish()
             }
         }
     }

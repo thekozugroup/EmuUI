@@ -14,7 +14,6 @@ import androidx.tvprovider.media.tv.ChannelLogoUtils
 import androidx.tvprovider.media.tv.PreviewProgram
 import androidx.tvprovider.media.tv.TvContractCompat
 import com.swordfish.lemuroid.R
-import com.swordfish.lemuroid.app.shared.covers.CoverUtils
 import com.swordfish.lemuroid.app.shared.deeplink.DeepLink
 import com.swordfish.lemuroid.lib.library.db.RetrogradeDatabase
 import com.swordfish.lemuroid.lib.library.db.entity.Game
@@ -164,7 +163,15 @@ class ChannelHandler(
         if (game.coverFrontUrl != null && thumbnailExists) {
             preview.setPosterArtUri(Uri.parse(game.coverFrontUrl))
         } else {
-            preview.setPosterArtUri(Uri.parse(CoverUtils.getFallbackRemoteUrl(game)))
+            // A placeholder must not disclose the title to a remote image-generation service.
+            preview.setPosterArtUri(
+                Uri.Builder()
+                    .scheme("android.resource")
+                    .authority(appContext.packageName)
+                    .appendPath("drawable")
+                    .appendPath("emuui_launcher")
+                    .build(),
+            )
         }
 
         return preview.build()

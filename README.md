@@ -10,6 +10,8 @@ Appearance follows System, Light or Dark mode, saved across app launches. Androi
 
 ## Development preview
 
+The latest cloud work is recorded in [20 October readiness](docs/CLOUD_READINESS_20261020.md). It continues the October 10 OLED console/haptics preview on a separate branch; current Android build and runtime checks remain blocked as recorded there. Historical binary results do not verify this source revision.
+
 This is an early, independently branded GPL-3.0 fork. Device support is subject to the [verification record](docs/QA.md). Physical foldable behavior and any particular phone model are not certified by a successful build alone. You must provide your own lawful games; ROMs and BIOS files are not included.
 
 ## Build
@@ -41,6 +43,8 @@ git -C lemuroid-cores checkout --detach FETCH_HEAD
 This downloads upstream emulator binaries and their notices separately. See the component provenance and source links before redistributing them.
 
 The dynamic debug APK downloads the selected upstream emulator core on demand. It uses a locally generated debug key; no signing keys are stored here. The package ID is `com.kozudigital.emuui.debug`, so it can coexist with Lemuroid. Release signing is intentionally left to the distributor.
+
+For a read-only check of the SDK, JDK and pinned submodule, run `python3 qa/cloud_build_preflight.py`. Add `--release` before Play or bundled builds: those variants additionally require the sixteen hash-locked source-built native inputs and PSP assets described in [source-core integration](docs/FULL_SOURCE_CORE_CHECKPOINT.md). These inputs are not included in Git. The checker neither installs software nor accepts SDK terms, and missing inputs must not be replaced with unrelated upstream binaries.
 
 The unchanged library metadata is stored losslessly as small gzip pieces. Gradle reconstructs and hash-checks the ordinary SQLite asset automatically, offline. See [metadata packaging](lemuroid-metadata-libretro-db/README.md).
 

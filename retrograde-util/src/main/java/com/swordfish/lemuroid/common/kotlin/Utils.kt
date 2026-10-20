@@ -1,5 +1,7 @@
 package com.swordfish.lemuroid.common.kotlin
 
+import kotlinx.coroutines.CancellationException
+
 data class NTuple2<T1, T2>(val t1: T1, val t2: T2) {
     operator fun <T3, T4, T5> plus(other: NTuple3<T3, T4, T5>): NTuple5<T1, T2, T3, T4, T5> {
         return NTuple5(this.t1, this.t2, other.t1, other.t2, other.t3)
@@ -21,7 +23,14 @@ tailrec suspend fun <T> runCatchingWithRetry(
     block: suspend () -> T,
 ): Result<T> {
     require(retries >= 1)
-    val result = runCatching { block() }
+    val result =
+        try {
+            Result.success(block())
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     return when {
         retries == 1 -> result
         result.isSuccess -> result

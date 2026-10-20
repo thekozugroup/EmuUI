@@ -163,5 +163,9 @@ int main() {
         check(wrapped.find("texture2D(previousPass,") == std::string::npos);
         check(wrapped.find("texture2D(image,") != std::string::npos);
     }
+    const auto defaultChain = ShaderManager::getShader({ShaderManager::Type::SHADER_DEFAULT, {}});
+    for (int invalid : {-1, 7, std::numeric_limits<int>::min(), std::numeric_limits<int>::max()}) {
+        check(ShaderManager::getShader({static_cast<ShaderManager::Type>(invalid), {}}) == defaultChain);
+    }
     std::cout << "PASS: " << checks << " render-region, pointer, aspect and shader-source checks\n";
 }

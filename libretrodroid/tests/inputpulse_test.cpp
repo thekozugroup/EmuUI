@@ -4,6 +4,7 @@
 #include <libretro.h>
 #include <cassert>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <vector>
 
@@ -15,6 +16,36 @@ static bool pressed(Input& input, unsigned id = RETRO_DEVICE_ID_JOYPAD_A) {
 }
 
 int main() {
+    {
+        Input input;
+        // Android/JNI controller indices must not address outside the four
+        // libretro pads. Invalid writes leave every valid pad unchanged.
+        for (unsigned port : {4u, std::numeric_limits<unsigned>::max()}) {
+            input.onKeyEvent(port, AKEY_EVENT_ACTION_DOWN, AKEYCODE_BUTTON_A);
+            input.enqueueAccessibleTap(port, AKEYCODE_BUTTON_A);
+            input.cancelAccessibleTaps(port, -1);
+            assert(input.getInputState(port, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_A) == 0);
+            assert(input.getInputState(port, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X) == 0);
+            assert(input.getInputState(port, RETRO_DEVICE_POINTER, 0, RETRO_DEVICE_ID_POINTER_PRESSED) == 0);
+        }
+        for (int port : {-1, 4, std::numeric_limits<int>::min(), std::numeric_limits<int>::max()}) {
+            for (int source : {Input::MOTION_SOURCE_DPAD, Input::MOTION_SOURCE_ANALOG_LEFT,
+                               Input::MOTION_SOURCE_ANALOG_RIGHT, Input::MOTION_SOURCE_POINTER}) {
+                input.onMotionEvent(port, source, 1, 1);
+            }
+        }
+        for (unsigned port = 0; port < 4; ++port) {
+            assert(input.getInputState(port, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_A) == 0);
+            assert(input.getInputState(port, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_RIGHT) == 0);
+            assert(input.getInputState(port, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X) == 0);
+            assert(input.getInputState(port, RETRO_DEVICE_POINTER, 0, RETRO_DEVICE_ID_POINTER_PRESSED) == 0);
+        }
+        input.onKeyEvent(3, AKEY_EVENT_ACTION_DOWN, AKEYCODE_BUTTON_A);
+        input.onMotionEvent(3, Input::MOTION_SOURCE_ANALOG_LEFT, 1, -1);
+        assert(input.getInputState(3, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_A) == 1);
+        assert(input.getInputState(3, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X) == Input::MAX_RANGE_MOTION);
+        assert(input.getInputState(3, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y) == -Input::MAX_RANGE_MOTION);
+    }
     {
         Input input;
         input.enqueueAccessibleTap(0, AKEYCODE_BUTTON_A);
@@ -121,5 +152,5 @@ int main() {
             assert(observations[frame] == (frame % 3 < 2));
         }
     }
-    std::cout << "PASS: native input pulse timing, queue bounds, key validation, holds and cancellation\n";
+    std::cout << "PASS: native input port bounds, pulse timing, queue bounds, key validation, holds and cancellation\n";
 }

@@ -14,6 +14,7 @@ import com.swordfish.lemuroid.lib.saves.SavesManager
 import com.swordfish.lemuroid.lib.saves.StatesManager
 import com.swordfish.lemuroid.lib.saves.StatesPreviewManager
 import com.swordfish.libretrodroid.GLRetroView
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -40,10 +41,16 @@ class GameViewModelSaves(
     )
 
     suspend fun saveSlot(index: Int) {
-        getCurrentSaveState()?.let {
+        val saveState = checkNotNull(getCurrentSaveState()) { "Core has no save state available" }
+        saveState.let {
             statesManager.setSlotSave(game, it, systemCoreConfig.coreID, index)
-            runCatching {
+            try {
                 takeScreenshotPreview(index)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // The actual state is committed; an unavailable thumbnail is optional.
+                Timber.w(e, "Cannot create saved-state preview")
             }
         }
     }
@@ -60,7 +67,9 @@ class GameViewModelSaves(
                     sideEffects.showToast(appContext.getString(R.string.game_toast_load_state_failed))
                 }
             }
-        } catch (e: Throwable) {
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
             val errorMessageId =
                 when (e) {
                     is IncompatibleStateException -> R.string.error_message_incompatible_state
@@ -83,7 +92,12 @@ class GameViewModelSaves(
             // Main-thread lifecycle events cannot resume a paused core during this block.
             val useEmulationThread = retroGameView.isNativeViewResumed
             val sramState = requestedView.serializeSRAM(useEmulationThread)
-            val autoSaveState = if (autoSaveEnabled) getCurrentSaveState(useEmulationThread) else null
+            val autoSaveState =
+                if (autoSaveEnabled) {
+                    checkNotNull(getCurrentSaveState(useEmulationThread)) { "Core has no autosave state available" }
+                } else {
+                    null
+                }
             SaveSnapshot(sramState, autoSaveState)
         }
     }
@@ -110,12 +124,15 @@ class GameViewModelSaves(
         try {
             retroGameView.waitGLEvent<GLRetroView.GLRetroEvents.FrameRendered>()
             restoreQuickSave(saveState)
-        } catch (e: Throwable) {
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
             Timber.e(e, "Error while loading auto-save")
         }
     }
 
     private fun getCurrentSaveState(useEmulationThread: Boolean = true): SaveState? {
+        if (!systemCoreConfig.statesSupported) return null
         val retroGameView = retroGameView.retroGameView ?: return null
         val currentDisk =
             if (system.hasMultiDiskSupport) {
@@ -123,8 +140,10 @@ class GameViewModelSaves(
             } else {
                 0
             }
+        val state = retroGameView.serializeState(useEmulationThread)
+        if (state.isEmpty()) return null
         return SaveState(
-            retroGameView.serializeState(useEmulationThread),
+            state,
             SaveState.Metadata(currentDisk, systemCoreConfig.statesVersion),
         )
     }
@@ -170,12 +189,18 @@ class GameViewModelSaves(
     }
 
     fun saveQuickSave() {
-        currentQuickSave = getCurrentSaveState()
+        val state = getCurrentSaveState()
+        if (state == null) {
+            sideEffects.showToast(appContext.getString(R.string.game_toast_save_state_failed))
+            return
+        }
+        currentQuickSave = state
         sideEffects.showToast(appContext.getString(R.string.game_toast_quick_save_saved))
     }
 
     fun loadQuickSave() {
-        loadSaveState(currentQuickSave ?: return)
-        sideEffects.showToast(appContext.getString(R.string.game_toast_quick_save_loaded))
+        val loaded = runCatching { loadSaveState(currentQuickSave ?: return) }.getOrDefault(false)
+        val message = if (loaded) R.string.game_toast_quick_save_loaded else R.string.game_toast_load_state_failed
+        sideEffects.showToast(appContext.getString(message))
     }
 }

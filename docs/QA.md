@@ -1,5 +1,7 @@
 # EmuUI verification record
 
+Latest cloud source work: [20 October 2026 readiness](CLOUD_READINESS_20261020.md). Its host checks and Android build blockers are separate from every historical binary result below.
+
 ## Version 0.2.1 cutout navigation and saved preview candidate
 
 Updated 4 October 2026. This revision adds cutout-aware native display fitting, complete launcher and modal side-control navigation, and a selected game's existing manual-save screenshot in the upper preview. The behavioral contract is in [DS_CONSOLE_LAYOUT.md](DS_CONSOLE_LAYOUT.md). The current corrected candidate is `0.2.1-DEBUG`, version code 4, package `com.thekozugroup.emuui.debug`, with SHA256 `d6f38839e41bad26216ce952e3a48bf3d6f1985d62484c2067b041c19d8b4553` and size 34,601,989 bytes. Build checks and the scoped Android 29 acceptance below passed. Android 31 modal and real SAF import checks also passed. The final Android 31 run produced targeted native corner/center cutout evidence, but the full suite was interrupted and did not pass. This record is the pre-publication source checkpoint, not physical-device or production certification. The earlier 491d529d checkpoint remains recorded below with its failures and limited passes. Neither earlier 0.2.0 results nor 491d529d results are silently attributed to this replacement.

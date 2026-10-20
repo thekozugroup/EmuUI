@@ -4,12 +4,21 @@ import android.app.Application
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.gamemenu.GameMenuActivity
 import com.swordfish.lemuroid.app.shared.gamemenu.GameMenuHelper
 import com.swordfish.lemuroid.lib.saves.StatesManager
 import com.swordfish.lemuroid.lib.saves.StatesPreviewManager
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class GameMenuStatesViewModel(
     private val application: Application,
@@ -43,34 +52,72 @@ class GameMenuStatesViewModel(
         val preview: Bitmap?,
     )
 
-    data class State(val entries: List<StateEntry> = emptyList())
+    data class State(
+        val entries: List<StateEntry> = emptyList(),
+        val isLoading: Boolean = true,
+        val hasError: Boolean = false,
+    )
 
-    val uiStates =
-        flow {
-            val slotsInfo = statesManager.getSavedSlotsInfo(gameMenuRequest.game, gameMenuRequest.coreConfig.coreID)
+    private val mutableState = MutableStateFlow(State())
+    val uiStates = mutableState.asStateFlow()
+    private var loadJob: Job? = null
 
-            val entries =
-                slotsInfo.mapIndexed { index, slotInfo ->
-                    val title =
-                        application.applicationContext.getString(
-                            R.string.game_menu_state,
-                            (index + 1).toString(),
-                        )
-                    val description = GameMenuHelper.getSaveStateDescription(slotInfo)
-                    val isEnabled = !disableMissingEntries || slotInfo.exists
-                    val preview =
-                        GameMenuHelper.getSaveStateBitmap(
-                            application.applicationContext,
-                            statesPreviewManager,
-                            slotInfo,
+    init {
+        retry()
+    }
+
+    fun retry() {
+        loadJob?.cancel()
+        mutableState.value = State()
+        loadJob =
+            viewModelScope.launch(Dispatchers.IO) {
+                try {
+                    val slotsInfo =
+                        statesManager.getSavedSlotsInfo(
                             gameMenuRequest.game,
                             gameMenuRequest.coreConfig.coreID,
-                            index,
                         )
 
-                    StateEntry(title, description, isEnabled, preview)
-                }
+                    val entries =
+                        slotsInfo.mapIndexed { index, slotInfo ->
+                            val title =
+                                application.applicationContext.getString(
+                                    R.string.game_menu_state,
+                                    (index + 1).toString(),
+                                )
+                            val description =
+                                if (slotInfo.exists) GameMenuHelper.getSaveStateDescription(slotInfo) else "Empty slot"
+                            val isEnabled = !disableMissingEntries || slotInfo.exists
+                            val preview =
+                                try {
+                                    GameMenuHelper.getSaveStateBitmap(
+                                        application.applicationContext,
+                                        statesPreviewManager,
+                                        slotInfo,
+                                        gameMenuRequest.game,
+                                        gameMenuRequest.coreConfig.coreID,
+                                        index,
+                                    )
+                                } catch (exception: CancellationException) {
+                                    throw exception
+                                } catch (exception: Exception) {
+                                    // A missing/corrupt thumbnail must not hide a usable save slot.
+                                    Timber.w(exception, "Could not read save preview for slot %s", index + 1)
+                                    null
+                                }
 
-            emit(State(entries))
-        }
+                            StateEntry(title, description, isEnabled, preview)
+                        }
+
+                    currentCoroutineContext().ensureActive()
+                    mutableState.value = State(entries = entries, isLoading = false)
+                } catch (exception: CancellationException) {
+                    throw exception
+                } catch (exception: Exception) {
+                    currentCoroutineContext().ensureActive()
+                    Timber.w(exception, "Could not read save slots")
+                    mutableState.value = State(isLoading = false, hasError = true)
+                }
+            }
+    }
 }

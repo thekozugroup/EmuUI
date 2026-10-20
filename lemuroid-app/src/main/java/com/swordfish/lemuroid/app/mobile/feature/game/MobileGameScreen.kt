@@ -1,9 +1,5 @@
 package com.swordfish.lemuroid.app.mobile.feature.game
 
-import androidx.compose.foundation.layout.mandatorySystemGestures
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.consoleFrameColor
 import android.graphics.RectF
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -17,6 +13,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.mandatorySystemGestures
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -24,9 +21,12 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Height
 import androidx.compose.material.icons.filled.Menu
@@ -60,6 +60,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -69,6 +70,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
@@ -84,6 +88,9 @@ import com.swordfish.lemuroid.app.mobile.feature.emuui.FoldRect
 import com.swordfish.lemuroid.app.mobile.feature.emuui.ScreenRect
 import com.swordfish.lemuroid.app.mobile.feature.emuui.WindowCutoutSnapshot
 import com.swordfish.lemuroid.app.mobile.feature.emuui.rememberFoldPosture
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.GameControlHaptics
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LocalConsoleHaptics
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.consoleFrameColor
 import com.swordfish.lemuroid.app.shared.game.BaseGameScreenViewModel
 import com.swordfish.lemuroid.app.shared.game.viewmodel.GameViewModelTouchControls.Companion.MENU_LOADING_ANIMATION_MILLIS
 import com.swordfish.lemuroid.app.utils.android.settings.ConsoleDialogRegion
@@ -103,8 +110,6 @@ import com.swordfish.touchinput.radial.ui.LemuroidButtonPressFeedback
 import gg.padkit.PadKit
 import gg.padkit.config.HapticFeedbackType
 import gg.padkit.inputstate.InputState
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LocalConsoleHaptics
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.GameControlHaptics
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.roundToInt
@@ -331,15 +336,24 @@ fun MobileGameScreen(
                     viewModel.handleVirtualInputEvent(events)
                     if (consoleAvailable) {
                         // Tilt simulates controls without a touch; it should remain silent.
-                        val touchEvents = events.filterNot { event ->
-                            when (event) {
-                                is gg.padkit.inputevents.InputEvent.DiscreteDirection -> gg.padkit.ids.Id.DiscreteDirection(event.id) in tiltSimulatedControls.value
-                                is gg.padkit.inputevents.InputEvent.ContinuousDirection -> gg.padkit.ids.Id.ContinuousDirection(event.id) in tiltSimulatedControls.value
-                                is gg.padkit.inputevents.InputEvent.Button -> false
+                        val touchEvents =
+                            events.filterNot { event ->
+                                when (event) {
+                                    is gg.padkit.inputevents.InputEvent.DiscreteDirection ->
+                                        gg.padkit.ids.Id.DiscreteDirection(
+                                            event.id,
+                                        ) in tiltSimulatedControls.value
+                                    is gg.padkit.inputevents.InputEvent.ContinuousDirection ->
+                                        gg.padkit.ids.Id.ContinuousDirection(
+                                            event.id,
+                                        ) in tiltSimulatedControls.value
+                                    is gg.padkit.inputevents.InputEvent.Button -> false
+                                }
                             }
-                        }
                         gameHaptics.onInputEvents(touchEvents)
-                    } else gameHaptics.reset()
+                    } else {
+                        gameHaptics.reset()
+                    }
                 },
                 // One feedback path: platform View feedback honors Android's setting.
                 hapticFeedbackType = HapticFeedbackType.NONE,
@@ -387,7 +401,12 @@ fun MobileGameScreen(
                 val settings = touchControllerSettings
                 val config = currentControllerConfig
                 if (consoleAvailable && settings != null && config != null) {
-                    CompositionLocalProvider(LocalLemuroidPadTheme provides LemuroidPadTheme(darkSurface = consoleFrameColor().luminance() < .5f)) {
+                    CompositionLocalProvider(
+                        LocalLemuroidPadTheme provides
+                            LemuroidPadTheme(
+                                darkSurface = consoleFrameColor().luminance() < .5f,
+                            ),
+                    ) {
                         val pads = config.getTouchControllerConfig()
                         // Clip and constrain complete radial pads to the lower pane. User
                         // scale/margins remain saved but cannot push controls into the hinge.
@@ -477,7 +496,16 @@ fun MobileGameScreen(
             }
         }
         if (viewModel.loadingState.collectAsState(true).value && foldLayout.guidance == null) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+            ConsoleRegion(foldLayout.upper) {
+                Column(
+                    Modifier.background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp)).padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    CircularProgressIndicator()
+                    Text("Opening game…", color = MaterialTheme.colorScheme.onSurface)
+                }
+            }
         }
     }
 }
@@ -551,6 +579,10 @@ private fun GameTopCornerControls(
                         onClick = onToggle,
                         modifier =
                             Modifier.sizeIn(minHeight = 48.dp).testTag("emuui_game_controls_toggle")
+                                .semantics {
+                                    stateDescription =
+                                        if (accessible) "Labeled controls enabled" else "Radial controls enabled"
+                                }
                                 .background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(16.dp)),
                     ) {
                         Text(
@@ -661,7 +693,8 @@ internal fun FoldGameGuidance(
     Column(
         Modifier.fillMaxSize().background(
             MaterialTheme.colorScheme.background,
-        ).padding(24.dp).testTag("emuui_game_posture_guidance"),
+        ).windowInsetsPadding(WindowInsets.safeDrawing).padding(24.dp)
+            .verticalScroll(rememberScrollState()).testTag("emuui_game_posture_guidance"),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -736,6 +769,7 @@ private fun MenuEditTouchControls(
             ) {
                 MenuEditTouchControlRow(Icons.Default.OpenInFull, "Scale", 0f) {
                     Slider(
+                        modifier = Modifier.semantics { contentDescription = "Control scale" },
                         value = touchControllerSettings.scale,
                         onValueChange = {
                             viewModel.updateTouchControllerSettings(
@@ -746,6 +780,7 @@ private fun MenuEditTouchControls(
                 }
                 MenuEditTouchControlRow(Icons.Default.Height, "Horizontal Margin", 90f) {
                     Slider(
+                        modifier = Modifier.semantics { contentDescription = "Horizontal control margin" },
                         value = touchControllerSettings.marginX,
                         onValueChange = {
                             viewModel.updateTouchControllerSettings(
@@ -756,6 +791,7 @@ private fun MenuEditTouchControls(
                 }
                 MenuEditTouchControlRow(Icons.Default.Height, "Vertical Margin", 0f) {
                     Slider(
+                        modifier = Modifier.semantics { contentDescription = "Vertical control margin" },
                         value = touchControllerSettings.marginY,
                         onValueChange = {
                             viewModel.updateTouchControllerSettings(
@@ -767,6 +803,7 @@ private fun MenuEditTouchControls(
                 if (controllerConfig.allowTouchRotation) {
                     MenuEditTouchControlRow(Icons.Default.RotateLeft, "Rotate", 0f) {
                         Slider(
+                            modifier = Modifier.semantics { contentDescription = "Control rotation" },
                             value = touchControllerSettings.rotation,
                             onValueChange = {
                                 viewModel.updateTouchControllerSettings(

@@ -20,7 +20,7 @@ class StatesManager(private val directoriesManager: DirectoriesManager) {
         index: Int,
     ): SaveState? =
         withContext(Dispatchers.IO) {
-            assert(index in 0 until MAX_STATES)
+            require(index in 0 until MAX_STATES) { "Invalid save slot: $index" }
             getSaveState(getSlotSaveFileName(game, index), coreID.coreName)
         }
 
@@ -30,7 +30,7 @@ class StatesManager(private val directoriesManager: DirectoriesManager) {
         coreID: CoreID,
         index: Int,
     ) = withContext(Dispatchers.IO) {
-        assert(index in 0 until MAX_STATES)
+        require(index in 0 until MAX_STATES) { "Invalid save slot: $index" }
         setSaveState(getSlotSaveFileName(game, index), coreID.coreName, saveState)
     }
 
@@ -66,7 +66,7 @@ class StatesManager(private val directoriesManager: DirectoriesManager) {
         withContext(Dispatchers.IO) {
             (0 until MAX_STATES)
                 .map { getStateFile(getSlotSaveFileName(game, it), coreID.coreName) }
-                .map { SaveInfo(it.exists(), it.lastModified()) }
+                .map { SaveInfo(it.isFile && it.length() > 0, it.lastModified()) }
                 .toList()
         }
 
@@ -90,7 +90,7 @@ class StatesManager(private val directoriesManager: DirectoriesManager) {
             } else {
                 null
             }
-        }.getOrNull()
+        }.getOrThrow()
     }
 
     private suspend fun setSaveState(
@@ -98,10 +98,11 @@ class StatesManager(private val directoriesManager: DirectoriesManager) {
         coreName: String,
         saveState: SaveState,
     ) {
+        require(saveState.state.isNotEmpty()) { "Core returned an empty save state" }
         runCatchingWithRetry(FILE_ACCESS_RETRIES) {
             writeStateToDisk(fileName, coreName, saveState.state)
             writeMetadataToDisk(fileName, coreName, saveState.metadata)
-        }
+        }.getOrThrow()
     }
 
     private fun writeMetadataToDisk(

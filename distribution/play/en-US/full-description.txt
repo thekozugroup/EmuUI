@@ -1,0 +1,16 @@
+EmuUI turns the open inner display of an Android foldable into a two-screen handheld. Your game sits above; your library or touch controls sit below.
+
+Browse generous game cards, narrow your library with filters, and keep your next game close. The layout requires a reported horizontal fold in landscape, with the inner display flat or half-open. It keeps the reported hinge clear. Cover displays, ordinary phones and unsuitable windows show open-screen guidance; portrait and vertical folds show rotation guidance.
+
+Single-screen systems use the upper display at their native aspect ratio. Nintendo DS uses both displays, with stylus input on the lower screen. A saved manual-state image can appear above your library; it is a still preview, not live gameplay. System, Light and Dark themes are available, with optional Material You colors on compatible Android versions.
+
+Bring your own lawful game files. EmuUI does not include games or proprietary BIOS files. Core availability, game compatibility and performance depend on your device and the selected emulator core. Nintendo 3DS playback is not supported by the current two-screen renderer.
+
+Gameplay needs no payment or EmuUI account, and the app contains no ads. Network artwork lookup can send a recognized game title to the cover provider. The Play build includes optional Google Drive save sync, which needs separate Google authorization; gameplay does not require it. The microphone permission is optional for compatible games. Save export uses a destination you choose.
+
+This is a development preview. Verification records describe specific homebrew fixtures, builds and emulator environments; they do not certify every game or physical foldable. Audio, long sessions, physical fold behavior, current game compatibility and Play-delivered cores still require release acceptance. Save states are core-specific, so keep a separate backup of important saves.
+
+EmuUI is an independently branded, open-source GPL-3.0 fork of Lemuroid using LibretroDroid. Emulator cores keep their own licenses. It is not affiliated with Nintendo, Google or the Lemuroid maintainers.
+
+Source, compatibility notes and verification records:
+https://github.com/thekozugroup/EmuUI

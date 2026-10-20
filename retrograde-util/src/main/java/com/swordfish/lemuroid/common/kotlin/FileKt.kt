@@ -21,10 +21,11 @@ package com.swordfish.lemuroid.common.kotlin
 
 import android.util.AtomicFile
 import androidx.documentfile.provider.DocumentFile
-import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FilterOutputStream
 import java.io.InputStream
+import java.io.OutputStream
 import java.io.PushbackInputStream
 import java.security.MessageDigest
 import java.util.zip.CRC32
@@ -85,8 +86,8 @@ private fun InputStream.uncompressedInputStream(): InputStream {
     val pb = PushbackInputStream(this, 2)
     val signature = ByteArray(2)
     val len = pb.read(signature)
-    pb.unread(signature, 0, len)
-    return if (signature[0] == 0x1f.toByte() && signature[1] == 0x8b.toByte()) {
+    if (len > 0) pb.unread(signature, 0, len)
+    return if (len == 2 && signature[0] == 0x1f.toByte() && signature[1] == 0x8b.toByte()) {
         GZIPInputStream(pb, GZIP_INPUT_STREAM_BUFFER_SIZE)
     } else {
         pb
@@ -112,7 +113,8 @@ fun File.writeBytesAtomic(data: ByteArray) {
     val atomicFile = AtomicFile(this)
     val outputStream = atomicFile.startWrite()
     try {
-        outputStream.use { it.write(data) }
+        // AtomicFile must sync the still-open descriptor before it closes and commits it.
+        outputStream.write(data)
         atomicFile.finishWrite(outputStream)
     } catch (e: Throwable) {
         atomicFile.failWrite(outputStream)
@@ -131,7 +133,7 @@ fun File.writeTextAtomic(text: String) {
     val atomicFile = AtomicFile(this)
     val outputStream = atomicFile.startWrite()
     try {
-        outputStream.writer().use { it.write(text) }
+        outputStream.write(text.toByteArray(Charsets.UTF_8))
         atomicFile.finishWrite(outputStream)
     } catch (e: Throwable) {
         atomicFile.failWrite(outputStream)
@@ -144,16 +146,23 @@ fun File.writeBytesCompressedAtomic(array: ByteArray) {
     val atomicFile = AtomicFile(this)
     val outputStream = atomicFile.startWrite()
     try {
-        ByteArrayInputStream(array).use { input ->
-            GZIPOutputStream(outputStream).use { usedOutput ->
-                input.copyTo(usedOutput)
-            }
-        }
+        // Release the compressor while leaving AtomicFile's descriptor open for fsync.
+        GZIPOutputStream(NonClosingOutputStream(outputStream)).use { it.write(array) }
         atomicFile.finishWrite(outputStream)
     } catch (e: Throwable) {
         atomicFile.failWrite(outputStream)
         throw e
     }
+}
+
+private class NonClosingOutputStream(output: OutputStream) : FilterOutputStream(output) {
+    override fun write(
+        bytes: ByteArray,
+        offset: Int,
+        length: Int,
+    ) = out.write(bytes, offset, length)
+
+    override fun close() = flush()
 }
 
 /** Read bytes using AtomicFile. If the file is compressed with GZIP the uncompressed data is returned. */

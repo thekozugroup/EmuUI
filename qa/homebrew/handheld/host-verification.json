@@ -1,0 +1,127 @@
+{
+  "date": "2026-10-20",
+  "scope": "HOST libretro fixture validation only; no Android app or device acceptance claimed",
+  "host": "Linux-6.18.55-x86_64-with-glibc2.41",
+  "compiler": "Debian GCC/G++ 14.2.0",
+  "python": "3.12.14",
+  "fixture_source_sha256": "a2c2d0814b32692c5c75d678200304041d3a1848ce12642fde9dd5f500d18974",
+  "cores": [
+    {
+      "name": "Gambatte",
+      "source": "https://github.com/libretro/gambatte-libretro",
+      "revision": "b75225203ffea8b65124bb31acb598e91e7f22d9",
+      "build": "make -j4 platform=unix",
+      "source_changes": false
+    },
+    {
+      "name": "mGBA",
+      "source": "https://github.com/libretro/mgba",
+      "revision": "c758314a639aa0066e7b65a8341448181b73c804",
+      "build": "make -f Makefile.libretro -j4",
+      "source_changes": false
+    }
+  ],
+  "recovered_build_attempts": [
+    {
+      "core": "mGBA",
+      "attempt": "CMake BUILD_LIBRETRO, CMake 4.4.4",
+      "result": "failed",
+      "reason": "Old minimum-CMake policy needed CMAKE_POLICY_VERSION_MINIMUM=3.5, then unconditional scripting source failed with MINIMAL_CORE; temporary source-list recovery still caused duplicate projectName/projectVersion/memory-map definitions. Source edit reverted; unmodified upstream Makefile.libretro build succeeded."
+    }
+  ],
+  "results": [
+    {
+      "scope": "host-libretro-fixture-only",
+      "core": "/tmp/emuui-gambatte-pinned/gambatte_libretro.so",
+      "core_sha256": "4ac91ea0a8fc51dd5323cd58aa9d0f2710fd027c22cc4cb53159d3509f94a2b8",
+      "rom": "EmuUI_GB_QA.gb",
+      "rom_sha256": "c8c919279b6873a8d72b7e6a07f9ede427534552a3b5de1be54a6d95c87fc4d8",
+      "dimensions": [
+        160,
+        144
+      ],
+      "video_callbacks": 261,
+      "audio_frames": 143581,
+      "nonzero_audio_samples_or_frames": 287156,
+      "save_state_bytes": 35050,
+      "battery_ram_bytes": 8192,
+      "host_framebuffer_png": "EmuUI_GB_QA.gb.host-framebuffer.png",
+      "host_framebuffer_png_sha256": "7643b6a14e5704b8dff5b03918e654d7e85397bb1ae36ddb7c0803c9672c14f9",
+      "passed": [
+        "load",
+        "nonuniform-video",
+        "four-direction-input",
+        "a-input",
+        "nonzero-audio",
+        "save-load-visible-equality",
+        "paused-state-stable",
+        "resume-advances-state",
+        "battery-ram-file-reload"
+      ]
+    },
+    {
+      "scope": "host-libretro-fixture-only",
+      "core": "/tmp/emuui-gambatte-pinned/gambatte_libretro.so",
+      "core_sha256": "4ac91ea0a8fc51dd5323cd58aa9d0f2710fd027c22cc4cb53159d3509f94a2b8",
+      "rom": "EmuUI_GBC_QA.gbc",
+      "rom_sha256": "706723904175b08f360a6b764fb5dfed75b6bef6de8a005f0934f8bd777f95f8",
+      "dimensions": [
+        160,
+        144
+      ],
+      "video_callbacks": 260,
+      "audio_frames": 143036,
+      "nonzero_audio_samples_or_frames": 286066,
+      "save_state_bytes": 59626,
+      "battery_ram_bytes": 8192,
+      "host_framebuffer_png": "EmuUI_GBC_QA.gbc.host-framebuffer.png",
+      "host_framebuffer_png_sha256": "1483460409de50a57b3fb59894c682096c464cde142690808d73697b7841c45c",
+      "passed": [
+        "load",
+        "nonuniform-video",
+        "four-direction-input",
+        "a-input",
+        "nonzero-audio",
+        "save-load-visible-equality",
+        "paused-state-stable",
+        "resume-advances-state",
+        "battery-ram-file-reload"
+      ]
+    },
+    {
+      "scope": "host-libretro-fixture-only",
+      "core": "/tmp/emuui-mgba-pinned/mgba_libretro.so",
+      "core_sha256": "5c8139d73843122eaaf449a37c3715be794793a043f8d55d7f6ef5fa2851a02c",
+      "rom": "EmuUI_GBA_QA.gba",
+      "rom_sha256": "1b32a0e6a954630693e4a934bbd6d2867bd61c51be6b4e67ca2c07908708e5ea",
+      "dimensions": [
+        240,
+        160
+      ],
+      "video_callbacks": 261,
+      "audio_frames": 285432,
+      "nonzero_audio_samples_or_frames": 374402,
+      "save_state_bytes": 430144,
+      "battery_ram_bytes": 32768,
+      "host_framebuffer_png": "EmuUI_GBA_QA.gba.host-framebuffer.png",
+      "host_framebuffer_png_sha256": "fa9fd94a35a7db68b4ae6b9fc6f9a2371e65d5f94126fcaeb9b8da0da854c312",
+      "passed": [
+        "load",
+        "nonuniform-video",
+        "four-direction-input",
+        "a-input",
+        "nonzero-audio",
+        "save-load-visible-equality",
+        "paused-state-stable",
+        "resume-advances-state",
+        "battery-ram-file-reload"
+      ]
+    }
+  ],
+  "not_covered": [
+    "Pinned Android core binaries",
+    "Android app loading, controls, lifecycle, file writes or save restoration",
+    "Audio audibility/quality/latency/routing",
+    "DS, physical foldables, thermal or performance acceptance"
+  ]
+}

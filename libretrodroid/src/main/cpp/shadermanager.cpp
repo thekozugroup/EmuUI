@@ -1604,6 +1604,9 @@ ShaderManager::Chain ShaderManager::getShader(const ShaderManager::Config& confi
         };
     }
 }
+    // Shader ids cross JNI as integers. A stale or unrecognized setting must
+    // keep the game visible rather than leave the returned chain undefined.
+    return { { { defaultShaderVertex, defaultShaderFragment, true, 1.0 } }, true };
 }
 
 std::string ShaderManager::buildDefines(

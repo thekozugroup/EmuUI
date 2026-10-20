@@ -1,0 +1,26 @@
+{
+  "source_launcher_resources": [
+    "lemuroid-app/src/main/res/drawable/emuui_launcher_background.xml",
+    "lemuroid-app/src/main/res/drawable/emuui_launcher_legacy_foreground.xml"
+  ],
+  "assets": [
+    {
+      "file": "app-icon.png",
+      "sha256": "cbbd3d0b6b41f2c9405e19b1103db822c663a4aaea6a84afb1eb66ca8ff16a93",
+      "width": 512,
+      "height": 512,
+      "mode": "RGBA",
+      "bytes": 94796,
+      "kind": "original_brand_artwork_not_app_screenshot"
+    },
+    {
+      "file": "feature-graphic.png",
+      "sha256": "00ff4a6d7e6596f6aff2675b25ce354a3ec218c85f7e3f999cb04cb95f284685",
+      "width": 1024,
+      "height": 500,
+      "mode": "RGB",
+      "bytes": 265053,
+      "kind": "original_brand_artwork_not_app_screenshot"
+    }
+  ]
+}

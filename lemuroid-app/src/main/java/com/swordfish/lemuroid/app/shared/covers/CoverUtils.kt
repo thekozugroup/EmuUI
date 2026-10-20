@@ -55,24 +55,18 @@ object CoverUtils {
             .build()
     }
 
-    fun getFallbackDrawable(game: Game) = TextDrawable(computeTitle(game), computeColor(game))
+    fun getFallbackDrawable(game: Game) = TextDrawable(fallbackTitle(game.title), computeColor(game))
 
-    fun getFallbackRemoteUrl(game: Game): String {
-        val color = Integer.toHexString(computeColor(game)).substring(2)
-        val title = computeTitle(game)
-        return "https://fakeimg.pl/512x512/$color/fff/?font=bebas&text=$title"
-    }
-
-    private fun computeTitle(game: Game): String {
+    internal fun fallbackTitle(title: String): String {
         val sanitizedName =
-            game.title
+            title
                 .replace(Regex("\\(.*\\)"), "")
 
         return sanitizedName.asSequence()
             .filter { it.isDigit() or it.isUpperCase() or (it == '&') }
             .take(3)
             .joinToString("")
-            .ifBlank { game.title.first().toString() }
+            .ifBlank { title.firstOrNull { !it.isWhitespace() }?.toString() ?: "?" }
             .capitalize()
     }
 
