@@ -10,7 +10,7 @@ Appearance follows System, Light or Dark mode, saved across app launches. Androi
 
 ## Development preview
 
-The latest cloud work is recorded in [20 October build verification](docs/BUILD_VERIFICATION_20261020.md). It continues the October 10 OLED console/haptics preview on a separate branch, with candidate-specific build, test and remaining runtime gates. Historical binary results do not verify this source revision.
+The latest local cloud candidate, `0.3.1-dev.20261021`, shares the library's control styling with gameplay; see the [21 October control checkpoint](qa/CONTROL_STYLE_UNIFICATION_20261021.md), following [20 October build verification](docs/BUILD_VERIFICATION_20261020.md). It continues the October 10 OLED console/haptics preview on a separate branch, with candidate-specific build, test and remaining runtime gates. Historical binary results do not verify this source revision.
 
 This is an early, independently branded GPL-3.0 fork. Device support is subject to the [verification record](docs/QA.md). Physical foldable behavior and any particular phone model are not certified by a successful build alone. You must provide your own lawful games; ROMs and BIOS files are not included.
 

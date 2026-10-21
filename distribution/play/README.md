@@ -1,6 +1,6 @@
 # EmuUI Play listing draft
 
-Prepared 20 October 2026 from the current EmuUI development branch, preserving the metallic launcher identity and open-foldable console contract. This is a local review pack, not a published listing or a claim of Google approval.
+Branding prepared 20 October 2026; candidate provenance updated 21 October after the shared-control styling build, preserving the metallic launcher identity and open-foldable console contract. This is a local review pack, not a published listing or a claim of Google approval.
 
 ## Deliverables
 
@@ -11,10 +11,10 @@ Prepared 20 October 2026 from the current EmuUI development branch, preserving t
 | `sources/*.svg` | Editable vector sources | Generated locally; no third-party game art |
 | `assets/manifest.json` / `assets/alt-text.json` | Checksums, dimensions, accessible descriptions | Validated |
 | `en-US/*.txt` | App title, short/full listing copy | Mirrors `fastlane/metadata/android/en-US` |
-| `screenshots/evidence.json` | Final APK identity, exact capture blocker and future per-capture provenance | Blocked by Android system-server watchdog before final app installation; zero current captures |
+| `screenshots/evidence.json` | Final APK identity, exact capture blocker and future per-capture provenance | No supported cloud Android runtime; no current installation or captures |
 | `screenshots/capture-plan.md` | Honest phone-guidance/foldable gameplay capture sequence | Not executed on Android |
 | `PRIVACY_DATA_SAFETY.md` | Source-based behavior and exact final release-manifest reconciliation | Inventory, not an approved form |
-| `release-manifest-inventory.json` | AAB identity, exact permissions, backup/service configuration and audit references | Matched to unsigned release AAB `eaba8193…`; no network/SDK certification |
+| `release-manifest-inventory.json` | AAB identity, exact permissions, backup/service configuration and audit references | Matched to the unsigned release AAB identified in the inventory; no network/SDK certification |
 | `privacy-policy-draft.md` | Human-readable policy text for final publisher review | Contact, URL and service-retention details remain open |
 
 The inherited Lemuroid listing and TV banner were removed/replaced. EmuUI has no TV launcher and does not offer ordinary-phone gameplay. No commercial gameplay screenshots, device renders, generated gameplay or screenshots from a different binary are included.
@@ -36,7 +36,7 @@ The checker validates copy lengths, Fastlane parity, PNG sizes/modes, checksums,
 
 For current native captures, first set the `candidate` object in `screenshots/evidence.json` to the actual installed APK's SHA-256, source commit/tree, version, build flavor and delivery type. Then use `tools/add_capture.py NATIVE.png METADATA.json` with the required per-capture provenance fields from that manifest. The importer preserves the original, accepts only direct opaque native PNGs, and exports RGB without cropping, scaling or changing pixels. Captures stay in this pack: the repository publication guard intentionally forbids indexed Fastlane `phoneScreenshots` paths. A Fastlane upload layout may be prepared only in an external review archive. That group can include open foldable phones and does not imply ordinary-phone gameplay. Supporting captures can remain in evidence with `listing_eligible=false`.
 
-Current QA uses `freeBundleDebug`, version `0.3.1-dev.20261020-DEBUG`. A sideloaded debug screenshot must be labeled accordingly; it cannot prove the separately built unsigned `PlayDynamicRelease` AAB or Google Play feature delivery. Record software CPU/GPU emulation, API, native resolution and all synthetic hinge/posture inputs. A current ordinary-phone or cover-display capture may demonstrate open-screen guidance, and must not be described as supported phone gameplay.
+Current QA uses `freeBundleDebug`, version `0.3.1-dev.20261021-DEBUG`. A sideloaded debug screenshot must be labeled accordingly; it cannot prove the separately built unsigned `PlayDynamicRelease` AAB or Google Play feature delivery. Record software CPU/GPU emulation, API, native resolution and all synthetic hinge/posture inputs. A current ordinary-phone or cover-display capture may demonstrate open-screen guidance, and must not be described as supported phone gameplay.
 
 The review-archive tool refuses to overwrite earlier archives. It includes provenance, original native captures and a separate Fastlane upload-layout directory inside the external ZIP. Only captures explicitly marked eligible for the current APK enter that layout; no image upload is performed. Its `--allow-incomplete` option is for an explicitly unfinished draft, and `REVIEW-STATUS.json` always distinguishes listing asset completeness from launch readiness.
 
@@ -48,6 +48,6 @@ Keep the square icon uncropped: Google applies its own corner treatment. The fea
 
 ## Submission remains blocked
 
-Native screenshot capture is blocked. On the fresh isolated API 30 AVD, `boot_complete` was reached but Android Watchdog killed `system_server` at **20 October 2026, 18:39:05 UTC** for blocked foreground/UI handlers, before the final app could be installed. Gradle was stopped during that fresh run. The initial AVD also had system-process restarts and failed installs. These observations establish a cloud Android runtime blocker, not a demonstrated app crash or Android test failure. There are **zero current app screenshots and zero executed Android tests**. The exact blocker and evidence references are recorded in `screenshots/evidence.json`; no historical October 10 image, host framebuffer, generated gameplay or mockup is substituted.
+Native screenshot capture is blocked. The 21 October recheck found no attached device, KVM or configured supported device-testing service, so the new candidate has no installation attempt. On the prior fresh isolated API 30 AVD, `boot_complete` was reached but Android Watchdog killed `system_server` at **20 October 2026, 18:39:05 UTC** for blocked foreground/UI handlers, before the October 20 candidate could be installed. Gradle was stopped during that fresh run. The initial AVD also had system-process restarts and failed installs. These observations establish a cloud Android runtime blocker, not a demonstrated app crash or Android test failure. There are **zero current app screenshots and zero executed Android tests**. The exact blocker and evidence references are recorded in `screenshots/evidence.json`; no historical October 10 image, host framebuffer, generated gameplay or mockup is substituted.
 
-The new external `EmuUI-Play-Review-Incomplete-20261020.zip` is explicitly incomplete: `nativeMinimum=false`, `releaseReady=false` and `uploadScreenshotCount=0`. Earlier draft ZIPs remain unchanged. Complete final-binary gameplay/lifecycle/audio/foldable acceptance, signed Play-delivery testing, source/license distribution obligations, publisher-approved privacy URL/contact and Data safety review before publication. The pack contains no private signing material and does not authorize upload, publication, merge or release.
+The new external `EmuUI-Play-Review-Incomplete-20261021.zip` is explicitly incomplete: `nativeMinimum=false`, `releaseReady=false` and `uploadScreenshotCount=0`. Earlier draft ZIPs remain unchanged. Complete final-binary gameplay/lifecycle/audio/foldable acceptance, signed Play-delivery testing, source/license distribution obligations, publisher-approved privacy URL/contact and Data safety review before publication. The pack contains no private signing material and does not authorize upload, publication, merge or release.

@@ -1,20 +1,21 @@
 {
-  "status": "blocked_cloud_android_system_watchdog",
+  "status": "blocked_no_supported_cloud_android_runtime",
   "candidate": {
-    "apk_sha256": "3f719e9ee0b83d47bf39f13f18c3e15337c66d40b07bec6541d6bed739c40b63",
-    "apk_bytes": 64362163,
-    "source_commit_or_tree": "adb8678e6d6f773fd06937b007eea7286a32fd47",
-    "version": "0.3.1-dev.20261020-DEBUG",
-    "version_code": 8,
+    "apk_sha256": "c29ff5c4b1fafe9ef3a71ce74f83c81856e8a5a13d2ba33305b74706e1cea7d9",
+    "apk_bytes": 64299803,
+    "source_commit_or_tree": "c4ebd44b7f049bfdf4f451a6971d7927a6fc803f",
+    "version": "0.3.1-dev.20261021-DEBUG",
+    "version_code": 9,
     "package": "com.kozudigital.emuui.debug",
     "build_flavor": "freeBundleDebug",
     "signing": "debug-signed QA build; no production signing identity",
-    "delivery": "Built debug QA APK; final candidate was not installed in the fresh AVD because Android system_server failed before installation. Not Play-delivered.",
+    "delivery": "Built debug QA APK; no installation attempted for this candidate because no supported Android runtime is available in the current cloud workspace. Not Play-delivered.",
     "historical_apks_excluded": [
-      "9b9a7ade8e0c49e7f42d5a373dfa84cc1b3ecb4cef47453dd527f0aec2c66770"
+      "9b9a7ade8e0c49e7f42d5a373dfa84cc1b3ecb4cef47453dd527f0aec2c66770",
+      "3f719e9ee0b83d47bf39f13f18c3e15337c66d40b07bec6541d6bed739c40b63"
     ],
     "limits": "Screenshots do not verify the separately built unsigned PlayDynamicRelease AAB, optional Play-only Drive flow, Play split delivery, physical devices or audible audio.",
-    "runtime_capture_status": "blocked_before_installation"
+    "runtime_capture_status": "not_attempted_no_supported_runtime"
   },
   "screenshots": [],
   "required_fields_per_capture": [
@@ -43,12 +44,23 @@
   ],
   "note": "No current native screenshot or Android test result exists. Historical October10 app images, host-core framebuffers, mockups, generated gameplay and commercial content are not substituted. Captures remain a release/listing blocker until a stable Android runtime can install and test the exact candidate.",
   "capture_blocker": {
-    "action": "Install final candidate, execute Android tests and capture native app screenshots",
-    "target_apk_sha256": "3f719e9ee0b83d47bf39f13f18c3e15337c66d40b07bec6541d6bed739c40b63",
+    "action": "Install current candidate, execute Android tests and capture native app screenshots",
+    "target_apk_sha256": "c29ff5c4b1fafe9ef3a71ce74f83c81856e8a5a13d2ba33305b74706e1cea7d9",
     "outcome": "blocked_by_cloud_android_runtime",
-    "reason": "Fresh isolated API 30 AVD reached boot_complete, then Android Watchdog killed system_server for blocked foreground and UI handlers at 2026-10-20T18:39:05.221Z, before any app installation. Gradle was stopped during the fresh run.",
-    "prior_attempt": "Initial isolated AVD had system-process restarts; app and test APK installations failed with package-service Broken pipe. No current app screenshot or executed Android test resulted.",
-    "environment": {
+    "reason": "On 21 October the cloud has no attached Android device or /dev/kvm, and no configured supported device-testing service. Prior clean API30 software AVD diagnostics ended in Android Watchdog killing system_server at 2026-10-20T18:39:05.221Z before EmuUI installation. No guest boot or candidate install was repeated for this update.",
+    "final_install_attempts_in_fresh_avd": 0,
+    "android_tests_executed": 0,
+    "current_app_screenshots": 0,
+    "substitutions": [],
+    "approval_denial": false,
+    "evidence": [
+      "/workspace/EmuUI-build-20261020/runtime/clean-avd/readiness-result.json",
+      "/workspace/EmuUI-build-20261020/runtime/clean-avd/readiness-history.json",
+      "/workspace/EmuUI-build-20261020/runtime/clean-avd/service-lifecycle-live-logcat.txt",
+      "/workspace/EmuUI-build-20261020/runtime/clean-avd/final-package-and-dropbox-state.json"
+    ],
+    "scope_limit": "The prior pre-install Android environment failure remains an infrastructure limitation. This current candidate has no installation, Android test assertion or screenshot result; physical hardware, current game compatibility and Play delivery remain unverified.",
+    "prior_avd_environment": {
       "avd": "EmuUI_Cloud_API30_Clean",
       "api_level": 30,
       "image": "Google APIs x86_64, revision16",
@@ -66,17 +78,8 @@
       "physical_device_verification": false,
       "synthetic_posture_tests_executed": false
     },
-    "final_install_attempts_in_fresh_avd": 0,
-    "android_tests_executed": 0,
-    "current_app_screenshots": 0,
-    "substitutions": [],
-    "approval_denial": false,
-    "evidence": [
-      "/workspace/EmuUI-build-20261020/runtime/clean-avd/readiness-result.json",
-      "/workspace/EmuUI-build-20261020/runtime/clean-avd/readiness-history.json",
-      "/workspace/EmuUI-build-20261020/runtime/clean-avd/service-lifecycle-live-logcat.txt",
-      "/workspace/EmuUI-build-20261020/runtime/clean-avd/final-package-and-dropbox-state.json"
-    ],
-    "scope_limit": "This is a pre-install Android environment failure, not a demonstrated EmuUI crash or a failed Android test assertion. Physical hardware, current game compatibility and Play delivery remain unverified."
+    "install_attempts_for_current_candidate": 0,
+    "runtime_recheck_evidence": "/workspace/EmuUI-build-20261021/evidence/SUPPORTED-RUNTIME-RECHECK-20261021.md",
+    "initial_avd_attempt": "Initial isolated AVD had system-process restarts; app and test APK installations failed with package-service Broken pipe. No current app screenshot or executed Android test resulted."
   }
 }

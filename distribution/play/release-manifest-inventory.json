@@ -1,12 +1,12 @@
 {
-  "artifact": "EmuUI-0.3.1-dev.20261020-play-dynamic-release-unsigned.aab",
-  "bytes": 52114806,
-  "sha256": "eaba8193363d6023fb159a8d483806c8aff972e4bb5a8b405a0a25061aa4c1d3",
-  "compiled_source_commit": "adb8678e6d6f773fd06937b007eea7286a32fd47",
+  "artifact": "EmuUI-0.3.1-dev.20261021-play-dynamic-release-unsigned.aab",
+  "bytes": 52114568,
+  "sha256": "105fba71e29646b0731fc9c9715ec2077eaf2587f482cf30207716f2a430e7e3",
+  "compiled_source_commit": "c4ebd44b7f049bfdf4f451a6971d7927a6fc803f",
   "variant": "playDynamicRelease",
   "package": "com.kozudigital.emuui",
-  "version_name": "0.3.1-dev.20261020",
-  "version_code": 8,
+  "version_name": "0.3.1-dev.20261021",
+  "version_code": 9,
   "min_sdk": 23,
   "target_sdk": 36,
   "unsigned": true,
@@ -56,7 +56,6 @@
     "exact_18_native_entries": true,
     "arm64_only": true,
     "all_elf_load_segments_16kb_aligned": true,
-    "limited_private_or_game_asset_scan_clean": true,
     "psp_assets_scope": true,
     "gpl_license_packaged": true,
     "all_source_licenses_packaged_byte_identically": true,
@@ -66,13 +65,14 @@
     "jarsigner_reports_unsigned": true,
     "page_alignment_16k_requested": true,
     "expected_final_artifact_hash": true,
-    "bundletool_validate": true
+    "bundletool_validate": true,
+    "limited_forbidden_filename_scan_clean": true
   },
-  "decoded_manifest_sha256": "64770c3e39ee397cf67cd4274268ed1695e371fe2fa359a88a3d8602e4d625f9",
+  "decoded_manifest_sha256": "dc8fc276bda531368bbf44b915295db2c87502bf1828723cb0503ab306409843",
   "source_audit_paths": {
-    "artifact_audit": "/workspace/EmuUI-build-20261020/evidence/final-aab-audit/result.json",
-    "decoded_manifest": "/workspace/EmuUI-build-20261020/evidence/final-aab-audit/manifest.xml",
-    "public_truststore_audit": "/workspace/EmuUI-build-20261020/evidence/final-aab-audit/public-truststores-verified.json"
+    "artifact_audit": "/workspace/EmuUI-build-20261021/evidence/final-aab-audit/result.json",
+    "decoded_manifest": "/workspace/EmuUI-build-20261021/evidence/final-aab-audit/manifest.xml",
+    "public_truststore_audit": "/workspace/EmuUI-build-20261021/evidence/final-aab-audit/public-truststore-hash-comparison.json"
   },
   "public_truststores": [
     {
@@ -89,7 +89,9 @@
         }
       ],
       "classification": "Public CA truststore; no application signing key",
-      "verification_log": "google-jks-inventory.txt"
+      "verification_log": "prior-google-jks-inventory.txt",
+      "current_resource_hash_matches_prior_verified_public_store": true,
+      "verification_method": "Current resource SHA-256 matches the previously inventoried public CA store exactly; prior keytool log retained."
     },
     {
       "archive_path": "base/root/com/google/api/client/googleapis/google.p12",
@@ -105,8 +107,12 @@
         }
       ],
       "classification": "Public CA truststore; no application signing key",
-      "verification_log": "google-p12-inventory.txt"
+      "verification_log": "prior-google-p12-inventory.txt",
+      "current_resource_hash_matches_prior_verified_public_store": true,
+      "verification_method": "Current resource SHA-256 matches the previously inventoried public CA store exactly; prior keytool log retained."
     }
   ],
-  "limits": "Packaging and manifest evidence only; no network capture, SDK behavior certification, OAuth success, signed Play delivery or completed Data safety form. Google CA stores contain zero private/secret entries and are not publisher signing keys."
+  "limits": "Packaging and manifest evidence only; no network capture, SDK behavior certification, OAuth success, signed Play delivery or completed Data safety form. Google CA stores contain zero private/secret entries and are not publisher signing keys.",
+  "native_alignment_evidence": "All 18 native files are hash-identical to the October 20 statically verified release; no 16KB runtime pass is inferred.",
+  "manifest_comparison": "Exact decoded base manifest matches the October 20 release except versionName/versionCode; no permission or service/backup/security setting changed."
 }
