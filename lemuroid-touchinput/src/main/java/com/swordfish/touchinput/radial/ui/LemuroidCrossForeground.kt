@@ -8,12 +8,12 @@ import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.swordfish.touchinput.radial.LocalLemuroidPadTheme
 import gg.padkit.ui.DefaultCrossForeground
 
 @Composable
@@ -56,7 +56,7 @@ private fun LemuroidCrossButton(
                 modifier = Modifier.size(maxWidth * 0.5f, maxHeight * 0.5f),
                 imageVector = imageVector,
                 contentDescription = "",
-                tint = LocalLemuroidPadTheme.current.icons(pressedState.value),
+                tint = LocalContentColor.current,
             )
         },
     )

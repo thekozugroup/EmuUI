@@ -15,8 +15,8 @@ android {
     // Use the renderer's toolchain for consistent native stripping and packaging.
     ndkVersion = "27.3.13750724"
     defaultConfig {
-        versionCode = 8
-        versionName = "0.3.1-dev.20261020" // Core download tag remains independently pinned upstream.
+        versionCode = 9
+        versionName = "0.3.1-dev.20261021" // Core download tag remains independently pinned upstream.
         applicationId = "com.kozudigital.emuui"
         testInstrumentationRunner =
             if (gameProcessTests) {

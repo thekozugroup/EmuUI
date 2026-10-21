@@ -1,7 +1,8 @@
 package com.swordfish.lemuroid.app.mobile.feature.game
 
 import android.view.KeyEvent
-import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,12 +11,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.CustomAccessibilityAction
@@ -27,6 +29,9 @@ import androidx.compose.ui.unit.dp
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LocalConsoleHaptics
 import com.swordfish.lemuroid.app.shared.game.BaseGameScreenViewModel
 import com.swordfish.touchinput.radial.settings.TouchControllerID
+import com.swordfish.touchinput.radial.ui.ConsoleControlLabel
+import com.swordfish.touchinput.radial.ui.ConsoleControlStyle
+import com.swordfish.touchinput.radial.ui.consoleControlPressed
 
 internal fun supportsAccessibleConsole(controller: TouchControllerID): Boolean =
     controller in
@@ -89,15 +94,25 @@ internal fun AccessibleConsoleControls(
             }
         }
     Column(
-        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceContainer)
-            .verticalScroll(rememberScrollState()).padding(4.dp),
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         buttons.chunked(2).forEach { row ->
             Row(horizontalArrangement = Arrangement.Center) {
                 row.forEach { (label, code) ->
+                    val interactions = remember { MutableInteractionSource() }
+                    val pressed by interactions.collectIsPressedAsState()
+                    val showPressed = pressed || code in held
                     TextButton(
+                        interactionSource = interactions,
+                        shape = ConsoleControlStyle.shape(label.length > 1),
+                        border = ConsoleControlStyle.border(),
+                        colors =
+                            ButtonDefaults.textButtonColors(
+                                containerColor = ConsoleControlStyle.containerColor(showPressed, label == "A"),
+                                contentColor = ConsoleControlStyle.contentColor(!showPressed && label == "A"),
+                            ),
                         onClick = {
                             haptics.press()
                             if (code in held) {
@@ -107,24 +122,30 @@ internal fun AccessibleConsoleControls(
                             }
                         },
                         modifier =
-                            Modifier.sizeIn(minWidth = 64.dp, minHeight = 48.dp).semantics {
-                                contentDescription = "$label button"
-                                stateDescription = if (code in held) "Held" else "Released"
-                                customActions =
-                                    listOf(
-                                        CustomAccessibilityAction("Hold $label") {
-                                            haptics.press()
-                                            viewModel.setAccessibleButton(code, true)
-                                            true
-                                        },
-                                        CustomAccessibilityAction("Release $label") {
-                                            haptics.release()
-                                            viewModel.setAccessibleButton(code, false)
-                                            true
-                                        },
-                                    )
-                            },
-                    ) { Text(if (code in held) "$label •" else label, color = MaterialTheme.colorScheme.onSurface) }
+                            Modifier.sizeIn(minWidth = 64.dp, minHeight = 48.dp)
+                                .consoleControlPressed(showPressed).semantics {
+                                    contentDescription = "$label button"
+                                    stateDescription = if (code in held) "Held" else "Released"
+                                    customActions =
+                                        listOf(
+                                            CustomAccessibilityAction("Hold $label") {
+                                                haptics.press()
+                                                viewModel.setAccessibleButton(code, true)
+                                                true
+                                            },
+                                            CustomAccessibilityAction("Release $label") {
+                                                haptics.release()
+                                                viewModel.setAccessibleButton(code, false)
+                                                true
+                                            },
+                                        )
+                                },
+                    ) {
+                        ConsoleControlLabel(
+                            if (code in held) "$label •" else label,
+                            fontSize = ConsoleControlStyle.labelSize(label),
+                        )
+                    }
                 }
             }
         }

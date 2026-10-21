@@ -1,6 +1,5 @@
 package com.swordfish.lemuroid.app.mobile.feature.home
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -24,21 +22,20 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberConsoleControlInteractions
+import com.swordfish.touchinput.radial.ui.ConsoleControlFace
+import com.swordfish.touchinput.radial.ui.ConsoleControlLabel
+import com.swordfish.touchinput.radial.ui.ConsoleControlStyle
 
 /** Real native controls, with non-overlapping 48dp targets and accessible action names. */
 @Composable
@@ -223,32 +220,26 @@ private fun WingKey(
         onClick = onClick,
         enabled = enabled,
         interactionSource = interactions,
-        shape = RoundedCornerShape(if (label.length > 1) 18.dp else 24.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        shape = ConsoleControlStyle.shape(label.length > 1),
         // Virtual controls must not become their own DPAD_CENTER target in menu mode.
         // TalkBack/Switch Access still see their Button semantics and click actions.
         modifier =
-            modifier.size(
-                48.dp,
-            ).graphicsLayer {
-                scaleX = if (pressed) .94f else 1f
-                scaleY = scaleX
-            }
+            modifier.size(48.dp)
                 .focusProperties { canFocus = false }.semantics { contentDescription = description },
-        color = if (pressed) MaterialTheme.colorScheme.surfaceContainerHighest else color,
-        contentColor = if (enabled) contentColor else contentColor.copy(alpha = .38f),
+        color = Color.Transparent,
     ) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        ConsoleControlFace(
+            pressed = pressed,
+            modifier = Modifier.fillMaxSize(),
+            enabled = enabled,
+            systemKey = label.length > 1,
+            containerColor = color,
+            contentColor = contentColor,
+        ) {
             if (icon != null) {
                 Icon(icon, null, Modifier.size(28.dp))
             } else {
-                Text(
-                    label,
-                    style = MaterialTheme.typography.labelLarge,
-                    fontSize = if (label.length > 1) 10.sp else 17.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                )
+                ConsoleControlLabel(label)
             }
         }
     }

@@ -105,7 +105,6 @@ import com.swordfish.touchinput.radial.LocalLemuroidPadTheme
 import com.swordfish.touchinput.radial.sensors.TiltConfiguration
 import com.swordfish.touchinput.radial.settings.TouchControllerID
 import com.swordfish.touchinput.radial.settings.TouchControllerSettingsManager
-import com.swordfish.touchinput.radial.ui.GlassSurface
 import com.swordfish.touchinput.radial.ui.LemuroidButtonPressFeedback
 import gg.padkit.PadKit
 import gg.padkit.config.HapticFeedbackType
@@ -719,14 +718,7 @@ internal fun FoldGameGuidance(
 
 @Composable
 private fun PadContainer(modifier: Modifier = Modifier) {
-    val theme = LocalLemuroidPadTheme.current
-    GlassSurface(
-        modifier = modifier,
-        cornerRadius = theme.level0CornerRadius,
-        fillColor = consoleFrameColor(),
-        shadowColor = theme.level0Shadow,
-        shadowWidth = theme.level0ShadowWidth,
-    )
+    Box(modifier.background(consoleFrameColor()))
 }
 
 @Composable
