@@ -1,0 +1,21 @@
+EmuUI is an emulator front end built for foldable phones. Hold a half-open foldable sideways, like a handheld console: the game plays on the upper half and the touch controls sit on the lower half. EmuUI reads where the crease is and keeps buttons, text and the game picture off it.
+
+EmuUI does not include or offer any games. Choose a folder of game files you have the right to use, and EmuUI adds them to your library.
+
+LIBRARY
+- Pick a game on the lower half. Its details and the Play button appear on the upper half.
+- Filter by all games, recently played or favorites, search by title, or browse by system.
+
+PLAYING
+- Touch controls sit on the lower half, to the left and right, and can be resized and moved.
+- Two-screen handheld games show both screens at the same size, one on each side of the crease.
+- Game controllers and keyboards work, including several controllers for local multiplayer.
+- Save states with slots, automatic saving when you leave a game, fast-forward and LCD or CRT display filters.
+- The pause menu blurs the paused game behind it.
+
+OTHER SCREENS
+On a phone or tablet without a crease, the screen is split into the same two halves.
+
+EmuUI is free software under the GNU General Public License v3, based on Lemuroid by Filippo Scognamiglio and contributors. Source code: https://github.com/thekozugroup/EmuUI
+
+EmuUI is not affiliated with, endorsed by or sponsored by any console maker or game publisher. Product names are trademarks of their respective owners.

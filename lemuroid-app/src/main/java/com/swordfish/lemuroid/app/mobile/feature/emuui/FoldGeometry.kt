@@ -33,6 +33,9 @@ data class FoldBounds(
 
 enum class FoldGuidance { ROTATE_LANDSCAPE, ROTATE_HINGE, WINDOW_TOO_SMALL }
 
+/** The orientation a console window should request so its crease runs left to right. */
+enum class CreaseOrientation { KEEP, PORTRAIT, LANDSCAPE }
+
 data class FoldLayout(
     val upper: FoldRect,
     val lower: FoldRect,
@@ -61,7 +64,8 @@ object FoldGeometry {
         val lowerStart = (bottom + padding).coerceIn(upperEnd, h)
         val guidance =
             when {
-                w <= h -> FoldGuidance.ROTATE_LANDSCAPE
+                // A clamshell's crease is horizontal in portrait: display above, controls below.
+                w <= h && !horizontal -> FoldGuidance.ROTATE_LANDSCAPE
                 intersects && fold?.axis == FoldAxis.VERTICAL -> FoldGuidance.ROTATE_HINGE
                 upperEnd == 0 || lowerStart == h || w == 0 -> FoldGuidance.WINDOW_TOO_SMALL
                 else -> null
@@ -76,21 +80,46 @@ object FoldGeometry {
     }
 
     /**
+     * Book-style foldables are horizontal in landscape. Clamshells report a vertical crease in
+     * landscape, so they are turned to portrait instead. Large screens letterbox rather than
+     * rotate, so a request only happens where the system honours it ([orientationHonoured]):
+     * a small, non-letterboxed screen. Portrait is released once no crease is reported (closed,
+     * cover screen) or the request can no longer take effect, and a stale vertical report while
+     * already portrait is ignored, so a rotation in progress cannot oscillate.
+     */
+    fun creaseOrientation(
+        landscape: Boolean,
+        crease: FoldAxis?,
+        portraitRequested: Boolean,
+        orientationHonoured: Boolean,
+    ): CreaseOrientation =
+        when {
+            !orientationHonoured -> if (portraitRequested) CreaseOrientation.LANDSCAPE else CreaseOrientation.KEEP
+            crease == FoldAxis.VERTICAL && landscape -> CreaseOrientation.PORTRAIT
+            crease == null && portraitRequested -> CreaseOrientation.LANDSCAPE
+            else -> CreaseOrientation.KEEP
+        }
+
+    /**
      * DS cores produce one top/bottom framebuffer. Reserve a native-pixel gap that covers
      * the physical hinge, and size BOTH screens to the smaller pane. No crop or stretch.
-     * The lower screen leaves room on each side for controls. Returns null if it cannot fit.
+     * The lower screen leaves room on each side for controls, or below it when
+     * [bottomControlsHeight] is set. Returns null if it cannot fit.
      */
     fun dualScreen(
         layout: FoldLayout,
         sideControlsWidth: Int,
         gapStep: Int = 1,
         maxGap: Int = 126,
+        bottomControlsHeight: Int = 0,
     ): DualScreenLayout? {
         if (layout.guidance != null || gapStep <= 0) return null
         val availableWidth = layout.lower.width - sideControlsWidth.coerceAtLeast(0) * 2
         if (availableWidth <= 0) return null
         val centerY = (layout.hinge.top + layout.hinge.bottom) / 2f
-        val outerHalfHeight = min(centerY - layout.upper.top, layout.lower.bottom - centerY)
+        // Portrait clamshells keep the controls in a strip under the lower screen instead.
+        val lowerLimit = layout.lower.bottom - bottomControlsHeight.coerceAtLeast(0)
+        val outerHalfHeight = min(centerY - layout.upper.top, lowerLimit - centerY)
         var scale = 0f
         var finalGap = -1
         // Search the small legal core-option range. This also handles quantisation when

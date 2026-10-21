@@ -7,6 +7,7 @@ EmuUI is a modified distribution of Lemuroid, not an official Lemuroid release.
 - Upstream license: GNU General Public License version 3, reproduced in `COPYING`
 - Original Lemuroid and Retrograde notices and source package names are retained
 - EmuUI modifications (2026-10-03): landscape handheld library, fold-aware viewports and input regions, original EmuUI visual identity and documentation
+- EmuUI modifications (2026-10-21): Material 3 Expressive redesign, blur and shadow primitives, clamshell-foldable orientation handling, store listing assets and copy
 
 The first EmuUI commit uses a clean source snapshot. Upstream history, its shared debug signing key, and the three commercial-game promotional screenshots are deliberately excluded. No ROMs, BIOS files, user saves or private signing credentials are included.
 
@@ -21,3 +22,7 @@ LibretroDroid is maintained separately at https://github.com/Swordfish90/Libretr
 Provide corresponding source for the exact EmuUI APK revision, build instructions, modified source, dependency versions and applicable notices with every distribution. Development APKs are unsigned release outputs or locally generated debug-signed test builds. Production signing material belongs outside this repository. No Android SDK packages or proprietary platform images are redistributed here. Full GPL-3.0 and Apache-2.0 texts plus key component notices are packaged under APK assets/licenses; original embedded notices are retained.
 
 Lawful QA content must have explicit permission or be original homebrew. Never publish commercial ROMs, BIOS files, or screenshots containing unlicensed game content.
+
+## Store assets
+
+Store screenshots under `store/` are renders of EmuUI's own Compose UI made by `StoreScreenshots` (a Robolectric unit test that is skipped unless requested). Every game shown is an invented title with EmuUI's original procedural placeholder art, and the in-game frame is original pixel art drawn in that test. No commercial game content, console logos or device imagery is used. Robolectric and its dependencies are test-only and are not distributed in any APK. Marketing text uses the Inter, Inter Display and JetBrains Mono fonts (SIL Open Font License) at composition time; the fonts themselves are not redistributed.

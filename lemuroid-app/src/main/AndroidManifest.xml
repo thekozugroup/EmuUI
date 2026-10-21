@@ -29,6 +29,7 @@
     <application
         android:name="com.swordfish.lemuroid.app.LemuroidApplication"
         android:allowBackup="true"
+        android:appCategory="game"
         android:banner="@mipmap/ic_banner"
         android:icon="@drawable/emuui_launcher"
         android:isGame="true"
@@ -84,7 +85,7 @@
 
         <activity
             android:name="com.swordfish.lemuroid.app.mobile.feature.gamemenu.GameMenuActivity"
-            android:screenOrientation="sensorLandscape"
+            android:screenOrientation="behind"
             android:resizeableActivity="true"
             android:process=":game"
             android:theme="@style/LemuroidMaterialTheme.Menu" />

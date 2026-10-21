@@ -16,7 +16,8 @@ import androidx.window.layout.WindowInfoTracker
 import kotlinx.coroutines.CancellationException
 import timber.log.Timber
 
-data class FoldPosture(val fold: FoldBounds? = null, val isHalfOpened: Boolean = false)
+/** [known] stays false until the first window layout report, so guidance is never shown early. */
+data class FoldPosture(val fold: FoldBounds? = null, val isHalfOpened: Boolean = false, val known: Boolean = false)
 
 /** Tracks window-local hardware geometry; the emulation view is never keyed to posture. */
 @Composable
@@ -34,7 +35,7 @@ fun rememberFoldPosture(): FoldPosture {
                     val feature = info.displayFeatures.filterIsInstance<FoldingFeature>().firstOrNull()
                     posture.value =
                         if (feature == null) {
-                            FoldPosture()
+                            FoldPosture(known = true)
                         } else {
                             val bounds = feature.bounds
                             FoldPosture(
@@ -47,6 +48,7 @@ fun rememberFoldPosture(): FoldPosture {
                                     },
                                 ),
                                 feature.state == FoldingFeature.State.HALF_OPENED,
+                                known = true,
                             )
                         }
                 }
@@ -55,7 +57,7 @@ fun rememberFoldPosture(): FoldPosture {
             } catch (exception: Exception) {
                 // Older non-folding devices may not expose a WindowManager extension.
                 Timber.w(exception, "Fold posture unavailable; using the flat console layout")
-                posture.value = FoldPosture()
+                posture.value = FoldPosture(known = true)
             }
         }
     }

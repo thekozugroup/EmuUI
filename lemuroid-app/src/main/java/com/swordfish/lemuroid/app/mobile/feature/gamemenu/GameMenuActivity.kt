@@ -4,10 +4,12 @@ package com.swordfish.lemuroid.app.mobile.feature.gamemenu
 
 import android.content.Intent
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -16,25 +18,28 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -47,6 +52,11 @@ import com.swordfish.lemuroid.app.mobile.feature.gamemenu.coreoptions.GameMenuCo
 import com.swordfish.lemuroid.app.mobile.feature.gamemenu.states.GameMenuStatesScreen
 import com.swordfish.lemuroid.app.mobile.feature.gamemenu.states.GameMenuStatesViewModel
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.AppTheme
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ConsoleColors
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.FrostedSurface
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.SoftElevation
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.WindowBlurDefaults
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.applyBlurBehind
 import com.swordfish.lemuroid.app.shared.GameMenuContract
 import com.swordfish.lemuroid.app.shared.coreoptions.LemuroidCoreOption
 import com.swordfish.lemuroid.app.shared.input.InputDeviceManager
@@ -58,7 +68,9 @@ import com.swordfish.lemuroid.lib.saves.StatesManager
 import com.swordfish.lemuroid.lib.saves.StatesPreviewManager
 import com.swordfish.touchinput.radial.sensors.TiltConfiguration
 import java.security.InvalidParameterException
+import java.util.function.Consumer
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 class GameMenuActivity : RetrogradeComponentActivity() {
     @Inject
@@ -84,6 +96,9 @@ class GameMenuActivity : RetrogradeComponentActivity() {
         val allTiltConfigurations: List<TiltConfiguration>,
     )
 
+    // Held as Any: java.util.function.Consumer does not exist before API 24, and minSdk is 23.
+    private var blurListener: Any? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -91,6 +106,7 @@ class GameMenuActivity : RetrogradeComponentActivity() {
             SystemBarStyle.dark(Color.TRANSPARENT),
             SystemBarStyle.dark(Color.TRANSPARENT),
         )
+        applyWindowBlur(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && windowManager.isCrossWindowBlurEnabled)
 
         val extras = intent.extras
 
@@ -134,7 +150,7 @@ class GameMenuActivity : RetrogradeComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     private fun GameMenuScreen(gameMenuRequest: GameMenuRequest) {
         AppTheme {
@@ -147,10 +163,19 @@ class GameMenuActivity : RetrogradeComponentActivity() {
                     ?.let { GameMenuRoute.findByRoute(it) }
                     ?: GameMenuRoute.HOME
 
-            SideMenu {
+            GameMenuSideMenu {
                 TopAppBar(
-                    title = { Text(stringResource(currentRoute.titleId)) },
+                    title = {
+                        Text(
+                            stringResource(currentRoute.titleId),
+                            style = MaterialTheme.typography.titleLargeEmphasized,
+                        )
+                    },
                     windowInsets = WindowInsets(0.dp),
+                    colors =
+                        TopAppBarDefaults.topAppBarColors(
+                            containerColor = androidx.compose.ui.graphics.Color.Transparent,
+                        ),
                     navigationIcon = {
                         AnimatedContent(targetState = currentRoute.canGoBack(), label = "Back") { canGoBack ->
                             if (canGoBack) {
@@ -171,7 +196,6 @@ class GameMenuActivity : RetrogradeComponentActivity() {
                         }
                     },
                 )
-                Divider(modifier = Modifier.fillMaxWidth())
                 NavHost(
                     modifier =
                         Modifier
@@ -231,30 +255,34 @@ class GameMenuActivity : RetrogradeComponentActivity() {
         }
     }
 
-    @Composable
-    private fun SideMenu(content: @Composable () -> Unit) {
-        BoxWithConstraints(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.CenterEnd,
-        ) {
-            val panelWidth =
-                remember(maxWidth) {
-                    minOf(maxWidth * 0.8f, 400f.dp)
-                }
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) addBlurListener()
+    }
 
-            Surface(
-                modifier =
-                    Modifier
-                        .padding()
-                        .fillMaxHeight()
-                        .width(panelWidth)
-                        .clip(MaterialTheme.shapes.large),
-            ) {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    content()
-                }
-            }
-        }
+    override fun onDetachedFromWindow() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) removeBlurListener()
+        super.onDetachedFromWindow()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun addBlurListener() {
+        val listener = Consumer<Boolean> { enabled -> applyWindowBlur(enabled) }
+        windowManager.addCrossWindowBlurEnabledListener(listener)
+        blurListener = listener
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun removeBlurListener() {
+        @Suppress("UNCHECKED_CAST")
+        (blurListener as? Consumer<Boolean>)?.let { windowManager.removeCrossWindowBlurEnabledListener(it) }
+        blurListener = null
+    }
+
+    /** The paused game blurs behind the menu, like the power menu; otherwise it is dimmed. */
+    private fun applyWindowBlur(enabled: Boolean) {
+        val radius = (WindowBlurDefaults.PauseRadius.value * resources.displayMetrics.density).roundToInt()
+        window.applyBlurBehind(radius, enabled, blurredDim = 0.3f, unblurredDim = 0.75f)
     }
 
     private fun onResult(block: Intent.() -> Unit) {
@@ -266,4 +294,39 @@ class GameMenuActivity : RetrogradeComponentActivity() {
 
     @dagger.Module
     abstract class Module
+}
+
+/** A floating frosted panel. Its tint shows the blurred game through it, or turns opaque. */
+@Composable
+internal fun GameMenuSideMenu(content: @Composable () -> Unit) {
+    BoxWithConstraints(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .windowInsetsPadding(WindowInsets.safeDrawing)
+                .padding(12.dp),
+        contentAlignment = Alignment.CenterEnd,
+    ) {
+        val panelWidth =
+            remember(maxWidth) {
+                minOf(maxWidth * 0.8f, 400f.dp)
+            }
+
+        FrostedSurface(
+            shape = MaterialTheme.shapes.extraLarge,
+            // Denser than cards: the paused game behind is dark and dimmed.
+            tint = ConsoleColors.Lime.copy(alpha = 0.08f).compositeOver(ConsoleColors.Paper.copy(alpha = 0.9f)),
+            elevation = SoftElevation.Floating,
+            modifier =
+                Modifier
+                    .fillMaxHeight()
+                    .width(panelWidth),
+        ) {
+            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurface) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    content()
+                }
+            }
+        }
+    }
 }

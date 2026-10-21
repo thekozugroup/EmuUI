@@ -2,7 +2,11 @@
 
 A landscape-first Android emulation handheld for foldables. Native Kotlin and Jetpack Compose, with native [Material 3 Expressive components](docs/MATERIAL3_EXPRESSIVE.md) and the emulation foundations of [Lemuroid](https://github.com/Swordfish90/Lemuroid).
 
-The upper pane is the display. The lower pane is your library or controller. On devices reporting a horizontal folding feature, the interface leaves the hinge clear. Flat devices use a two-pane handheld layout. Portrait and vertical-fold postures require rotation.
+The upper pane is the display. The lower pane is your library or controller. On devices reporting a horizontal folding feature, the interface leaves the hinge clear. Book-style foldables are used sideways; flip-style foldables, which report a vertical crease in landscape, are turned to portrait so their crease runs left to right. Flat devices use a two-pane handheld layout.
+
+![EmuUI library on an unfolded foldable: the selected game above the crease, game cards below](store/play/phone/01-library.png)
+
+The interface uses Material 3 Expressive components, Android 17-style background blur that turns opaque when the system disables blur, and very soft two-layer shadows. See [the design notes](docs/MATERIAL3_EXPRESSIVE.md).
 
 ## Development preview
 
@@ -42,6 +46,15 @@ The unchanged library metadata is stored losslessly as small gzip pieces. Gradle
 Successful Android checks publish a standard GitHub Actions artifact named `emuui-preview-<source commit>`, containing the APK, SHA-256 checksum, GPL license and exact source link. GitHub sign-in may be required to download artifacts, and their retention is 90 days. This is a development artifact, not a formal GitHub Release or production-signed build.
 
 CI rebuilds from the public source commit. Its APK is not claimed byte-identical to the locally tested build documented in [QA](docs/QA.md). Debug signing keys can differ between builds, so in-place upgrades are not guaranteed. Do not remove an installation containing saves without a verified backup.
+
+## Store listing assets
+
+Google Play, Samsung Galaxy Store and F-Droid assets, plus App Store copy, live in [`store/`](store/README.md). Screenshots are renders of the app's own Compose UI with original placeholder games:
+
+```sh
+./gradlew :lemuroid-app:testFreeDynamicDebugUnitTest --tests '*StoreScreenshots*' -PemuuiScreenshots
+NODE_PATH=$(npm root -g) node store/tools/compose.mjs
+```
 
 ## Licenses and provenance
 

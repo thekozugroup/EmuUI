@@ -439,6 +439,9 @@ abstract class BaseGameActivity : ImmersiveActivity() {
         private const val EXTRA_LEANBACK = "LEANBACK"
         private const val EXTRA_SYSTEM_CORE_CONFIG = "EXTRA_SYSTEM_CORE_CONFIG"
 
+        /** The launcher's requested orientation, so a clamshell's game opens already in portrait. */
+        const val EXTRA_SCREEN_ORIENTATION = "EXTRA_SCREEN_ORIENTATION"
+
         const val REQUEST_PLAY_GAME = 1001
         const val PLAY_GAME_RESULT_SESSION_DURATION = "PLAY_GAME_RESULT_SESSION_DURATION"
         const val PLAY_GAME_RESULT_GAME = "PLAY_GAME_RESULT_GAME"
@@ -467,6 +470,7 @@ abstract class BaseGameActivity : ImmersiveActivity() {
                     putExtra(EXTRA_LOAD_SAVE, loadSave)
                     putExtra(EXTRA_LEANBACK, useLeanback)
                     putExtra(EXTRA_SYSTEM_CORE_CONFIG, systemCoreConfig)
+                    putExtra(EXTRA_SCREEN_ORIENTATION, activity.requestedOrientation)
                 },
                 REQUEST_PLAY_GAME,
             )

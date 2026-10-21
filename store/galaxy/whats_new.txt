@@ -1,0 +1,5 @@
+- Redesigned with Material 3 Expressive: a split Play button, connected library filters and a floating library toolbar.
+- Cards and menus blur what is behind them, and turn opaque when the system turns blur off.
+- The pause menu blurs the paused game behind it.
+- Flip-style foldables turn to portrait so the crease runs left to right.
+- Wide windows use a navigation rail on secondary screens.

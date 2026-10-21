@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.alorma.compose.settings.storage.base.SettingValueState
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.DialogBlurBehind
 
 @Composable
 fun LemuroidSettingsListMultiSelect(
@@ -71,7 +72,9 @@ fun LemuroidSettingsListMultiSelect(
 
     AlertDialog(
         title = title,
+        shape = MaterialTheme.shapes.extraLarge,
         text = {
+            DialogBlurBehind()
             Column(
                 modifier = Modifier.verticalScroll(scrollState),
             ) {

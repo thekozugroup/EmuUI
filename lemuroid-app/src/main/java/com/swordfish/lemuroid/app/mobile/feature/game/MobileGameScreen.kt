@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.displayCutout
@@ -19,14 +20,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Height
 import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.filled.RotateLeft
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -61,6 +66,7 @@ import com.swordfish.lemuroid.app.mobile.feature.emuui.FoldGuidance
 import com.swordfish.lemuroid.app.mobile.feature.emuui.FoldRect
 import com.swordfish.lemuroid.app.mobile.feature.emuui.ScreenRect
 import com.swordfish.lemuroid.app.mobile.feature.emuui.rememberFoldPosture
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.ConsoleColors
 import com.swordfish.lemuroid.app.shared.game.BaseGameScreenViewModel
 import com.swordfish.lemuroid.app.shared.game.viewmodel.GameViewModelTouchControls.Companion.MENU_LOADING_ANIMATION_MILLIS
 import com.swordfish.lemuroid.app.shared.settings.HapticFeedbackMode
@@ -152,13 +158,20 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                     TouchControllerID.MELONDS,
                     TouchControllerID.DESMUME,
                 )
-        val sideWidth = minOf(with(density) { 216.dp.roundToPx() }, foldLayout.lower.width / 3)
+        // A portrait clamshell is too narrow for side columns: both screens take the full width
+        // and the controls move to a strip under the lower screen.
+        val portraitPanes = !isLandscape
+        val sideWidth =
+            if (portraitPanes) 0 else minOf(with(density) { 216.dp.roundToPx() }, foldLayout.lower.width / 3)
+        val controlStrip =
+            if (portraitPanes) minOf(with(density) { 200.dp.roundToPx() }, foldLayout.lower.height / 2) else 0
         val dualScreen =
             if (isDualScreen) {
                 FoldGeometry.dualScreen(
                     foldLayout,
                     sideWidth,
                     maxGap = if (currentControllerConfig?.touchControllerID == TouchControllerID.DESMUME) 100 else 126,
+                    bottomControlsHeight = controlStrip,
                 )
             } else {
                 null
@@ -224,10 +237,24 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                     val pads = config.getTouchControllerConfig()
                     // Clip and constrain complete radial pads to the lower pane. User
                     // scale/margins remain saved but cannot push controls into the hinge.
-                    val leftEnd = dualScreen?.lowerScreen?.left?.roundToInt() ?: (width / 2)
-                    val rightStart = dualScreen?.lowerScreen?.right?.roundToInt() ?: (width / 2)
+                    val middle = (foldLayout.lower.left + foldLayout.lower.right) / 2
+                    val stripTop =
+                        dualScreen?.takeIf { portraitPanes }?.lowerScreen?.bottom?.roundToInt()
+                            ?.coerceIn(foldLayout.lower.top, foldLayout.lower.bottom)
+                    val leftPads =
+                        if (stripTop != null) {
+                            foldLayout.lower.copy(top = stripTop, right = middle)
+                        } else {
+                            foldLayout.lower.copy(right = dualScreen?.lowerScreen?.left?.roundToInt() ?: (width / 2))
+                        }
+                    val rightPads =
+                        if (stripTop != null) {
+                            foldLayout.lower.copy(top = stripTop, left = middle)
+                        } else {
+                            foldLayout.lower.copy(left = dualScreen?.lowerScreen?.right?.roundToInt() ?: (width / 2))
+                        }
                     if (touchControlsVisible || accessibleControls.value) {
-                        ConsoleRegion(foldLayout.lower.copy(right = leftEnd)) {
+                        ConsoleRegion(leftPads) {
                             PadContainer(Modifier.fillMaxSize())
                             if (accessibleControls.value && supportsAccessibleConsole(config.touchControllerID)) {
                                 key(foldLayout) { AccessibleConsoleControls(true, config.touchControllerID, viewModel) }
@@ -235,7 +262,7 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                                 pads.leftComposable(this@PadKit, Modifier.fillMaxSize(), settings)
                             }
                         }
-                        ConsoleRegion(foldLayout.lower.copy(left = rightStart)) {
+                        ConsoleRegion(rightPads) {
                             PadContainer(Modifier.fillMaxSize())
                             if (accessibleControls.value && supportsAccessibleConsole(config.touchControllerID)) {
                                 key(
@@ -249,28 +276,19 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                     // Explicit 48dp action supplements the existing radial hold-menu
                     // gesture and remains available when a hardware controller is paired.
                     ConsoleRegion(foldLayout.upper) {
-                        TextButton(
-                            onClick = { viewModel.openGameMenu() },
-                            modifier =
-                                Modifier.align(Alignment.TopStart).sizeIn(minWidth = 64.dp, minHeight = 48.dp)
-                                    .background(Color.Black.copy(alpha = 0.68f), RoundedCornerShape(16.dp)),
-                        ) { Text("Menu", color = Color.White) }
-                        if (supportsAccessibleConsole(config.touchControllerID)) {
-                            TextButton(
-                                onClick = {
-                                    viewModel.releaseVirtualControls()
-                                    accessibleControls.value = !accessibleControls.value
+                        GameOverlayActions(
+                            onMenu = { viewModel.openGameMenu() },
+                            accessibleControls =
+                                if (supportsAccessibleConsole(config.touchControllerID)) {
+                                    accessibleControls.value
+                                } else {
+                                    null
                                 },
-                                modifier =
-                                    Modifier.align(Alignment.TopEnd).sizeIn(minHeight = 48.dp)
-                                        .background(Color.Black.copy(alpha = 0.68f), RoundedCornerShape(16.dp)),
-                            ) {
-                                Text(
-                                    if (accessibleControls.value) "Radial controls" else "Accessible controls",
-                                    color = Color.White,
-                                )
-                            }
-                        }
+                            onToggleAccessibleControls = {
+                                viewModel.releaseVirtualControls()
+                                accessibleControls.value = !accessibleControls.value
+                            },
+                        )
                         GameScreenRunningCentralMenu(
                             Modifier.align(Alignment.Center),
                             viewModel,
@@ -284,7 +302,8 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                 Box(Modifier.fillMaxSize().background(Color(0xFF080A0E)))
             }
             if (foldLayout.guidance != null) {
-                FoldGameGuidance(foldLayout.guidance, viewModel::openGameMenu)
+                // Before the first window layout report a clamshell may still be turning.
+                if (posture.known) FoldGameGuidance(foldLayout.guidance, viewModel::openGameMenu)
             } else if (isDualScreen && dualScreen == null) {
                 ConsoleRegion(foldLayout.lower) {
                     Column(Modifier.align(Alignment.Center).background(Color.Black).padding(12.dp)) {
@@ -300,8 +319,50 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
     }
 }
 
+/**
+ * Menu and control-style pills over the display pane. A SurfaceView cannot be sampled for blur,
+ * so they use a dark translucent tint over the game, with the expressive press morph.
+ */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun ConsoleRegion(
+internal fun BoxScope.GameOverlayActions(
+    onMenu: () -> Unit,
+    accessibleControls: Boolean?,
+    onToggleAccessibleControls: () -> Unit,
+) {
+    Button(
+        onClick = onMenu,
+        shapes = ButtonDefaults.shapes(),
+        colors = overlayButtonColors(),
+        elevation = null,
+        contentPadding = PaddingValues(horizontal = 18.dp, vertical = 10.dp),
+        modifier =
+            Modifier.align(Alignment.TopStart).padding(8.dp)
+                .sizeIn(minWidth = 64.dp, minHeight = 48.dp),
+    ) { Text("Menu") }
+    if (accessibleControls != null) {
+        Button(
+            onClick = onToggleAccessibleControls,
+            shapes = ButtonDefaults.shapes(),
+            colors = overlayButtonColors(),
+            elevation = null,
+            contentPadding = PaddingValues(horizontal = 18.dp, vertical = 10.dp),
+            modifier = Modifier.align(Alignment.TopEnd).padding(8.dp).sizeIn(minHeight = 48.dp),
+        ) {
+            Text(if (accessibleControls) "Radial controls" else "Accessible controls")
+        }
+    }
+}
+
+@Composable
+private fun overlayButtonColors() =
+    ButtonDefaults.buttonColors(
+        containerColor = ConsoleColors.Screen.copy(alpha = 0.66f),
+        contentColor = ConsoleColors.Paper,
+    )
+
+@Composable
+internal fun ConsoleRegion(
     rect: FoldRect,
     content: @Composable BoxScope.() -> Unit,
 ) {
@@ -341,7 +402,7 @@ private fun FoldGameGuidance(
 }
 
 @Composable
-private fun PadContainer(modifier: Modifier = Modifier) {
+internal fun PadContainer(modifier: Modifier = Modifier) {
     val theme = LocalLemuroidPadTheme.current
     GlassSurface(
         modifier = modifier,
@@ -382,8 +443,11 @@ private fun MenuEditTouchControls(
     val showEditControls = viewModel.isEditControlShown().collectAsState(false)
     if (!showEditControls.value) return
 
+    // No blur here: the player is lining up the live controls behind this dialog.
     Dialog(onDismissRequest = { viewModel.showEditControls(false) }) {
         Card(
+            shape = MaterialTheme.shapes.extraLarge,
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest),
             modifier =
                 Modifier
                     .fillMaxWidth()

@@ -1,49 +1,45 @@
-Lemuroid is an open-source emulator based on Libretro. It's designed to work on a wide range of devices, from phones to TVs, and to provide the best user experience on Android. It's completely free and without ads.
+EmuUI is an emulator front end built for foldable phones. Hold a half-open foldable sideways, like a handheld console: the game plays on the upper half and the touch controls sit on the lower half. EmuUI reads the position of the crease from the system and keeps buttons, text and the game picture off it.
 
+EmuUI does not include any games. Choose a folder of game files you have the right to use, and EmuUI adds them to your library.
 
-Supported Systems:
+LIBRARY
+- Pick a game on the lower half. Its details and the Play button appear on the upper half.
+- Filter by all games, recently played or favorites, search by title, or browse by system.
+- Long-press a game to resume, restart, add it to favorites or create a home-screen shortcut.
 
-- Atari 2600 (A26)
-- Atari 7800 (A78)
-- Atari Lynx (Lynx)
-- Nintendo (NES)
-- Super Nintendo (SNES)
-- Game Boy (GB)
-- Game Boy Color (GBC)
-- Game Boy Advance (GBA)
-- Sega Genesis (aka Megadrive)
-- Sega CD (aka Mega CD)
-- Sega Master System (SMS)
-- Sega Game Gear (GG)
-- Nintendo 64 (N64)
-- PlayStation (PSX)
-- PlayStation Portable (PSP)
-- FinalBurn Neo (Arcade)
-- Nintendo DS (NDS)
-- NEC PC Engine (PCE)
-- Neo Geo Pocket (NGP)
-- Neo Geo Pocket Color (NGC)
-- WonderSwan (WS)
-- WonderSwan Color (WSC)
-- Nintendo 3DS (3DS)
+PLAYING
+- Touch controls sit on the lower half, to the left and right, and can be resized and moved.
+- Two-screen handheld games show both screens at the same size, one on each side of the crease. Touch input only reaches the lower screen.
+- Game controllers and keyboards work, including several controllers for local multiplayer.
+- Save states with slots, automatic saving when you leave a game, fast-forward, tilt-to-stick and LCD or CRT display filters.
+- The pause menu blurs the paused game behind it.
 
+FOLDABLES AND OTHER SCREENS
+- Book-style foldables: turn the phone sideways so the crease runs left to right.
+- Flip-style foldables: EmuUI switches to portrait so the crease runs left to right.
+- Phones and tablets without a crease: the screen is split into the same two halves.
+- On supported systems, an accessible control layout with standard buttons works with screen readers and Switch Access.
 
-Features:
+DESIGN
+EmuUI uses Material 3 Expressive components, with cards and menus that blur what is behind them. When the system turns blur off, for example in Battery Saver or with "Reduce blur effects", panels become opaque so text stays easy to read.
 
-- Automatically save and restore game states
-- ROMs scanning and indexing
-- Optimized touch controls
-- Quick save/load with slots
-- Support for zipped ROMs
-- Display simulation (LCD/CRT)
-- Fast-forward support
-- Gamepad support
-- Tilt to stick support
-- Touch control customization (size and position)
-- Cloud save sync
-- No ads
-- Local multiplayer (connect multiple gamepads to the same device)
+SUPPORTED SYSTEMS
+- Atari 2600, Atari 7800 and Atari Lynx
+- NES, SNES and Nintendo 64
+- Game Boy, Game Boy Color and Game Boy Advance
+- Nintendo DS and Nintendo 3DS
+- Sega Genesis (Mega Drive), Sega CD, Master System and Game Gear
+- PlayStation and PlayStation Portable
+- NEC PC Engine
+- Neo Geo Pocket and Neo Geo Pocket Color
+- WonderSwan and WonderSwan Color
+- Arcade (FinalBurn Neo and MAME 2003-Plus)
+- DOS
 
-Keep in mind not every device can emulate every console. A very powerful one is required for more recent systems such as PSP and DS and 3DS.
+Newer systems such as Nintendo 3DS, Nintendo DS and PlayStation Portable need a powerful phone. Not every phone can run every system at full speed.
 
-This application does not contain any games. You need to provide your own legally owned ROM files.
+GOOD TO KNOW
+- Each emulator core downloads the first time you play a game for that system, so you need an internet connection then.
+- EmuUI is free software under the GNU General Public License v3. It is based on Lemuroid by Filippo Scognamiglio and contributors. Source code: https://github.com/thekozugroup/EmuUI
+- There are no ads.
+- EmuUI is not affiliated with, endorsed by or sponsored by any console maker or game publisher. Product names are trademarks of their respective owners.

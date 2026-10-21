@@ -12,8 +12,8 @@ val gameProcessTests = providers.gradleProperty("emuuiGameTests").map(String::to
 
 android {
     defaultConfig {
-        versionCode = 2
-        versionName = "0.1.1" // Core download tag remains independently pinned upstream.
+        versionCode = 3
+        versionName = "0.2.0" // Core download tag remains independently pinned upstream.
         applicationId = "com.thekozugroup.emuui"
         testInstrumentationRunner =
             if (gameProcessTests) {
@@ -117,12 +117,30 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+
+    testOptions {
+        // Robolectric renders the real Compose UI for store screenshots; see StoreScreenshots.
+        unitTests.isIncludeAndroidResources = true
+    }
     namespace = "com.swordfish.lemuroid"
+}
+
+// Store screenshots are opt-in: ./gradlew :lemuroid-app:testFreeDynamicDebugUnitTest -PemuuiScreenshots
+tasks.withType<Test>().configureEach {
+    systemProperty("emuui.screenshots", providers.gradleProperty("emuuiScreenshots").isPresent.toString())
+    systemProperty("emuui.screenshotDir", rootProject.layout.projectDirectory.dir("store/renders").asFile.path)
+    systemProperty("robolectric.pixelCopyRenderMode", "hardware")
+    // Lets a build pass Robolectric options through, e.g. -Drobolectric.dependency.repo.url=<mirror>.
+    System.getProperties().stringPropertyNames().filter { it.startsWith("robolectric.") }.forEach {
+        systemProperty(it, System.getProperty(it))
+    }
 }
 
 dependencies {
     implementation("androidx.window:window:1.3.0")
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.robolectric:robolectric:4.17")
+    testImplementation("androidx.window:window-testing:1.3.0")
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test:core:1.5.0")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

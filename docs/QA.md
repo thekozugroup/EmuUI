@@ -1,5 +1,19 @@
 # EmuUI verification record
 
+## Version 0.2.0 candidate (design and foldable update)
+
+Updated 21 October 2026. This candidate adds the Material 3 Expressive redesign, Android 17-style blur, soft shadows and clamshell-foldable orientation handling. It has **not** been run on an Android device or emulator: the development container had no hardware virtualisation. Nothing below is device evidence, and none of the 0.1.1 or 0.1.0 results carry over automatically.
+
+- Candidate version: `0.2.0-DEBUG`, version code 3, package `com.thekozugroup.emuui.debug`
+- PASS: `assembleFreeDynamicDebug`, `compileFreeDynamicDebugAndroidTestKotlin` and `lintFreeDynamicDebug` with 0 errors
+- PASS: all JVM unit tests with 0 failures. New geometry tests cover a clamshell's portrait crease, the crease-orientation decision and a full unfold, rotate and close sequence that settles without oscillating
+- PASS: Kotlin style check
+- RENDERED, not device-verified: Robolectric native-graphics renders of the real home, welcome, game-control and pause-menu composables at Pixel 11 Pro Fold (2152 x 2076 px, 390 dpi assumed), book-style fold, clamshell, 16:9 tablet and 16:9 phone sizes with an injected horizontal hinge. They confirm the layouts, backdrop blur and shadows draw as designed under host rendering; they are not a substitute for GPU, timing or touch checks. The pause-menu render simulates the window manager's blur with an in-window blur
+- NOT RUN: `InjectedFoldLayoutTest` was rewritten for the new behaviour (a vertical crease in a landscape window now requests portrait, and closing hands back landscape). It compiles but has not been executed
+- NOT RUN: any physical foldable, including the Pixel 11 Pro Fold and a flip-style device; window blur with Battery Saver or "Reduce blur effects"; Android 31 and older fallbacks; TalkBack and large-font passes on the new layouts
+
+Performance notes for device testing: frosted surfaces use one RenderEffect layer each, the ambient backdrop blurs a quarter-size image scaled up, and shadows are cached quarter-resolution bitmaps in a 4 MB LRU cache. The only MaterialShapes used are static badge shapes; the polygon morphing behind the earlier Android 35 `LoadingIndicator` ANR is still not used.
+
 ## Version 0.1.1 candidate
 
 Updated 3 October 2026 at 20:58 UTC. All eight Android 29 instrumentation tests passed against the native-tested APK identified below. Android 35 startup remains blocked, and an earlier-autosave metadata observation remains unresolved. Version 0.1.0 results below remain historical evidence and are not automatically attributed to 0.1.1.

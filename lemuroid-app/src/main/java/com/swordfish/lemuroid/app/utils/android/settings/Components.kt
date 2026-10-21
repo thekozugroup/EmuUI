@@ -1,5 +1,6 @@
 package com.swordfish.lemuroid.app.utils.android.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,21 +9,24 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.ProvideTextStyle
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.alorma.compose.settings.storage.base.SettingValueState
 import com.alorma.compose.settings.ui.SettingsMenuLink
 import com.alorma.compose.settings.ui.SettingsSlider
 import com.alorma.compose.settings.ui.SettingsSwitch
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.SoftElevation
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.softShadow
 import kotlin.math.roundToInt
 
 @Composable
@@ -91,37 +95,73 @@ fun LemuroidSettingsGroup(
     title: @Composable (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Surface {
-        Column(
-            modifier = modifier.fillMaxWidth(),
-        ) {
-            if (title != null) {
-                SettingsGroupTitleSmall(title)
+    // No surface of its own: groups sit directly on the page or the frosted game menu.
+    Column(
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        if (title != null) {
+            SettingsGroupTitleSmall(title)
+        }
+        content()
+    }
+}
+
+/**
+ * Android's expressive segmented list: every row is its own tile with large outer corners and
+ * small inner ones, separated by a hairline gap instead of dividers.
+ */
+@Composable
+fun LemuroidSegmentedGroup(
+    rows: List<@Composable () -> Unit>,
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = 0.72f),
+) {
+    Column(
+        modifier = modifier.fillMaxWidth().padding(horizontal = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+    ) {
+        rows.forEachIndexed { index, row ->
+            val top = if (index == 0) 24.dp else 6.dp
+            val bottom = if (index == rows.lastIndex) 24.dp else 6.dp
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(top, top, bottom, bottom))
+                        .background(color),
+            ) {
+                row()
             }
-            content()
         }
     }
 }
 
+/** A rounded group on the console shell, as in Android's expressive settings: titled above. */
 @Composable
 fun LemuroidCardSettingsGroup(
     modifier: Modifier = Modifier,
     title: @Composable (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Surface {
+    val shape = MaterialTheme.shapes.large
+    Column(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp),
+    ) {
+        if (title != null) {
+            SettingsGroupTitleSmall(title)
+        }
         Column(
             modifier =
-                modifier
+                Modifier
                     .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp),
+                    .softShadow(shape, SoftElevation.Resting)
+                    .clip(shape)
+                    .background(MaterialTheme.colorScheme.surfaceContainerLowest),
         ) {
-            OutlinedCard {
-                if (title != null) {
-                    SettingsGroupTitleSmall(title)
-                }
-                content()
-            }
+            content()
         }
     }
 }
@@ -165,7 +205,7 @@ private fun SettingsGroupTitleSmall(title: @Composable () -> Unit) {
             Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(16.dp),
+                .padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 10.dp),
         contentAlignment = Alignment.CenterStart,
     ) {
         val primary = MaterialTheme.colorScheme.primary
@@ -176,13 +216,15 @@ private fun SettingsGroupTitleSmall(title: @Composable () -> Unit) {
 
 @Composable
 private fun lemuroidSettingsColor(enabled: Boolean): ListItemColors {
-    val defaultColors = ListItemDefaults.colors()
+    // Rows are transparent; the group or panel they sit in provides the surface.
+    val defaultColors = ListItemDefaults.colors(containerColor = Color.Transparent)
 
     if (enabled) {
         return defaultColors
     }
 
     return ListItemDefaults.colors(
+        containerColor = Color.Transparent,
         headlineColor = defaultColors.disabledHeadlineColor,
         leadingIconColor = defaultColors.disabledLeadingIconColor,
         trailingIconColor = defaultColors.disabledTrailingIconColor,

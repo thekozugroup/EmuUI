@@ -9,6 +9,7 @@ import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -52,6 +53,17 @@ private val LightColorScheme =
         outline = Color(0xFF777F74),
         outlineVariant = ConsoleColors.Outline,
         surfaceTint = ConsoleColors.Moss,
+        // Expressive components read these roles; keep them on the warm shell, not baseline lilac.
+        surfaceBright = ConsoleColors.Paper,
+        surfaceDim = Color(0xFFDCDACF),
+        surfaceContainerLowest = Color.White,
+        surfaceContainerLow = Color(0xFFF7F6EE),
+        surfaceContainer = Color(0xFFF0EFE6),
+        surfaceContainerHigh = Color(0xFFEAE9DF),
+        surfaceContainerHighest = Color(0xFFE4E3D8),
+        inverseSurface = ConsoleColors.Ink,
+        inverseOnSurface = ConsoleColors.Paper,
+        inversePrimary = ConsoleColors.Lime,
     )
 
 private val DarkColorScheme =
@@ -69,8 +81,14 @@ private val DarkColorScheme =
         surfaceVariant = Color(0xFF354139),
         onSurfaceVariant = Color(0xFFC0CABD),
         outline = Color(0xFF899584),
+        surfaceContainerLowest = Color(0xFF141A17),
+        surfaceContainerLow = Color(0xFF1D2521),
+        surfaceContainer = Color(0xFF222B27),
+        surfaceContainerHigh = Color(0xFF2B3530),
+        surfaceContainerHighest = Color(0xFF35403A),
     )
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private val ConsoleTypography =
     Typography(
         displaySmall =
@@ -127,6 +145,38 @@ private val ConsoleTypography =
                 lineHeight = 14.sp,
                 letterSpacing = 1.sp,
             ),
+        // Expressive emphasis: heavier weight and tighter tracking on the same size steps.
+        headlineLargeEmphasized =
+            TextStyle(
+                fontFamily = FontFamily.SansSerif,
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 30.sp,
+                lineHeight = 34.sp,
+                letterSpacing = (-1.0).sp,
+            ),
+        titleLargeEmphasized =
+            TextStyle(
+                fontFamily = FontFamily.SansSerif,
+                fontWeight = FontWeight.Bold,
+                fontSize = 22.sp,
+                lineHeight = 26.sp,
+                letterSpacing = (-0.5).sp,
+            ),
+        titleMediumEmphasized =
+            TextStyle(
+                fontFamily = FontFamily.SansSerif,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                lineHeight = 22.sp,
+                letterSpacing = (-0.1).sp,
+            ),
+        labelLargeEmphasized =
+            TextStyle(
+                fontFamily = FontFamily.SansSerif,
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp,
+                lineHeight = 20.sp,
+            ),
     )
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -145,8 +195,12 @@ fun AppTheme(
                 small = RoundedCornerShape(12.dp),
                 medium = RoundedCornerShape(20.dp),
                 large = RoundedCornerShape(28.dp),
+                largeIncreased = RoundedCornerShape(32.dp),
                 extraLarge = RoundedCornerShape(36.dp),
+                extraLargeIncreased = RoundedCornerShape(40.dp),
+                extraExtraLarge = RoundedCornerShape(48.dp),
             ),
-        content = content,
-    )
+    ) {
+        CompositionLocalProvider(LocalBlurAvailable provides rememberBlurAvailable(), content = content)
+    }
 }

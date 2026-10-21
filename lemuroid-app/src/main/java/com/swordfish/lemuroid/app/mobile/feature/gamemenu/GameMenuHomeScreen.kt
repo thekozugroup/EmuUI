@@ -1,7 +1,9 @@
 package com.swordfish.lemuroid.app.mobile.feature.gamemenu
 
 import android.content.Intent
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -12,12 +14,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.alorma.compose.settings.storage.memory.rememberMemoryBooleanSettingState
 import com.alorma.compose.settings.storage.memory.rememberMemoryIntSettingState
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.gamemenu.tilt.TiltConfigurationMenuEntry
 import com.swordfish.lemuroid.app.shared.GameMenuContract
+import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSegmentedGroup
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsList
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsMenuLink
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsSwitch
@@ -29,8 +33,10 @@ fun GameMenuHomeScreen(
     gameMenuRequest: GameMenuActivity.GameMenuRequest,
     onResult: KFunction1<Intent.() -> Unit, Unit>,
 ) {
-    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-        if (gameMenuRequest.coreConfig.statesSupported) {
+    val session = mutableListOf<@Composable () -> Unit>()
+    val play = mutableListOf<@Composable () -> Unit>()
+    if (gameMenuRequest.coreConfig.statesSupported) {
+        session += {
             LemuroidSettingsMenuLink(
                 title = { Text(text = stringResource(id = R.string.game_menu_save)) },
                 icon = {
@@ -41,7 +47,8 @@ fun GameMenuHomeScreen(
                 },
                 onClick = { navController.navigateToRoute(GameMenuRoute.SAVE) },
             )
-
+        }
+        session += {
             LemuroidSettingsMenuLink(
                 title = { Text(text = stringResource(id = R.string.game_menu_load)) },
                 icon = {
@@ -53,7 +60,8 @@ fun GameMenuHomeScreen(
                 onClick = { navController.navigateToRoute(GameMenuRoute.LOAD) },
             )
         }
-
+    }
+    session += {
         LemuroidSettingsMenuLink(
             title = { Text(text = stringResource(id = R.string.game_menu_quit)) },
             icon = {
@@ -66,7 +74,8 @@ fun GameMenuHomeScreen(
                 onResult { putExtra(GameMenuContract.RESULT_QUIT, true) }
             },
         )
-
+    }
+    session += {
         LemuroidSettingsMenuLink(
             title = { Text(text = stringResource(id = R.string.game_menu_restart)) },
             icon = {
@@ -79,7 +88,8 @@ fun GameMenuHomeScreen(
                 onResult { putExtra(GameMenuContract.RESULT_RESET, true) }
             },
         )
-
+    }
+    play += {
         LemuroidSettingsSwitch(
             title = { Text(text = stringResource(id = R.string.game_menu_mute_audio)) },
             icon = {
@@ -93,8 +103,9 @@ fun GameMenuHomeScreen(
                 onResult { putExtra(GameMenuContract.RESULT_ENABLE_AUDIO, !it) }
             },
         )
-
-        if (gameMenuRequest.fastForwardSupported) {
+    }
+    if (gameMenuRequest.fastForwardSupported) {
+        play += {
             LemuroidSettingsSwitch(
                 title = { Text(text = stringResource(id = R.string.game_menu_fast_forward)) },
                 icon = {
@@ -109,8 +120,9 @@ fun GameMenuHomeScreen(
                 },
             )
         }
-
-        if (gameMenuRequest.numDisks > 1) {
+    }
+    if (gameMenuRequest.numDisks > 1) {
+        play += {
             LemuroidSettingsList(
                 title = { Text(text = stringResource(id = R.string.game_menu_change_disk_button)) },
                 items = (1..gameMenuRequest.numDisks).map { stringResource(R.string.game_menu_change_disk_disk, it) },
@@ -127,7 +139,8 @@ fun GameMenuHomeScreen(
                 },
             )
         }
-
+    }
+    play += {
         LemuroidSettingsMenuLink(
             title = { Text(text = stringResource(id = R.string.game_menu_edit_touch_controls)) },
             icon = {
@@ -140,8 +153,9 @@ fun GameMenuHomeScreen(
                 onResult { putExtra(GameMenuContract.RESULT_EDIT_TOUCH_CONTROLS, true) }
             },
         )
-
-        if (gameMenuRequest.advancedCoreOptions.isNotEmpty() || gameMenuRequest.coreOptions.isNotEmpty()) {
+    }
+    if (gameMenuRequest.advancedCoreOptions.isNotEmpty() || gameMenuRequest.coreOptions.isNotEmpty()) {
+        play += {
             LemuroidSettingsMenuLink(
                 title = { Text(text = stringResource(id = R.string.game_menu_settings)) },
                 icon = {
@@ -153,8 +167,9 @@ fun GameMenuHomeScreen(
                 onClick = { navController.navigateToRoute(GameMenuRoute.OPTIONS) },
             )
         }
-
-        if (gameMenuRequest.allTiltConfigurations.isNotEmpty()) {
+    }
+    if (gameMenuRequest.allTiltConfigurations.isNotEmpty()) {
+        play += {
             val tiltConfigurationEntries =
                 gameMenuRequest.allTiltConfigurations
                     .map { TiltConfigurationMenuEntry.fromTiltConfiguration(it) }
@@ -184,5 +199,13 @@ fun GameMenuHomeScreen(
                 },
             )
         }
+    }
+    // Session actions first, then options for the game in play, as two segmented groups.
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState()).padding(bottom = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        LemuroidSegmentedGroup(session)
+        LemuroidSegmentedGroup(play)
     }
 }

@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContent
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AppShortcut
 import androidx.compose.material.icons.filled.Favorite
@@ -28,6 +29,7 @@ import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
@@ -38,12 +40,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.swordfish.lemuroid.R
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.DialogBlurBehind
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.FrostDefaults
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LemuroidGameTexts
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LemuroidSmallGameImage
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LocalBlurAvailable
 import com.swordfish.lemuroid.lib.library.db.entity.Game
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,7 +77,24 @@ fun MainGameContextActions(
         ModalBottomSheet(
             sheetState = modalSheetState,
             onDismissRequest = { selectedGameState.value = null },
+            // The window dims and blurs what is behind, so the sheet draws no scrim of its own.
+            scrimColor = Color.Transparent,
+            containerColor =
+                if (LocalBlurAvailable.current) {
+                    FrostDefaults.Tint.copy(
+                        alpha = 0.9f,
+                    )
+                } else {
+                    FrostDefaults.FallbackTint
+                },
+            shape =
+                MaterialTheme.shapes.extraLarge.copy(
+                    bottomStart = CornerSize(0.dp),
+                    bottomEnd = CornerSize(0.dp),
+                ),
+            tonalElevation = 0.dp,
         ) {
+            DialogBlurBehind()
             ContextActionContent(
                 selectedGame = selectedGame,
                 onGamePlay = onGamePlay,

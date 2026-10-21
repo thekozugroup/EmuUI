@@ -40,10 +40,148 @@ class FoldGeometryTest {
         )
     }
 
-    @Test fun portraitRequiresLandscapeEvenWithAHinge() {
+    @Test fun flatPortraitStillRequiresLandscape() {
+        assertEquals(FoldGuidance.ROTATE_LANDSCAPE, FoldGeometry.resolve(800, 1200, null).guidance)
         assertEquals(
             FoldGuidance.ROTATE_LANDSCAPE,
-            FoldGeometry.resolve(800, 1200, FoldBounds(0, 590, 800, 610, FoldAxis.HORIZONTAL)).guidance,
+            FoldGeometry.resolve(800, 1200, FoldBounds(390, 0, 410, 1200, FoldAxis.VERTICAL)).guidance,
+        )
+    }
+
+    @Test fun clamshellPortraitUsesItsHorizontalCrease() {
+        // Galaxy Z Flip-class inner display, half opened: 1080 x 2520 px with a crease at mid-height.
+        val layout = FoldGeometry.resolve(1080, 2520, FoldBounds(0, 1250, 1080, 1270, FoldAxis.HORIZONTAL), 10)
+        assertNull(layout.guidance)
+        assertTrue(layout.physicalHinge)
+        assertEquals(FoldRect(0, 0, 1080, 1240), layout.upper)
+        assertEquals(FoldRect(0, 1280, 1080, 2520), layout.lower)
+    }
+
+    @Test fun clamshellLandscapeIsTurnedToPortrait() {
+        assertEquals(
+            CreaseOrientation.PORTRAIT,
+            FoldGeometry.creaseOrientation(
+                landscape = true,
+                crease = FoldAxis.VERTICAL,
+                portraitRequested = false,
+                orientationHonoured = true,
+            ),
+        )
+    }
+
+    @Test fun horizontalCreaseKeepsWhateverOrientationProducedIt() {
+        for (landscape in listOf(true, false)) {
+            for (requested in listOf(true, false)) {
+                assertEquals(
+                    CreaseOrientation.KEEP,
+                    FoldGeometry.creaseOrientation(
+                        landscape,
+                        FoldAxis.HORIZONTAL,
+                        requested,
+                        orientationHonoured = true,
+                    ),
+                )
+            }
+        }
+    }
+
+    @Test fun portraitIsReleasedOnlyWhenTheCreaseDisappears() {
+        assertEquals(
+            CreaseOrientation.LANDSCAPE,
+            FoldGeometry.creaseOrientation(
+                landscape = false,
+                crease = null,
+                portraitRequested = true,
+                orientationHonoured = true,
+            ),
+        )
+        assertEquals(
+            CreaseOrientation.KEEP,
+            FoldGeometry.creaseOrientation(
+                landscape = false,
+                crease = null,
+                portraitRequested = false,
+                orientationHonoured = true,
+            ),
+        )
+        // A stale vertical report after turning to portrait must not flip the window back.
+        assertEquals(
+            CreaseOrientation.KEEP,
+            FoldGeometry.creaseOrientation(
+                landscape = false,
+                crease = FoldAxis.VERTICAL,
+                portraitRequested = true,
+                orientationHonoured = true,
+            ),
+        )
+    }
+
+    @Test fun largeOrLetterboxedScreensNeverRequestPortrait() {
+        // A book-style inner display held like a book: landscape letterbox, vertical crease.
+        assertEquals(
+            CreaseOrientation.KEEP,
+            FoldGeometry.creaseOrientation(
+                landscape = true,
+                crease = FoldAxis.VERTICAL,
+                portraitRequested = false,
+                orientationHonoured = false,
+            ),
+        )
+        // A portrait request left over from a small screen is handed back.
+        for (crease in listOf(FoldAxis.VERTICAL, FoldAxis.HORIZONTAL, null)) {
+            assertEquals(
+                CreaseOrientation.LANDSCAPE,
+                FoldGeometry.creaseOrientation(
+                    landscape = false,
+                    crease = crease,
+                    portraitRequested = true,
+                    orientationHonoured = false,
+                ),
+            )
+        }
+    }
+
+    @Test fun portraitClamshellDualScreensUseFullWidthAboveAControlStrip() {
+        val layout = FoldGeometry.resolve(1080, 2520, FoldBounds(0, 1250, 1080, 1270, FoldAxis.HORIZONTAL), 20)
+        val strip = 600
+        val screens = FoldGeometry.dualScreen(layout, 0, bottomControlsHeight = strip)!!
+        assertTrue(screens.upperScreen.bottom <= layout.upper.bottom + 0.01f)
+        assertTrue(screens.lowerScreen.top >= layout.lower.top - 0.01f)
+        assertTrue("controls strip stays free", screens.lowerScreen.bottom <= 2520 - strip + 0.01f)
+        assertTrue("wider than the old one-third columns", screens.lowerScreen.width > 1080 / 3f)
+        assertEquals(4f / 3f, screens.lowerScreen.width / screens.lowerScreen.height, 0.001f)
+    }
+
+    @Test fun orientationSequenceForAClamshellSettles() {
+        // Unfold in landscape, rotate, report the new crease, then close the device.
+        var landscape = true
+        var requested = false
+        val reports = listOf(FoldAxis.VERTICAL, FoldAxis.VERTICAL, FoldAxis.HORIZONTAL, FoldAxis.HORIZONTAL, null)
+        val decisions =
+            reports.map { crease ->
+                FoldGeometry.creaseOrientation(landscape, crease, requested, orientationHonoured = true).also {
+                    when (it) {
+                        CreaseOrientation.PORTRAIT -> {
+                            requested = true
+                            landscape = false
+                        }
+                        CreaseOrientation.LANDSCAPE -> {
+                            requested = false
+                            landscape = true
+                        }
+                        CreaseOrientation.KEEP -> Unit
+                    }
+                }
+            }
+        assertEquals(
+            listOf(
+                CreaseOrientation.PORTRAIT,
+                CreaseOrientation.KEEP,
+                CreaseOrientation.KEEP,
+                CreaseOrientation.KEEP,
+                CreaseOrientation.LANDSCAPE,
+            ),
+            decisions,
         )
     }
 

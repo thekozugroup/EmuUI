@@ -33,3 +33,6 @@ local.properties
 
 # Local verification products
 .qa-output/
+
+# Staged by store/tools/stage-fastlane.sh at upload time; sources live in store/play.
+fastlane/metadata/android/*/images/*Screenshots/

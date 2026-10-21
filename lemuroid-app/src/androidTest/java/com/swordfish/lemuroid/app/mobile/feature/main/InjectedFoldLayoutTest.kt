@@ -1,9 +1,9 @@
 package com.swordfish.lemuroid.app.mobile.feature.main
 
-import androidx.compose.ui.test.assertIsDisplayed
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasContentDescription
-import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -75,33 +75,50 @@ class InjectedFoldLayoutTest {
     }
 
     @Test
-    fun verticalHingeShowsGuidanceAndUnfoldRestoresSelection() {
+    fun clamshellCreaseTurnsToPortraitAndUnfoldRestoresSelection() {
         waitForLibrary()
         compose.onNodeWithText("Favorites").performClick()
-        windowInfo.overrideWindowLayoutInfo(
-            TestWindowLayoutInfo(
-                listOf(
-                    TestFoldingFeature(
-                        activity = compose.activity,
-                        size = 24,
-                        state = FoldingFeature.State.HALF_OPENED,
-                        orientation = FoldingFeature.Orientation.VERTICAL,
-                    ),
-                ),
-            ),
-        )
+        val landscapeActivity = compose.activity
+        // A clamshell in a landscape window reports a vertical crease: ask for portrait.
+        windowInfo.overrideWindowLayoutInfo(crease(landscapeActivity, FoldingFeature.Orientation.VERTICAL))
+        // The rotation relaunches MainActivity. Wait for the new portrait instance before
+        // publishing, because the test publisher does not replay to late collectors.
         compose.waitUntil(TIMEOUT) {
-            runCatching {
-                compose.onAllNodes(hasText("Turn to your happy place")).fetchSemanticsNodes().isNotEmpty()
-            }.getOrDefault(false)
+            val activity = compose.activity
+            activity !== landscapeActivity &&
+                activity.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
         }
-        compose.onNodeWithText(
-            "Rotate your device so the crease runs left to right. Preview goes above; your library goes below.",
-        ).assertIsDisplayed()
-        windowInfo.overrideWindowLayoutInfo(TestWindowLayoutInfo())
+        compose.waitForIdle()
+        val portraitActivity = compose.activity
+        windowInfo.overrideWindowLayoutInfo(crease(portraitActivity, FoldingFeature.Orientation.HORIZONTAL))
         waitForLibrary()
         compose.onNodeWithText("Favorites").assertIsSelected()
+        val bounds = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(portraitActivity).bounds
+        assertTrue("Portrait window expected", bounds.height() > bounds.width())
+        val preview = compose.onNodeWithContentDescription("EmuUI home").fetchSemanticsNode().boundsInWindow
+        val library = compose.onNodeWithText("Favorites").fetchSemanticsNode().boundsInWindow
+        assertTrue("Preview stays above the crease", preview.bottom <= bounds.height() / 2f)
+        assertTrue("Library stays below the crease", library.top >= bounds.height() / 2f)
+        // Closing the device removes the crease and hands back the landscape default.
+        windowInfo.overrideWindowLayoutInfo(TestWindowLayoutInfo())
+        compose.waitUntil(TIMEOUT) {
+            compose.activity.requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+        }
     }
+
+    private fun crease(
+        activity: MainActivity,
+        orientation: FoldingFeature.Orientation,
+    ) = TestWindowLayoutInfo(
+        listOf(
+            TestFoldingFeature(
+                activity = activity,
+                size = 24,
+                state = FoldingFeature.State.HALF_OPENED,
+                orientation = orientation,
+            ),
+        ),
+    )
 
     private fun waitForLibrary() {
         compose.waitUntil(TIMEOUT) {
