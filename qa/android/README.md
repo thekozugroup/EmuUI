@@ -7,7 +7,7 @@ These tests are device tests, not static proofs. Their presence does not mean th
 Default instrumentation suite contains **6 tests**:
 
 - `MainActivitySmokeTest` (4): launch, filter preservation across actual `ActivityScenario.recreate()`, real folder-picker cancel twice preserving URI/read grants, forced portrait guidance and landscape recovery preserving filter
-- `InjectedFoldLayoutTest` (2): off-center horizontal hinge with half-open/flat transitions, vertical hinge guidance and unfolded recovery
+- `InjectedFoldLayoutTest` (2): off-center horizontal hinge with half-open/flat transitions; a clamshell crease, where a vertical crease in a landscape window requests portrait, the later horizontal crease keeps the preview above and the library below with the filter preserved, and removing the crease hands back landscape. Rotate-the-hinge guidance is now covered only by the `FoldGeometry` unit tests. The clamshell test was rewritten for 0.2.0 and has not yet been run on a device
 
 WindowManager events are injected with `window-testing`; this is **simulated fold geometry**, not validation of an OEM fold sensor or physical hinge. Tests use English accessibility labels and a disposable landscape emulator.
 

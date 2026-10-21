@@ -9,6 +9,7 @@ plugins {
 }
 
 val gameProcessTests = providers.gradleProperty("emuuiGameTests").map(String::toBoolean).getOrElse(false)
+val renderStoreScreenshots = providers.gradleProperty("emuuiScreenshots").isPresent
 
 android {
     defaultConfig {
@@ -119,20 +120,28 @@ android {
     }
 
     testOptions {
-        // Robolectric renders the real Compose UI for store screenshots; see StoreScreenshots.
-        unitTests.isIncludeAndroidResources = true
+        // Robolectric needs merged resources only when it renders the store screenshots.
+        unitTests.isIncludeAndroidResources = renderStoreScreenshots
     }
     namespace = "com.swordfish.lemuroid"
 }
 
 // Store screenshots are opt-in: ./gradlew :lemuroid-app:testFreeDynamicDebugUnitTest -PemuuiScreenshots
+// Without the flag the class is excluded outright, so ordinary runs never start Robolectric or
+// download its Android runtime.
 tasks.withType<Test>().configureEach {
-    systemProperty("emuui.screenshots", providers.gradleProperty("emuuiScreenshots").isPresent.toString())
-    systemProperty("emuui.screenshotDir", rootProject.layout.projectDirectory.dir("store/renders").asFile.path)
-    systemProperty("robolectric.pixelCopyRenderMode", "hardware")
-    // Lets a build pass Robolectric options through, e.g. -Drobolectric.dependency.repo.url=<mirror>.
-    System.getProperties().stringPropertyNames().filter { it.startsWith("robolectric.") }.forEach {
-        systemProperty(it, System.getProperty(it))
+    if (renderStoreScreenshots) {
+        systemProperty("emuui.screenshots", "true")
+        systemProperty("emuui.screenshotDir", rootProject.layout.projectDirectory.dir("store/renders").asFile.path)
+        // Passes Robolectric options through, e.g. -Drobolectric.dependency.repo.url=<mirror>.
+        for ((key, value) in providers.systemPropertiesPrefixedBy("robolectric.").get()) {
+            systemProperty(key, value)
+        }
+        // The PNGs land outside the build directory, so never reuse an earlier result.
+        outputs.upToDateWhen { false }
+        outputs.cacheIf { false }
+    } else {
+        filter { excludeTestsMatching("*.StoreScreenshots") }
     }
 }
 
