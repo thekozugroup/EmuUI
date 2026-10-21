@@ -5,9 +5,9 @@
 Updated 21 October 2026. This candidate adds the Material 3 Expressive redesign, Android 17-style blur, soft shadows and clamshell-foldable orientation handling. It has **not** been run on an Android device or emulator: the development container had no hardware virtualisation. Nothing below is device evidence, and none of the 0.1.1 or 0.1.0 results carry over automatically.
 
 - Candidate version: `0.2.0-DEBUG`, version code 3, package `com.thekozugroup.emuui.debug`
-- PASS: `assembleFreeDynamicDebug`, `compileFreeDynamicDebugAndroidTestKotlin` and `lintFreeDynamicDebug` with 0 errors
-- PASS: all JVM unit tests with 0 failures. New geometry tests cover a clamshell's portrait crease, the crease-orientation decision and a full unfold, rotate and close sequence that settles without oscillating
-- PASS: Kotlin style check
+- PASS: `assembleFreeDynamicDebug`, `compileFreeDynamicDebugAndroidTestKotlin` and `lintFreeDynamicDebug` with 0 errors and 36 warnings. Locally built debug APK SHA256: `6e9c58af57452f0210930751c8c829fb471149ef427118912c34b7002bf3b3c0` (not device-tested)
+- PASS: 95 JVM unit tests with 0 failures; the opt-in store-screenshot test is skipped by default. New geometry tests cover a clamshell's portrait crease, large or letterboxed screens never requesting portrait, full-width two-screen layouts above a control strip, and an unfold, rotate and close sequence that settles without oscillating
+- PASS: Kotlin style check, `qa/check_publication.py` and the repository's Python QA tests
 - RENDERED, not device-verified: Robolectric native-graphics renders of the real home, welcome, game-control and pause-menu composables at Pixel 11 Pro Fold (2152 x 2076 px, 390 dpi assumed), book-style fold, clamshell, 16:9 tablet and 16:9 phone sizes with an injected horizontal hinge. They confirm the layouts, backdrop blur and shadows draw as designed under host rendering; they are not a substitute for GPU, timing or touch checks. The pause-menu render simulates the window manager's blur with an in-window blur
 - NOT RUN: `InjectedFoldLayoutTest` was rewritten for the new behaviour (a vertical crease in a landscape window now requests portrait, and closing hands back landscape). It compiles but has not been executed
 - NOT RUN: any physical foldable, including the Pixel 11 Pro Fold and a flip-style device; window blur with Battery Saver or "Reduce blur effects"; Android 31 and older fallbacks; TalkBack and large-font passes on the new layouts
